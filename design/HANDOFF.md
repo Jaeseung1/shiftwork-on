@@ -14,10 +14,12 @@
   - 제어 센터 안: 맨 윗줄에 교대온 중간 크기 컨트롤 2개(해 "오늘 근무/일근", 달 "내일 근무/야근"). HIG의 "symbol image, a title, and, optionally, a value" 구조를 따름. 심볼만 근무 색 틴트.
   - 이전의 한 타일 반반(오늘|내일) 구성과 여러 줄 시간 표시 타일은 뺐음. 출퇴근 시각(기기 시간대 환산)은 위젯·앱에서 보여 주기로 함.
 - examples/shiftwork-cc: 위 이미지의 Stageshow 예시(index.tsx, cc.css, REHEARSAL.md). 게이트 1280·390 정지 rehearsal passed.
+- examples/shiftwork-cc-one: 비교용 한 개짜리 안(제목 "오늘 일근", 값 "내일 야근", 심볼은 해 하나). cc.html의 "두 개/한 개" 전환으로 비교. 제목·값을 이렇게 써도 되는지(HIG: 제목은 무엇에 관한 컨트롤, 값은 상태)는 미확인. 어느 안으로 갈지 미정.
 - images/: 위 결과 이미지.
 - images/export/ (2026-11-12 추가, 후보 1 완료): pages/의 목업을 PNG로 내보냄. 2배율.
   - widget-4x1-light.png, widget-4x1-dark.png: 위젯만, 모서리 투명(RGBA), 그림자 제외.
   - widget-4x1-light-wall.png, widget-4x1-dark-wall.png: 홈 화면 배경 포함.
+  - cc-one-*.png: 한 개짜리 안, 같은 크기·테마 구성.
   - cc-wide-light.png, cc-wide-dark.png (720×480), cc-compact-light.png, cc-compact-dark.png (358×460): 제어 센터. Stageshow 스테이지(.swcc .ss-stage)만 잘라 찍음.
   - 다시 만들기: 레포 루트에서 `node design/scripts/export-mockups.js` (컨테이너에 사전 설치된 Playwright 사용).
   - 한계: 이 컨테이너에는 Noto Sans KR이 없어 한글이 WenQuanYi Zen Hei로 렌더링됨(fc-list로 확인). 실제 기기 글꼴과 모양이 다름. 글꼴 설치는 다운로드라 하지 않음.

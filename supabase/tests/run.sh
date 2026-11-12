@@ -6,3 +6,4 @@ db=shiftwork_rls_test
 psql -q -d postgres -c "drop database if exists $db" -c "create database $db"
 psql -q -d $db -v ON_ERROR_STOP=1 -f supabase/tests/stub_supabase.sql $(for f in supabase/migrations/*.sql; do printf -- "-f %s " "$f"; done)
 psql -q -d $db -f supabase/tests/rls_test.sql
+psql -q -d $db -f supabase/tests/share_summary_test.sql

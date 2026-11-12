@@ -1,7 +1,7 @@
 // 교대온 서버 연결(Supabase)과 안드로이드 위젯 전달.
 // - config.js가 비어 있으면 서버 없이 지금처럼 이 기기에만 저장한다.
 // - 근무표 주인은 메일 코드로 로그인해 근무표를 서버에 저장한다.
-// - 가족은 메일 없이 초대 코드만 넣는다(익명 로그인 후 참여, 읽기만). Supabase 기본 메일은 팀원 주소로만 가기 때문.
+// - 공유받는 사람은 메일 없이 초대 코드만 넣는다(익명 로그인 후 참여, 읽기만). Supabase 기본 메일은 팀원 주소로만 가기 때문.
 // - 안드로이드 앱(WebView) 안이면 근무표와 위젯 토큰을 ShiftBridge로 넘겨 홈 화면 위젯이 쓰게 한다.
 const cfg = window.SHIFTWORK_CONFIG || {}
 const app = window.shiftApp
@@ -72,7 +72,7 @@ function refresh() {
   if (st.user && st.client) load()
 }
 
-// 서버에서 근무표를 고른다: 가족으로 참여한 근무표가 있으면 그것(읽기 전용), 없으면 내 근무표(없으면 지금 기기 데이터로 만든다)
+// 서버에서 근무표를 고른다: 초대 코드로 참여한 근무표가 있으면 그것(읽기 전용), 없으면 내 근무표(없으면 지금 기기 데이터로 만든다)
 function load() {
   if (st.loading) return st.loading
   st.loading = (async () => {
@@ -91,7 +91,7 @@ function load() {
       }
     }
     if (!sched && st.user.is_anonymous) {
-      // 코드로 들어온 가족인데 참여한 근무표가 없으면(나갔거나 근무표가 지워짐) 기기 근무표를 그대로 둔다
+      // 코드로 들어온 사람인데 참여한 근무표가 없으면(나갔거나 근무표가 지워짐) 기기 근무표를 그대로 둔다
       st.schedule = null
       st.role = null
       setReadOnly(false)
@@ -243,16 +243,16 @@ function bindUI() {
     if (!CODE_RE.test(code)) return app.toast('코드 6자리를 확인해 주세요')
     if (!st.client) return app.toast('서버가 아직 설정되지 않았어요')
     if (!st.user) {
-      // 가족은 메일 없이 익명으로 들어온다
+      // 공유받는 사람은 메일 없이 익명으로 들어온다
       const { data, error } = await st.client.auth.signInAnonymously()
-      if (error) return fail(error, /anonymous/i.test(error.message || '') ? '가족 참여 기능이 서버에서 아직 꺼져 있어요(Supabase 익명 로그인)' : '참여하지 못했어요. 잠시 뒤 다시 해 주세요')
+      if (error) return fail(error, /anonymous/i.test(error.message || '') ? '공유 참여 기능이 서버에서 아직 꺼져 있어요(Supabase 익명 로그인)' : '참여하지 못했어요. 잠시 뒤 다시 해 주세요')
       st.user = data.user
     }
     const { error } = await st.client.rpc('join_with_code', { p_code: code })
     if (error) return fail(error, '코드가 맞지 않거나 기간이 지났어요')
     $('#joinCode').value = ''
     await load()
-    app.toast('가족 근무표를 불러왔어요')
+    app.toast('공유받은 근무표를 불러왔어요')
     app.setScreen('home')
   }
   $('#leaveBtn').onclick = async () => {
@@ -261,7 +261,7 @@ function bindUI() {
     if (error) return fail(error, '나가지 못했어요')
     st.schedule = null
     await load()
-    app.toast('가족 근무표에서 나왔어요')
+    app.toast('공유받은 근무표에서 나왔어요')
   }
   // 서버에 연결된 주인은 진짜 초대 코드를 쓴다(아니면 앱의 시연용 코드)
   const demoNew = $('#newInvite').onclick
@@ -272,7 +272,7 @@ function bindUI() {
     if (!st.inviteReady) await createInvite()
     if (!st.inviteReady) return
     navigator.clipboard?.writeText(app.data.invite).catch(() => {})
-    $('#modalText').textContent = `초대 코드 ${app.data.invite}를 가족에게 보내고, 가족은 앱의 가족 탭에서 코드를 입력하면 돼요.`
+    $('#modalText').textContent = `초대 코드 ${app.data.invite}를 보내고, 받은 사람은 앱의 공유 탭에서 코드를 입력하면 돼요.`
     $('#modal').classList.add('open')
   }
 }
@@ -288,7 +288,7 @@ async function createInvite() {
   app.cache()
   st.inviteReady = true
   $('#inviteCode').textContent = data
-  $('#inviteInfo').textContent = '7일 동안 쓸 수 있는 코드예요. 가족은 가족 탭에서 이 코드를 넣으면 돼요.'
+  $('#inviteInfo').textContent = '7일 동안 쓸 수 있는 코드예요. 받은 사람은 공유 탭에서 이 코드를 넣으면 돼요.'
   app.toast('초대 코드를 만들었어요')
 }
 
@@ -303,21 +303,21 @@ function renderAccount() {
     return
   }
   if (!st.user) {
-    state.textContent = '로그인하면 근무표가 저장되고 가족과 공유돼요.'
+    state.textContent = '로그인하면 근무표가 저장되고 다른 사람과 공유할 수 있어요.'
     login.hidden = false
     out.hidden = true
     return
   }
   if (st.user.is_anonymous) {
-    state.textContent = st.role === 'viewer' ? '초대 코드로 가족 근무표를 보는 중이에요(읽기 전용)' : '초대 코드를 가족 탭에서 넣어 주세요'
+    state.textContent = st.role === 'viewer' ? '초대 코드로 공유받은 근무표를 보는 중이에요(읽기 전용)' : '초대 코드를 공유 탭에서 넣어 주세요'
     login.hidden = true
     out.hidden = false
-    out.textContent = '가족 근무표 연결 끊기'
+    out.textContent = '공유받은 근무표 연결 끊기'
     return
   }
   out.textContent = '로그아웃'
   const who = st.user.email || '이 계정'
-  state.textContent = st.role === 'viewer' ? `${who} · 가족 근무표를 보는 중이에요(읽기 전용)` : `${who} · 내 근무표가 서버에 저장돼요`
+  state.textContent = st.role === 'viewer' ? `${who} · 공유받은 근무표를 보는 중이에요(읽기 전용)` : `${who} · 내 근무표가 서버에 저장돼요`
   login.hidden = true
   out.hidden = false
 }
@@ -334,7 +334,7 @@ async function renderFamily() {
   if (count) {
     const row = document.createElement('div')
     row.className = 'member member-extra'
-    row.innerHTML = `<div class="avatar">가</div><div class="member-main"><strong>가족 ${count}명</strong><span>근무표를 보고 있어요</span></div><span class="role">보기</span>`
+    row.innerHTML = `<div class="avatar">공</div><div class="member-main"><strong>공유받는 사람 ${count}명</strong><span>근무표를 보고 있어요</span></div><span class="role">보기</span>`
     list.append(row)
   }
 }

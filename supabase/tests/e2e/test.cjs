@@ -57,7 +57,7 @@ async function login(p, email) {
   check('가족은 자기 근무표를 만들지 않음', sql("select count(*) from schedules") === '1', sql("select count(*) from schedules"))
   check('B 참여 후 홈으로', (await B.evaluate(() => document.querySelector('.screen.active').id)) === 'screen-home')
   check('B 읽기 전용 표시', await B.evaluate(() => document.documentElement.hasAttribute('data-readonly')))
-  check('B 계정 문구(코드로 참여)', (await txt(B, '#acctState')).includes('초대 코드로 가족 근무표'), await txt(B, '#acctState'))
+  check('B 계정 문구(코드로 참여)', (await txt(B, '#acctState')).includes('초대 코드로 공유받은 근무표'), await txt(B, '#acctState'))
   await B.click('.nav button[data-screen="calendar"]')
   check('B에게 A의 15일 야근 보임', (await txt(B, '.calday[data-date="2026-11-15"] .tag')) === '야근', await txt(B, '.calday[data-date="2026-11-15"] .tag'))
   await B.click('.calday[data-date="2026-11-16"]'); await wait(200)
@@ -72,7 +72,7 @@ async function login(p, email) {
   check('위젯 브리지에 근무표 전달', JSON.parse(sched).overrides.some((o) => o.day === '2026-11-15' && o.shift === '야'), sched)
   // 5. A 가족 목록
   await A.reload(); await wait(800); await A.click('.nav button[data-screen="family"]'); await wait(400)
-  check('A 가족 1명 표시', (await txt(A, '.member-extra')) ?.includes('가족 1명'), await txt(A, '.member-extra'))
+  check('A 공유받는 사람 1명 표시', (await txt(A, '.member-extra')) ?.includes('공유받는 사람 1명'), await txt(A, '.member-extra'))
   // 6. A가 15일 초기화 → B 새로고침
   await A.click('.nav button[data-screen="calendar"]'); await A.click('.calday[data-date="2026-11-15"]'); await A.click('#resetShift'); await wait(900)
   check('A 초기화 서버 삭제', sql("select count(*) from overrides") === '0')

@@ -62,7 +62,7 @@
 
 ## 다음 세션에서 이어 할 일 (2026-11-12 기준)
 - 안드로이드: 이 세션 컨테이너에서 빌드 성공(android/README.md). 새 세션은 컨테이너가 새로 만들어져 Android SDK가 없으므로, 환경 `shiftwork-on`(dl.google.com, gcp.mirrors.maven.org 허용)을 고르고 SDK를 다시 받아야 함(cmdline-tools 11076708 → platforms;android-34, build-tools;34.0.0).
-- Supabase(2026-11-12 진행): 프로젝트 shiftwork-on(rsmuvlythhcgrfnunnrn, 서울) 생성, 마이그레이션 2개 적용, 실제 DB 권한 시험 통과, config.js에 Publishable key. 가족은 익명 로그인 + 초대 코드(기본 메일은 팀원 주소로만 가서). 남은 것: 사용자가 대시보드에서 익명 로그인 켜기, Magic Link 양식에 {{ .Token }}, 실제 메일 로그인 시험(사용자 허락 시 Gmail 커넥터로 코드 확인).
+- Supabase(2026-11-12 진행): 프로젝트 shiftwork-on(rsmuvlythhcgrfnunnrn, 서울) 생성, 마이그레이션 2개 적용, 실제 DB 권한 시험 통과, config.js에 Publishable key. 가족은 익명 로그인 + 초대 코드(기본 메일은 팀원 주소로만 가서). 주인 로그인은 이메일+비밀번호(무료 요금제는 SMTP 없이 메일 양식 수정 불가라 메일 코드 방식 포기). 남은 것: 사용자가 대시보드에서 익명 로그인 켜기, 실제 가입·로그인 시험(가입 확인 메일 한 번 클릭).
 - Vercel: 커넥터 연결 또는 vercel.com/new에서 레포 Import(브랜치 claude/design-handoff, Framework Other). 배포 주소를 Supabase URL Configuration에 넣기.
 - 실기기: 사용자가 APK(./gradlew assembleDebug) 설치 후 위젯 확인. 위젯 칸 크기는 어림값이라 실제 화면을 보고 조정.
 

@@ -19,12 +19,12 @@
 새로 만들 때:
 1. 프로젝트를 만들고 `migrations/`의 SQL을 이름 순서대로 실행한다(SQL Editor 또는 `supabase db push`).
 2. **Authentication → Sign In / Providers**에서 **Allow anonymous sign-ins**를 켠다. 가족은 메일 없이 초대 코드만으로 들어온다(익명 로그인 후 `join_with_code`). Supabase 기본 메일은 조직 팀원 주소로만 보내기 때문이다("Other addresses fail with the error code `email_address_not_authorized`", Supabase 문서 Test auth flows).
-3. **Authentication → Email Templates**의 **Magic Link**(처음 로그인하는 주소라면 **Confirm sign up**도)에 `{{ .Token }}`을 넣는다. 예: `<p>교대온 로그인 코드: {{ .Token }}</p>`. 앱은 메일의 숫자 코드를 직접 넣는다(WebView·홈 화면 웹 앱에서는 메일 링크가 다른 브라우저로 열리기 때문).
+3. 근무표 주인은 **이메일 + 비밀번호**로 로그인한다. 처음 "가입하기"를 누르면 기본 메일로 가입 확인 링크가 오고, 그 링크를 어느 브라우저에서든 한 번 누르면 된다. (무료 요금제는 SMTP를 연결해야 메일 양식을 고칠 수 있어 메일 코드 방식은 쓰지 않는다. 2026-11-12 대시보드 화면: "Set up custom SMTP to edit templates".)
 4. **Authentication → URL Configuration**의 Site URL에 웹 앱 주소(Vercel)를 넣는다.
 5. **Settings → API Keys**의 Project URL과 Publishable key(`sb_publishable_…`)를 `config.js`에 넣는다. Secret key는 절대 넣지 않는다. 옛 anon JWT 키는 "work until the end of 2026"(Supabase 문서)이라 쓰지 않는다. 새 키는 `Authorization: Bearer`가 아니라 `apikey` 헤더로 보낸다(안드로이드 위젯이 그렇게 함).
 
 ## 알아 둘 점
-- 근무표 주인의 메일 로그인은 Supabase 조직 팀원 주소여야 기본 메일로 코드가 온다. 다른 주소로 로그인하려면 별도 SMTP가 필요하다(Supabase 문서 "Send emails with custom SMTP").
+- 근무표 주인의 가입 확인 메일은 Supabase 조직 팀원 주소여야 기본 메일로 온다. 다른 주소로 로그인하려면 별도 SMTP가 필요하다(Supabase 문서 "Send emails with custom SMTP").
 - 기본 메일은 시간당 보낼 수 있는 수가 적다(값은 문서에 변수로만 나와 확인 못 함).
 - 익명 로그인은 공개 키만 있으면 누구나 계정을 만들 수 있다. 근무표·초대 코드는 RLS로 지켜지지만, 남용이 보이면 CAPTCHA를 켠다.
 - Supabase 보안 점검(2026-11-12): 남은 경고 4건은 앱이 일부러 부르는 함수(`create_invite`, `join_with_code`, `widget_schedule`)다. 권한 규칙 도우미는 `private` 스키마로 옮겨 API에 드러나지 않는다.
@@ -45,4 +45,4 @@ PGHOST=<소켓 폴더> PGPORT=<포트> PGUSER=postgres bash supabase/tests/run.s
 PGHOST=<소켓 폴더> PGPORT=<포트> bash supabase/tests/e2e/run.sh
 ```
 
-2026-11-12에 25개 모두 통과(가짜 모듈은 코드 123456을 맞는 코드로 처리). 별도로 진짜 supabase-js 2.118.0 + 실제 프로젝트로 브라우저에서 접속해 모듈 로드와 서버 응답을 확인했다. 실제 메일 발송은 아직.
+2026-11-12에 27개 모두 통과(가짜 모듈은 비밀번호 'pw1234', 가입 확인은 시험 쪽에서 처리). 별도로 진짜 supabase-js 2.118.0 + 실제 프로젝트로 브라우저에서 접속해 모듈 로드와 서버 응답을 확인했다. 실제 메일 발송은 아직.

@@ -193,28 +193,40 @@ function fail(error, message) {
 // ---- 화면 ----
 
 function bindUI() {
-  $('#acctSend').onclick = async () => {
+  // 근무표 주인은 이메일 + 비밀번호. (Supabase 무료 요금제는 SMTP 없이 메일 양식을 못 고쳐 메일 코드를 쓸 수 없고,
+  // 메일 링크는 앱·홈 화면 웹 앱 밖의 브라우저로 열리기 때문.) 가입 확인 링크는 처음 한 번만 어느 브라우저에서든 누르면 된다.
+  const creds = () => {
     const email = $('#acctEmail').value.trim()
+    const password = $('#acctPass').value
     if (!st.client) return app.toast('서버가 아직 설정되지 않았어요')
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return app.toast('이메일 주소를 확인해 주세요')
-    const { error } = await st.client.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href.split('#')[0] } })
-    if (error) return fail(error, '로그인 메일을 보내지 못했어요')
-    st.pendingEmail = email
-    $('#acctCodeRow').hidden = false
-    $('#acctState').textContent = `${email}로 메일을 보냈어요. 메일의 코드를 아래에 넣거나, 이 기기에서 메일의 링크를 열어 주세요.`
-    app.toast('로그인 메일을 보냈어요')
-    $('#acctCode').focus()
+    if (password.length < 6) return app.toast('비밀번호는 6자 이상이에요')
+    return { email, password }
   }
-  // 앱(WebView)이나 홈 화면 웹 앱에서는 메일 링크가 다른 브라우저로 열리므로, 메일의 코드를 직접 넣는 길을 둔다
-  $('#acctVerify').onclick = async () => {
-    const token = $('#acctCode').value.trim()
-    if (!st.client || !st.pendingEmail) return
-    if (!/^\d{6,8}$/.test(token)) return app.toast('메일의 숫자 코드를 확인해 주세요')
-    const { error } = await st.client.auth.verifyOtp({ email: st.pendingEmail, token, type: 'email' })
-    if (error) return fail(error, '코드가 맞지 않거나 시간이 지났어요')
-    $('#acctCode').value = ''
-    $('#acctCodeRow').hidden = true
+  $('#acctSend').onclick = async () => {
+    const c = creds()
+    if (!c) return
+    const { error } = await st.client.auth.signInWithPassword(c)
+    if (error) {
+      if (/not confirmed/i.test(error.message || '')) return fail(error, '메일의 가입 확인 링크를 먼저 한 번 눌러 주세요')
+      return fail(error, '이메일이나 비밀번호가 맞지 않아요')
+    }
+    $('#acctPass').value = ''
     app.toast('로그인했어요')
+  }
+  $('#acctSignup').onclick = async () => {
+    const c = creds()
+    if (!c) return
+    const { data, error } = await st.client.auth.signUp({ ...c, options: { emailRedirectTo: location.origin + location.pathname } })
+    if (error) return fail(error, /not authorized/i.test(error.message || '') ? '이 주소로는 가입 메일을 보낼 수 없어요(Supabase 팀원 주소만 가능)' : '가입하지 못했어요')
+    if (data.session) {
+      $('#acctPass').value = ''
+      return app.toast('가입하고 로그인했어요')
+    }
+    // 확인 메일이 켜져 있으면 세션 없이 돌아온다. 이미 있는 주소면 identities가 비어 있다
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) return app.toast('이미 가입된 주소예요. 로그인을 눌러 주세요')
+    $('#acctState').textContent = `${c.email}로 가입 확인 메일을 보냈어요. 메일의 링크를 한 번 누른 뒤 여기서 로그인해 주세요.`
+    app.toast('가입 확인 메일을 보냈어요')
   }
   $('#acctOut').onclick = async () => {
     if (!st.client) return

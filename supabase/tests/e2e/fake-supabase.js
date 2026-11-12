@@ -35,15 +35,23 @@ export function createClient() {
     auth: {
       getSession: async () => ({ data: { session: session() } }),
       onAuthStateChange: (cb) => { listeners.push(cb); setTimeout(() => cb('INITIAL_SESSION', session()), 0); return { data: { subscription: { unsubscribe() {} } } } },
-      // 시험: 메일은 보내지 않고, 코드 123456을 넣으면 로그인
-      signInWithOtp: async ({ email }) => { pending = email; return { error: null } },
-      verifyOtp: async ({ email, token }) => {
-        if (token !== '123456' || email !== pending) return { error: { message: 'invalid otp' } }
+      // 시험: 가입하면 확인 메일 대기(confirmed=false). 시험 쪽에서 __confirm으로 확인 처리. 비밀번호는 'pw1234'만 맞음
+      signUp: async ({ email, password }) => {
+        const users = JSON.parse(localStorage.getItem('fake-users') || '{}')
+        if (users[email]) return { data: { user: { id: users[email].id, identities: [] }, session: null }, error: null }
         const uid = { 'a@test.kr': 'aaaaaaaa-0000-0000-0000-00000000000a', 'b@test.kr': 'bbbbbbbb-0000-0000-0000-00000000000b' }[email]
-        await post('/__login', { uid })
-        localStorage.setItem(KEY, JSON.stringify({ user: { id: uid, email } }))
+        users[email] = { id: uid, password, confirmed: false }
+        localStorage.setItem('fake-users', JSON.stringify(users))
+        return { data: { user: { id: uid, identities: [{}] }, session: null }, error: null }
+      },
+      signInWithPassword: async ({ email, password }) => {
+        const u = JSON.parse(localStorage.getItem('fake-users') || '{}')[email]
+        if (!u || u.password !== password) return { data: {}, error: { message: 'Invalid login credentials' } }
+        if (!u.confirmed) return { data: {}, error: { message: 'Email not confirmed' } }
+        await post('/__login', { uid: u.id })
+        localStorage.setItem(KEY, JSON.stringify({ user: { id: u.id, email } }))
         setTimeout(() => fire('SIGNED_IN'), 0)
-        return { error: null }
+        return { data: {}, error: null }
       },
       signInAnonymously: async () => {
         const uid = 'cccccccc-0000-4000-8000-' + String(Date.now()).slice(-12).padStart(12, '0')

@@ -22,17 +22,25 @@ const txt = (p, s) => p.evaluate((s) => document.querySelector(s)?.textContent, 
 async function login(p, email) {
   await p.goto('http://127.0.0.1:' + (process.env.APP_PORT || 8765) + '/'); await wait(300)
   await p.click('.nav button[data-screen="settings"]')
-  await p.fill('#acctEmail', email); await p.click('#acctSend'); await wait(300)
-  await p.fill('#acctCode', '000000'); await p.click('#acctVerify'); await wait(300)
-  p.wrongCodeToast = await p.evaluate(() => document.querySelector('#toast').textContent)
-  await p.fill('#acctCode', '123456'); await p.click('#acctVerify'); await wait(900)
+  await p.fill('#acctEmail', email); await p.fill('#acctPass', 'pw1234')
+  await p.click('#acctSignup'); await wait(300)
+  p.signupState = await p.evaluate(() => document.querySelector('#acctState').textContent)
+  await p.click('#acctSend'); await wait(300)
+  p.unconfirmedToast = await p.evaluate(() => document.querySelector('#toast').textContent)
+  // 메일의 확인 링크를 누른 것으로 처리
+  await p.evaluate((email) => { const u = JSON.parse(localStorage.getItem('fake-users')); u[email].confirmed = true; localStorage.setItem('fake-users', JSON.stringify(u)) }, email)
+  await p.fill('#acctPass', 'wrong1'); await p.click('#acctSend'); await wait(300)
+  p.wrongToast = await p.evaluate(() => document.querySelector('#toast').textContent)
+  await p.fill('#acctPass', 'pw1234'); await p.click('#acctSend'); await wait(900)
 }
 ;(async () => {
   const b = await chromium.launch()
   // 1. A 로그인 → 서버에 근무표 생성
   const A = await ctx(b)
   await login(A, 'a@test.kr')
-  check('틀린 코드는 거절', A.wrongCodeToast.includes('맞지 않'), A.wrongCodeToast)
+  check('가입하면 확인 메일 안내', A.signupState.includes('가입 확인 메일'), A.signupState)
+  check('확인 전 로그인은 안내', A.unconfirmedToast.includes('확인 링크'), A.unconfirmedToast)
+  check('틀린 비밀번호 거절', A.wrongToast.includes('맞지 않'), A.wrongToast)
   check('A 로그인 상태 문구', (await txt(A, '#acctState')).includes('내 근무표가 서버'), await txt(A, '#acctState'))
   check('A 근무표 서버 생성', sql("select count(*) from schedules") === '1', sql("select anchor_date||' '||anchor_shift from schedules"))
   // 2. A가 15일을 야근으로

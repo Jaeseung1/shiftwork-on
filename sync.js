@@ -203,13 +203,16 @@ function bindUI() {
     if (password.length < 6) return app.toast('비밀번호는 6자 이상이에요')
     return { email, password }
   }
+  // 처리하는 동안 버튼을 잠가 두 번 눌리지 않게 한다(두 번 누르면 메일 발송 횟수 제한에 걸림)
+  const busy = (on) => ['#acctSend', '#acctSignup'].forEach((id) => { $(id).disabled = on })
   $('#acctSend').onclick = async () => {
     const c = creds()
     if (!c) return
-    const { error } = await st.client.auth.signInWithPassword(c)
+    busy(true)
+    const { error } = await st.client.auth.signInWithPassword(c).finally(() => busy(false))
     if (error) {
       if (/not confirmed/i.test(error.message || '')) return fail(error, '메일의 가입 확인 링크를 먼저 한 번 눌러 주세요')
-      return fail(error, '이메일이나 비밀번호가 맞지 않아요')
+      return fail(error, '이메일이나 비밀번호가 맞지 않아요. 처음이면 "처음이면 가입하기"를 눌러 주세요')
     }
     $('#acctPass').value = ''
     app.toast('로그인했어요')
@@ -217,8 +220,9 @@ function bindUI() {
   $('#acctSignup').onclick = async () => {
     const c = creds()
     if (!c) return
-    const { data, error } = await st.client.auth.signUp({ ...c, options: { emailRedirectTo: location.origin + location.pathname } })
-    if (error) return fail(error, /not authorized/i.test(error.message || '') ? '이 주소로는 가입 메일을 보낼 수 없어요(Supabase 팀원 주소만 가능)' : '가입하지 못했어요')
+    busy(true)
+    const { data, error } = await st.client.auth.signUp({ ...c, options: { emailRedirectTo: location.origin + location.pathname } }).finally(() => busy(false))
+    if (error) return fail(error, /not authorized/i.test(error.message || '') ? '이 주소로는 가입 메일을 보낼 수 없어요(Supabase 팀원 주소만 가능)' : error.status === 429 ? '방금 보냈어요. 1분쯤 뒤에 다시 해 주세요' : '가입하지 못했어요')
     if (data.session) {
       $('#acctPass').value = ''
       return app.toast('가입하고 로그인했어요')

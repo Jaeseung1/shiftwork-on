@@ -1,0 +1,110 @@
+/* 교대온 앱 홈 제품 사진. 값은 앱 index.html v0.2와 같음. 단위: 폰 화면 포인트 */
+.swh {
+  --swh-page: #f2f4f6;
+  --swh-card: #ffffff;
+  --swh-inset: #f2f4f6;
+  --swh-ink: #191f28;
+  --swh-body: #4e5968;
+  --swh-muted: #6b7684;
+  --swh-sub: #8b95a1;
+  --swh-blue: #3182f6;
+  --swh-blue-soft: color-mix(in srgb, #3182f6 10%, #ffffff);
+  --swh-s1: #d9820b;
+  --swh-s2: #7866c2;
+  --swh-s3: #3d84c4;
+  --swh-s4: #05a672;
+  --swh-shadow: 0 8px 24px rgba(0, 23, 51, 0.08);
+
+  .ss-stage { overflow: hidden; background: var(--swh-page); }
+
+  .swh-device {
+    position: absolute;
+    filter: drop-shadow(0 30px 40px rgba(0, 23, 51, 0.14)) drop-shadow(0 8px 14px rgba(0, 23, 51, 0.07));
+  }
+
+  .swh-app {
+    height: 100%;
+    color: var(--swh-ink);
+    font-family: 'Toss Product Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  .swh-top {
+    height: 56px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .swh-screen { padding: 4px 16px 0; display: grid; gap: 12px; }
+
+  .swh-card {
+    background: var(--swh-card);
+    border-radius: 24px;
+    box-shadow: var(--swh-shadow);
+    padding: 20px;
+  }
+
+  .swh-hero { padding: 20px 20px 22px; }
+  .swh-hero__top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .swh-cap { font-size: 14px; font-weight: 600; color: var(--swh-muted); line-height: 1.3; }
+  .swh-cap--sub { font-size: 13px; color: var(--swh-sub); }
+  .swh-badge {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--swh-blue-soft);
+    color: var(--swh-blue);
+  }
+  .swh-today { font-size: 40px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.2; color: var(--swh-blue); margin-top: 10px; }
+  .swh-hour { font-size: 16px; color: var(--swh-body); line-height: 1.35; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .swh-progress { height: 8px; border-radius: 99px; background: var(--swh-inset); overflow: hidden; margin-top: 18px; }
+  .swh-progress i { display: block; height: 100%; background: var(--swh-blue); border-radius: inherit; }
+  .swh-plabel { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 13px; line-height: 1.35; color: var(--swh-body); font-variant-numeric: tabular-nums; }
+  .swh-plabel span:first-child { color: var(--swh-blue); font-weight: 700; }
+
+  .swh-next { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .swh-next__name { font-size: 22px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.25; margin-top: 4px; }
+  .swh-next__hour { font-size: 14px; color: var(--swh-body); line-height: 1.45; padding-bottom: 2px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .swh-head { display: flex; justify-content: space-between; align-items: center; margin: -4px 0 12px; font-size: 15px; font-weight: 700; line-height: 1.4; }
+  .swh-link { font-size: 14px; font-weight: 600; color: var(--swh-blue); }
+  .swh-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .swh-day { background: var(--swh-inset); border-radius: 16px; padding: 10px 0 9px; display: grid; justify-items: center; gap: 3px; }
+  .swh-day__w { font-size: 12px; color: var(--swh-sub); line-height: 1.3; }
+  .swh-day__s { font-size: 19px; font-weight: 700; line-height: 1.25; }
+  .swh-day__n { font-size: 12px; font-weight: 600; color: var(--swh-body); line-height: 1.3; }
+  .swh-day__s[data-s='일'] { color: var(--swh-s1); }
+  .swh-day__s[data-s='야'] { color: var(--swh-s2); }
+  .swh-day__s[data-s='조'] { color: var(--swh-s3); }
+  .swh-day__s[data-s='휴'] { color: var(--swh-s4); }
+
+  .swh-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .swh-row b { display: block; font-size: 15px; line-height: 1.35; }
+  .swh-row small { display: block; font-size: 13px; color: var(--swh-muted); margin-top: 3px; line-height: 1.4; }
+  .swh-ico { width: 20px; height: 20px; fill: none; stroke: var(--swh-sub); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .swh {
+    --swh-page: #0f1115;
+    --swh-card: #1a1d24;
+    --swh-inset: #232730;
+    --swh-ink: #f2f4f6;
+    --swh-body: #b0b8c1;
+    --swh-muted: #8b95a1;
+    --swh-sub: #8b95a1;
+    --swh-blue: #4795ff;
+    --swh-blue-soft: color-mix(in srgb, #4795ff 18%, #1a1d24);
+    --swh-s1: #f0b04a;
+    --swh-s2: #b7a5ed;
+    --swh-s3: #8fc0ea;
+    --swh-s4: #5fd3a8;
+    --swh-shadow: none;
+  }
+}

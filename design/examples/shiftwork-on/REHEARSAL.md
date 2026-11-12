@@ -13,3 +13,9 @@ Not checked: fresh-eye 리뷰, reduced motion(--reduced), 라이트 배경, 실�
 변경: 사용자 피드백("구도가 어색함", "밝고 깔끔한 라이트")에 따라 앱의 실제 라이트 토큰(#f4f6f7, #fff, #087f70, 태그 색)으로 전환, 파스텔 orbs 배경 추가, 폰 440px로 키우고 패널을 왼쪽 가장자리에 걸치게 재배치.
 Gate v2: 정지 / 720 루프 / 390 루프 모두 rehearsal passed (커버리지 inconclusive, 샌드박스 부하). near-tangent(달력 카드가 위 가장자리 2px)는 폰 top -203px로 해소.
 Not checked 추가: 라이트 v2의 --states 시트, fresh-eye 리뷰, 실제 앱 화면과의 나란히 비교. 다크 버전 원본은 index.dark.tsx / shiftwork.dark.css로 보관.
+
+## v3 (토스 스타일, 2026-11-12)
+변경: pages/widget.html과 같은 토스 값으로 통일(제3자 정리값, 공식 토큰 아님). 바탕 #f2f4f6, 흰 카드 그림자 0 8px 24px rgba(0,23,51,.08), 파랑 #3182f6 하나(저장 버튼, 오늘 날짜 숫자, 선택한 날 연파랑 바탕), 근무 태그는 바탕 없이 글자색만(위젯과 같은 색), 초기화는 회색 tertiary 버튼, 파스텔 orbs 배경 제거. 구도·대본·크기는 v2 그대로.
+Gate v3: 정지 1280·390, 루프 1280·390 모두 rehearsal passed. 커버리지는 이번에도 inconclusive(샘플 간격 최대 약 95ms, 샌드박스 부하).
+이미지: design/images/export/sw-demo-wide.png(720×340), sw-demo-compact.png(358×440). reduced motion으로 poster(15일 야근 저장 후)를 찍음. v2 이미지(sw-light-*.png)는 git 기록에만 남김.
+Not checked: fresh-eye 리뷰, 실제 앱(index.html) 화면과의 나란히 비교. 실제 앱은 아직 초록(#087f70) 토큰이라 데모와 앱의 색이 지금은 다름.

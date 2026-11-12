@@ -7,23 +7,30 @@
 내 서비스 교대온(github.com/Jaeseung1/shiftwork-on, 교대 근무 달력 웹 앱)의 홈페이지 첫 화면용 데모(720×340)와 폰 위젯 목업을 Stageshow 스킬(benjitaylor/skills)로 만든다.
 
 ## 지금 상태
-- examples/shiftwork-on: 근무표 화면 데모(15일 휴무 → 야근 선택 → 저장 → 초기화 루프). 현재 라이트 버전. 다크 원본은 index.dark.tsx, shiftwork.dark.css. 게이트(film.mjs --gate)는 720, 390, 정지 모두 rehearsal passed, 커버리지는 inconclusive. REHEARSAL.md에 한계 기록.
-- examples/shiftwork-widget: 갤럭시 4x1 위젯 Stageshow 정지 이미지(다크, 이전 디자인). 최신 디자인은 pages/widget.html(토스 스타일, 라이트/다크 토글)이 기준.
-- pages/widget.html: 4x1 위젯 토스 스타일 목업. 오늘(큰 파란 글씨), 내일, 앞으로 5일. "근무 중"은 1x1·2x1에서만 쓰기로 함.
+- examples/shiftwork-on: 근무표 화면 데모(15일 휴무 → 야근 선택 → 저장 → 초기화 루프). v3 토스 스타일(2026-11-12, 후보 4). 다크 원본은 index.dark.tsx, shiftwork.dark.css. 게이트는 정지·루프 1280, 390 모두 rehearsal passed, 커버리지는 inconclusive. REHEARSAL.md에 한계 기록.
+  - 주의: 실제 앱(index.html)은 아직 초록(#087f70) 토큰이라 데모와 색이 다름. 앱도 토스 색으로 바꿀지는 미정.
+- examples/shiftwork-widget: 갤럭시 4x1 위젯 Stageshow 정지 이미지(다크, 이전 디자인, 더 이상 기준 아님). 최신 디자인은 pages/widget.html.
+- pages/widget.html: 위젯 토스 스타일 목업(라이트/다크 토글).
+  - 4x1: 오늘(큰 파란 글씨), 내일, 앞으로 5일.
+  - 2x1 (2026-11-12 추가): 왼쪽 오늘 + "근무 중" + 퇴근 시각, 오른쪽 회색 안쪽 카드에 내일.
+  - 1x1 (2026-11-12 추가): 오늘 + "근무 중" + 퇴근 시각.
+  - "근무 중"은 서울 시간 10:00에 본 상태 가정. 2x1·1x1은 보기 좋게 4x1보다 크게 그림(실제 비율 아님). 갤럭시 위젯 실제 치수는 미확인.
 - pages/cc.html (2026-11-12 다시 정리): 토스 스타일 페이지(라이트/다크 토글)에 Stageshow로 찍은 제어 센터 이미지 한 장 + 원칙 세 줄 + 근거·한계 카드.
   - 제어 센터 안: 맨 윗줄에 교대온 중간 크기 컨트롤 2개(해 "오늘 근무/일근", 달 "내일 근무/야근"). HIG의 "symbol image, a title, and, optionally, a value" 구조를 따름. 심볼만 근무 색 틴트.
   - 이전의 한 타일 반반(오늘|내일) 구성과 여러 줄 시간 표시 타일은 뺐음. 출퇴근 시각(기기 시간대 환산)은 위젯·앱에서 보여 주기로 함.
 - examples/shiftwork-cc: 위 이미지의 Stageshow 예시(index.tsx, cc.css, REHEARSAL.md). 게이트 1280·390 정지 rehearsal passed.
 - 결정(2026-11-12): 제어 센터는 컨트롤 두 개 안으로 확정. 한 개짜리 안(제목 "오늘 일근", 값 "내일 야근")은 HIG의 제목·값 용도와 어긋나고 내일 근무에 심볼이 없어 채택 안 함. 코드·이미지는 커밋 6c7aae3에 있음.
-- images/: 위 결과 이미지.
+- images/widget-4x1-v2.png: 이전 다크 위젯 이미지(기록용). 최신 결과는 images/export/.
 - images/export/ (2026-11-12 추가, 후보 1 완료): pages/의 목업을 PNG로 내보냄. 2배율.
-  - widget-4x1-light.png, widget-4x1-dark.png: 위젯만, 모서리 투명(RGBA), 그림자 제외.
-  - widget-4x1-light-wall.png, widget-4x1-dark-wall.png: 홈 화면 배경 포함.
+  - widget-{4x1,2x1,1x1}-{light,dark}.png: 위젯만, 모서리 투명(RGBA), 그림자 제외.
+  - widget-wall-{light,dark}.png: 세 크기를 홈 화면 배경과 함께.
+  - sw-demo-wide.png(720×340), sw-demo-compact.png(358×440): 근무표 데모 대표 장면(poster).
   - cc-wide-light.png, cc-wide-dark.png (720×480), cc-compact-light.png, cc-compact-dark.png (358×460): 제어 센터. Stageshow 스테이지(.swcc .ss-stage)만 잘라 찍음.
   - 다시 만들기: 레포 루트에서 `node design/scripts/export-mockups.js` (컨테이너에 사전 설치된 Playwright 사용).
   - 한계: 이 컨테이너에는 Noto Sans KR이 없어 한글이 WenQuanYi Zen Hei로 렌더링됨(fc-list로 확인). 실제 기기 글꼴과 모양이 다름. 글꼴 설치는 다운로드라 하지 않음.
 
 ## 결정과 가정
+- 2026-11-12 사용자 위임으로 정한 것: 한글 글꼴은 다운로드하지 않음, 작업은 claude/design-handoff에 계속 쌓고 PR은 만들지 않음, 제어 센터 컨트롤에 출퇴근 시각은 넣지 않음, MacRumors 접속 허용은 요청하지 않음.
 - 근무 종류와 "오늘·내일"은 서울 날짜 기준, 출퇴근 시각은 한국 근무 시간(일근 08:30–17:30, 야근 17:30–08:30)을 기기 시간대로 환산해 표시.
 - 순환 일→야→조→휴, 기준일 2026-11-12 = 일근.
 - 위젯은 디자인 목업이며 앱의 실제 기능이 아님.
@@ -41,7 +48,7 @@
 1. ~~위젯·제어 센터 목업을 PNG로 내보내기~~ (완료, images/export/)
 2. 레포에 웹 앱 manifest 추가(홈 화면에 추가용)
 3. 네이티브 위젯 프로젝트 뼈대(Android, iOS)
-4. 근무표 데모와 1x1·2x1 위젯을 토스 스타일로 통일
+4. ~~근무표 데모와 1x1·2x1 위젯을 토스 스타일로 통일~~ (완료)
 
 ## Stageshow 다시 돌리는 법
 (이 세션에서는 /home/user/.agents/skills/stageshow 에 v1.1.1 설치. 제어 센터: examples/에 shiftwork-cc 복사 후 `?capture=shiftwork-cc`, `--still --gate`)

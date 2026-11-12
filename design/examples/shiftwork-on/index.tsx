@@ -62,7 +62,6 @@ export default function ShiftworkOn() {
       height={340}
       compact={{ below: 600, width: 358, height: 440 }}
       theme="light"
-      ground={['#bfe8dc', '#dbeaf7', '#fff1d9']}
       initial={initial}
       poster={poster}
       script={script}
@@ -115,7 +114,7 @@ export default function ShiftworkOn() {
               <Segmented items={NAMES} value={s.pick} targets={NAMES.map((_, i) => `seg-${i}`)} cursor="pointer" />
               <div className="sw-actions">
                 <Button variant="primary" data-target="save">저장</Button>
-                <Button variant="secondary" data-target="reset">초기화</Button>
+                <Button variant="tertiary" data-target="reset">초기화</Button>
               </div>
             </section>
 

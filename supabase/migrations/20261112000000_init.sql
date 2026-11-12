@@ -56,7 +56,8 @@ alter table public.overrides enable row level security;
 alter table public.members   enable row level security;
 alter table public.invites   enable row level security;
 
-create policy schedules_select on public.schedules for select to authenticated using (public.can_view_schedule(id));
+-- owner_id를 먼저 직접 본다: insert … returning(supabase-js의 .insert().select())에서는 함수가 방금 넣은 줄을 아직 못 보기 때문
+create policy schedules_select on public.schedules for select to authenticated using (owner_id = auth.uid() or public.can_view_schedule(id));
 create policy schedules_insert on public.schedules for insert to authenticated with check (owner_id = auth.uid());
 create policy schedules_update on public.schedules for update to authenticated using (owner_id = auth.uid()) with check (owner_id = auth.uid());
 create policy schedules_delete on public.schedules for delete to authenticated using (owner_id = auth.uid());

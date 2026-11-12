@@ -8,7 +8,11 @@ grant all on result to anon, authenticated;
 
 -- A: 근무표 만들기, 바꾼 근무 넣기, 초대 코드
 set role authenticated; set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
-insert into public.schedules (anchor_date, anchor_shift) values ('2026-11-12', '일');
+do $$ declare v uuid; begin
+  insert into public.schedules (anchor_date, anchor_shift) values ('2026-11-12', '일') returning id into v;
+  insert into result values ('A 근무표 만들고 바로 돌려받기(insert returning)', v is not null, coalesce(v::text, 'null'));
+exception when others then insert into result values ('A 근무표 만들고 바로 돌려받기(insert returning)', false, sqlerrm); end $$;
+insert into public.schedules (anchor_date, anchor_shift) select '2026-11-12', '일' where not exists (select 1 from public.schedules);
 insert into public.overrides (schedule_id, day, shift) select id, '2026-11-15', '야' from public.schedules;
 select create_invite() as code \gset
 insert into result select 'A 코드 형식', :'code' ~ '^[A-HJ-NP-Z2-9]{6}$', :'code';

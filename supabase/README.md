@@ -26,4 +26,13 @@
 PGHOST=<소켓 폴더> PGPORT=<포트> PGUSER=postgres bash supabase/tests/run.sh
 ```
 
-2026-11-12에 PostgreSQL 16.15에서 23개 시험 모두 통과. 실제 Supabase 프로젝트에서는 아직 실행해 보지 않았다.
+2026-11-12에 PostgreSQL 16.15에서 24개 시험 모두 통과. 실제 Supabase 프로젝트에서는 아직 실행해 보지 않았다.
+
+## 웹 앱까지 끝에서 끝까지 시험
+`tests/e2e/`: 브라우저에는 supabase-js를 흉내 낸 `fake-supabase.js`를 넣고, 그 요청을 로컬 PostgreSQL에서 실제 RLS로 처리한다. 주인 로그인·저장·초대, 가족 참여(읽기 전용)·나가기, 위젯 브리지 전달, 서버 없는 모드를 시험한다.
+
+```bash
+PGHOST=<소켓 폴더> PGPORT=<포트> bash supabase/tests/e2e/run.sh
+```
+
+2026-11-12에 24개 모두 통과. 진짜 supabase-js와 메일 로그인 링크는 시험하지 못했다(가짜 모듈은 메일 대신 곧바로 로그인).

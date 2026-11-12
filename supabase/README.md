@@ -1,20 +1,23 @@
 # Supabase
 
-교대온의 근무표·가족 공유 데이터베이스입니다.
+교대온의 근무표·공유 데이터베이스입니다.
 
 ## 저장하는 것
 - `schedules`: 내 근무표 하나(기준일, 그날 근무, 위젯 토큰). 사용자당 하나.
 - `overrides`: 날짜별로 바꾼 근무. 나머지 날짜는 순환(일 → 야 → 조 → 휴)으로 계산.
-- `members`: 초대 코드로 들어온 가족. 읽기만 가능.
+- `members`: 초대 코드로 들어온 공유받는 사람. 읽기만 가능.
 - `invites`: 초대 코드(6자리, 7일 유효).
 
 ## 함수
 - `create_invite()`: 초대 코드 만들기(근무표 주인만).
-- `join_with_code(code)`: 코드로 가족 참여.
+- `join_with_code(code)`: 코드로 공유받는 사람 참여.
 - `widget_schedule(token)`: 갤럭시 위젯용. 로그인 없이 토큰으로 근무표를 읽기만 함(오늘 기준 7일 전~60일 뒤의 바꾼 근무).
+- `share_summary(token, tz)`: 아이폰 단축어 등 다른 기기용. 오늘·내일 근무를 글 두 줄로(날짜·순환은 한국 기준, 시각은 `tz` 시간대).
+- `share_summary_json(token, tz)`: 같은 내용을 `{"text", "today", "tomorrow"}` JSON으로. 단축어에서 오늘·내일을 따로 꺼낼 때. 틀린 토큰이면 `null`.
+- 위 두 함수는 GET으로도 부를 수 있다: `/rest/v1/rpc/share_summary_json?p_token=…&p_tz=Asia/Seoul&apikey=<Publishable key>`. 계산 함수(`private.*`)는 API에 드러나지 않는다.
 
 ## 설치
-교대온 프로젝트: `shiftwork-on`(ref `rsmuvlythhcgrfnunnrn`, 서울 ap-northeast-2). 2026-11-12에 Supabase 커넥터로 만들고 `migrations/`의 두 파일을 적용했다. 웹 앱 `config.js`에 주소와 Publishable key가 들어 있다.
+교대온 프로젝트: `shiftwork-on`(ref `rsmuvlythhcgrfnunnrn`, 서울 ap-northeast-2). 2026-11-12에 Supabase 커넥터로 만들고 `migrations/`의 네 파일을 적용했다(마지막 `share_summary_json`은 기존 함수를 지우지 않고 새로 더한 것). 웹 앱 `config.js`에 주소와 Publishable key가 들어 있다.
 
 새로 만들 때:
 1. 프로젝트를 만들고 `migrations/`의 SQL을 이름 순서대로 실행한다(SQL Editor 또는 `supabase db push`).

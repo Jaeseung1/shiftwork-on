@@ -15,7 +15,10 @@ insert into ss values
  ('없는 시간대는 서울로', E'오늘 12일(목) 일근 08:30–17:30\n내일 13일(금) 야근 11/13 17:30–11/14 08:30', private.share_summary_at('dddddddd-0000-0000-0000-0000000000ff', 'Mars/Base', '2026-11-12 13:00+09')),
  ('틀린 토큰은 빈 값', null, private.share_summary_at(gen_random_uuid(), 'Asia/Seoul', now()));
 set role anon;
-insert into ss select 'anon 공개 함수 호출', 'ok', case when public.share_summary('dddddddd-0000-0000-0000-0000000000ff') ->> 'today' like '오늘 %' then 'ok' else 'fail' end;
+insert into ss select 'anon 글 두 줄 함수', 'ok', case when public.share_summary('dddddddd-0000-0000-0000-0000000000ff') like E'오늘 %\n내일 %' then 'ok' else 'fail' end;
+insert into ss select 'anon JSON 함수 today·tomorrow', 'ok', case when j ->> 'today' like '오늘 %' and j ->> 'tomorrow' like '내일 %' and j ->> 'text' = (j ->> 'today') || E'\n' || (j ->> 'tomorrow') then 'ok' else 'fail' end
+  from (select public.share_summary_json('dddddddd-0000-0000-0000-0000000000ff', 'America/Toronto') as j) x;
+insert into ss select 'JSON 틀린 토큰은 null', null, public.share_summary_json(gen_random_uuid())::text;
 do $$ begin perform private.share_summary_at('dddddddd-0000-0000-0000-0000000000ff', 'Asia/Seoul', now()); insert into ss values ('anon 내부 함수 막힘', 'blocked', 'ran');
 exception when others then insert into ss values ('anon 내부 함수 막힘', 'blocked', 'blocked'); end $$;
 reset role;

@@ -25,6 +25,7 @@ class Q {
     return { data, error: null }
   }
 }
+let pending = null
 export function createClient() {
   const listeners = []
   const fire = (ev) => listeners.forEach((cb) => cb(ev, session()))
@@ -34,8 +35,10 @@ export function createClient() {
     auth: {
       getSession: async () => ({ data: { session: session() } }),
       onAuthStateChange: (cb) => { listeners.push(cb); setTimeout(() => cb('INITIAL_SESSION', session()), 0); return { data: { subscription: { unsubscribe() {} } } } },
-      // 시험: 메일 링크 대신 곧바로 로그인
-      signInWithOtp: async ({ email }) => {
+      // 시험: 메일은 보내지 않고, 코드 123456을 넣으면 로그인
+      signInWithOtp: async ({ email }) => { pending = email; return { error: null } },
+      verifyOtp: async ({ email, token }) => {
+        if (token !== '123456' || email !== pending) return { error: { message: 'invalid otp' } }
         const uid = { 'a@test.kr': 'aaaaaaaa-0000-0000-0000-00000000000a', 'b@test.kr': 'bbbbbbbb-0000-0000-0000-00000000000b' }[email]
         await post('/__login', { uid })
         localStorage.setItem(KEY, JSON.stringify({ user: { id: uid, email } }))

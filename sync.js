@@ -188,8 +188,22 @@ function bindUI() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return app.toast('이메일 주소를 확인해 주세요')
     const { error } = await st.client.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href.split('#')[0] } })
     if (error) return fail(error, '로그인 메일을 보내지 못했어요')
-    $('#acctState').textContent = `${email}로 로그인 링크를 보냈어요. 메일의 링크를 이 기기에서 열어 주세요.`
-    app.toast('메일로 로그인 링크를 보냈어요')
+    st.pendingEmail = email
+    $('#acctCodeRow').hidden = false
+    $('#acctState').textContent = `${email}로 메일을 보냈어요. 메일의 코드를 아래에 넣거나, 이 기기에서 메일의 링크를 열어 주세요.`
+    app.toast('로그인 메일을 보냈어요')
+    $('#acctCode').focus()
+  }
+  // 앱(WebView)이나 홈 화면 웹 앱에서는 메일 링크가 다른 브라우저로 열리므로, 메일의 코드를 직접 넣는 길을 둔다
+  $('#acctVerify').onclick = async () => {
+    const token = $('#acctCode').value.trim()
+    if (!st.client || !st.pendingEmail) return
+    if (!/^\d{6,8}$/.test(token)) return app.toast('메일의 숫자 코드를 확인해 주세요')
+    const { error } = await st.client.auth.verifyOtp({ email: st.pendingEmail, token, type: 'email' })
+    if (error) return fail(error, '코드가 맞지 않거나 시간이 지났어요')
+    $('#acctCode').value = ''
+    $('#acctCodeRow').hidden = true
+    app.toast('로그인했어요')
   }
   $('#acctOut').onclick = async () => {
     if (!st.client) return

@@ -126,6 +126,8 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .bottom-spacer{height:4px}
 .acct-state{margin:-6px 0 14px;font-size:14px;color:var(--muted);line-height:1.5}
 .acct-login{display:grid;gap:8px}
+.acct-code{display:grid;grid-template-columns:1fr auto;gap:8px}
+.acct-code .date-input{letter-spacing:.2em;font-weight:700}
 .join-row{display:grid;grid-template-columns:1fr auto;gap:8px}
 .join-row .date-input{letter-spacing:.12em;text-transform:uppercase;font-weight:700}
 #leaveBtn{margin-top:8px}
@@ -199,7 +201,7 @@ html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly
 </section>
 <section class="screen" id="screen-settings">
 <div class="page-head"><div class="page-title">설정</div><p class="page-sub">내 교대 패턴과 근무시간을 설정해요.</p></div>
-<div class="panel" id="acctPanel"><h3>계정</h3><p class="acct-state" id="acctState">로그인하면 근무표가 저장되고 가족과 공유돼요.</p><div class="acct-login" id="acctLogin"><input class="date-input full" id="acctEmail" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소" aria-label="이메일 주소"><button class="primary full" id="acctSend">로그인 링크 받기</button></div><button class="secondary full" id="acctOut" hidden>로그아웃</button></div>
+<div class="panel" id="acctPanel"><h3>계정</h3><p class="acct-state" id="acctState">로그인하면 근무표가 저장되고 가족과 공유돼요.</p><div class="acct-login" id="acctLogin"><input class="date-input full" id="acctEmail" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소" aria-label="이메일 주소"><button class="primary full" id="acctSend">로그인 메일 받기</button><div class="acct-code" id="acctCodeRow" hidden><input class="date-input" id="acctCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="메일의 코드" aria-label="메일로 받은 코드"><button class="secondary" id="acctVerify">확인</button></div></div><button class="secondary full" id="acctOut" hidden>로그아웃</button></div>
 <div class="panel" id="patternPanel"><h3>반복 주기 기준</h3><div class="row"><div class="form-item"><label class="setting-label" for="anchorDate">기준 날짜</label><input class="date-input full" id="anchorDate" type="date"></div><div class="form-item"><label class="setting-label" for="anchorShift">그날 근무</label><select class="select full" id="anchorShift"><option value="일">일근</option><option value="야">야근</option><option value="조">조근</option><option value="휴">휴무</option></select></div></div><button class="primary full" id="savePattern">패턴 저장</button><p class="notice">기준 날짜의 근무를 입력하면 일 → 야 → 조 → 휴 순으로 반복 계산돼요.</p></div>
 <div class="panel"><h3>근무 시간 · 한국시간</h3><div class="form-item"><label class="setting-label">일근</label><div class="row"><input class="date-input full" value="08:30" aria-label="일근 시작" disabled><input class="date-input full" value="17:30" aria-label="일근 종료" disabled></div></div><div class="form-item"><label class="setting-label">야근 · 조근</label><div class="row"><input class="date-input full" value="17:30 야근 시작" disabled><input class="date-input full" value="08:30 조근 퇴근" disabled></div></div><p class="notice">현재 근무시간은 네가 알려준 기준으로 설정되어 있어요.</p></div>
 <div class="panel"><h3>가족 공유</h3><p class="page-sub" style="margin:0 0 14px">초대 코드를 통해 가족이 앱에서 근무표를 확인합니다.</p><button class="secondary full" data-go="family">공유 관리 열기</button></div>

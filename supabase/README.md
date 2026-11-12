@@ -16,7 +16,8 @@
 ## 설치
 1. supabase.com에서 새 프로젝트를 만든다.
 2. 대시보드의 SQL Editor에서 `migrations/20261112000000_init.sql` 내용을 붙여 넣고 실행한다. (Supabase CLI를 쓰면 `supabase db push`.)
-3. Authentication → Providers에서 Email을 켠다(이메일 로그인 링크·코드). Authentication → URL Configuration의 Site URL과 Redirect URLs에 웹 앱 주소(예: Vercel 주소)를 넣는다.
+3. Authentication → Providers에서 Email을 켠다. Authentication → URL Configuration의 Site URL과 Redirect URLs에 웹 앱 주소(예: Vercel 주소)를 넣는다.
+   - 갤럭시 앱(WebView)과 아이폰 홈 화면 웹 앱에서는 메일 링크가 다른 브라우저로 열려 로그인이 그 안으로 들어오지 않는다. 그래서 앱은 메일의 숫자 코드를 직접 넣는 방식도 지원한다. Authentication → Email Templates의 Magic Link 양식에 `{{ .Token }}`을 넣어 코드가 메일에 보이게 한다(예: `로그인 코드: {{ .Token }}`).
 4. Project Settings → API에서 Project URL과 anon(public) key를 복사해 웹 앱의 `config.js`에 넣는다. anon key는 공개용 키이고, 데이터는 RLS 정책이 지킨다. service_role key는 절대 앱에 넣지 않는다.
 
 ## 권한 시험
@@ -35,4 +36,4 @@ PGHOST=<소켓 폴더> PGPORT=<포트> PGUSER=postgres bash supabase/tests/run.s
 PGHOST=<소켓 폴더> PGPORT=<포트> bash supabase/tests/e2e/run.sh
 ```
 
-2026-11-12에 24개 모두 통과. 진짜 supabase-js와 메일 로그인 링크는 시험하지 못했다(가짜 모듈은 메일 대신 곧바로 로그인).
+2026-11-12에 25개 모두 통과. 진짜 supabase-js와 실제 메일 발송은 시험하지 못했다(가짜 모듈은 코드 123456을 맞는 코드로 처리).

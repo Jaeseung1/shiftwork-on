@@ -22,13 +22,17 @@ const txt = (p, s) => p.evaluate((s) => document.querySelector(s)?.textContent, 
 async function login(p, email) {
   await p.goto('http://127.0.0.1:' + (process.env.APP_PORT || 8765) + '/'); await wait(300)
   await p.click('.nav button[data-screen="settings"]')
-  await p.fill('#acctEmail', email); await p.click('#acctSend'); await wait(900)
+  await p.fill('#acctEmail', email); await p.click('#acctSend'); await wait(300)
+  await p.fill('#acctCode', '000000'); await p.click('#acctVerify'); await wait(300)
+  p.wrongCodeToast = await p.evaluate(() => document.querySelector('#toast').textContent)
+  await p.fill('#acctCode', '123456'); await p.click('#acctVerify'); await wait(900)
 }
 ;(async () => {
   const b = await chromium.launch()
   // 1. A 로그인 → 서버에 근무표 생성
   const A = await ctx(b)
   await login(A, 'a@test.kr')
+  check('틀린 코드는 거절', A.wrongCodeToast.includes('맞지 않'), A.wrongCodeToast)
   check('A 로그인 상태 문구', (await txt(A, '#acctState')).includes('내 근무표가 서버'), await txt(A, '#acctState'))
   check('A 근무표 서버 생성', sql("select count(*) from schedules") === '1', sql("select anchor_date||' '||anchor_shift from schedules"))
   // 2. A가 15일을 야근으로

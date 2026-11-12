@@ -1,0 +1,199 @@
+/* 교대온: the product's own dark tokens (index.html), mapped onto the kit's */
+.sw .ss-stage {
+  --ss-canvas: #101418;
+  --ss-surface: #191f24;
+  --ss-chrome: #191f24;
+  --ss-well: #0b0f12;
+  --ss-raised: #20272b;
+  --ss-line: #2a3238;
+  --ss-text-strong: #edf1f2;
+  --ss-text: #9aa6aa;
+  --ss-text-faint: #6f7c80;
+  --ss-accent: #287d69;
+  --ss-accent-2: #287d69;
+  --ss-accent-soft: #263b35;
+  --ss-accent-text: #8fd9c0;
+  --ss-font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Apple SD Gothic Neo', 'Noto Sans CJK KR', 'Noto Sans KR', Arial, sans-serif;
+  overflow: hidden;
+  background: var(--ss-well);
+}
+
+/* The phone: pinned a gutter from the right, cropped under the app bar and off
+   the bottom, so the calendar is what shows. Offsets are in stage px. */
+.sw-phone {
+  position: absolute;
+  left: 272px;
+  top: -193px;
+}
+
+.sw .ss-stage[data-layout='compact'] .sw-phone {
+  left: 16px;
+  top: 14px;
+}
+
+/* ---- the app, laid out in the phone's points ---- */
+.sw-app {
+  height: 100%;
+  background: #101418;
+  color: #edf1f2;
+  font-family: var(--ss-font);
+  padding: 0 18px;
+}
+
+.sw-bar {
+  /* the cropped app bar's height, so the page keeps its real position */
+  height: 68px;
+}
+
+.sw-page {
+  /* on the card's own text edge (card inset 16 + border 1), not 14px short of it */
+  margin: 24px 0 14px 17px;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 30px;
+}
+
+.sw-card {
+  padding: 16px;
+  border: 1px solid #2a3238;
+  border-radius: 15px;
+  background: #191f24;
+}
+
+.sw-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 31px;
+  margin-bottom: 14px;
+}
+
+.sw-month {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sw-nav__btns {
+  display: flex;
+  gap: 7px;
+}
+
+.sw-nav__btn {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 1px solid #333c41;
+  border-radius: 10px;
+  background: #20272c;
+  color: #d4ddde;
+}
+
+.sw-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.sw-week span {
+  padding: 6px 0;
+  color: #a0abad;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.sw-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 58px;
+  padding: 6px 0 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.sw-day[data-dim] {
+  opacity: 0.3;
+}
+
+.sw-day[data-today] {
+  border-color: #71c6aa;
+  background: #1d2c29;
+}
+
+.sw-day[data-sel] {
+  border-color: #71c6aa;
+  background: #263b35;
+}
+
+.sw-num {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.sw-tag {
+  margin-top: 6px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 14px;
+  white-space: nowrap;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.sw-tag[data-s='0'] { background: #393124; color: #edbd70; }
+.sw-tag[data-s='1'] { background: #302b3c; color: #c5b5ef; }
+.sw-tag[data-s='2'] { background: #25333c; color: #9dc9e8; }
+.sw-tag[data-s='3'] { background: #22362f; color: #89d4b9; }
+
+/* ---- the editor: the app's own panel, one step up in the ground ---- */
+.sw-panel {
+  position: absolute;
+  left: 68px;
+  top: 136px;
+  width: 214px;
+  padding: 14px 13px;
+  border: 1px solid var(--ss-line);
+  border-radius: 14px;
+  background: var(--ss-raised);
+  box-shadow: var(--ss-shadow-satellite);
+  z-index: 2;
+}
+
+.sw .ss-stage[data-layout='compact'] .sw-panel {
+  left: 16px;
+  top: 14px;
+  width: 326px;
+}
+
+.sw-title {
+  color: var(--ss-text-strong);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.sw-sum {
+  margin: 4px 0 12px;
+  color: #c0cbcd;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.sw-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.sw-actions > * {
+  width: 100%;
+}
+

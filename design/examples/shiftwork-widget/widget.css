@@ -1,0 +1,53 @@
+.sx .ss-stage {
+  --ss-font: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans CJK KR', 'Noto Sans KR', Arial, sans-serif;
+  overflow: hidden;
+}
+.sx-widget {
+  position: absolute;
+  left: 20px;
+  top: 27px;
+  width: 400px;
+  height: 96px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.35fr;
+  border-radius: 28px;
+  background:
+    radial-gradient(120px 90px at 0% 0%, rgba(113, 198, 170, 0.16), transparent 70%),
+    radial-gradient(140px 100px at 100% 100%, rgba(157, 201, 232, 0.12), transparent 70%),
+    #191f24;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+  font-family: var(--ss-font);
+  color: #edf1f2;
+  overflow: hidden;
+}
+.sx-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 14px;
+  border-left: 1px solid #2a3238;
+}
+.sx-col:first-child { border-left: 0; padding-left: 22px; }
+.sx-label { color: #9aa6aa; font-size: 11px; font-weight: 600; line-height: 14px; white-space: nowrap; }
+.sx-sub { color: #9aa6aa; font-size: 11px; line-height: 14px; white-space: nowrap; }
+.sx-shift { align-self: flex-start; padding: 2px 9px; border-radius: 8px; font-size: 20px; font-weight: 800; letter-spacing: -0.03em; line-height: 26px; }
+.sx-shift[data-s='0'], .sx-dot[data-s='0'] { background: #393124; color: #edbd70; }
+.sx-shift[data-s='1'], .sx-dot[data-s='1'] { background: #302b3c; color: #c5b5ef; }
+.sx-shift[data-s='2'], .sx-dot[data-s='2'] { background: #25333c; color: #9dc9e8; }
+.sx-shift[data-s='3'], .sx-dot[data-s='3'] { background: #22362f; color: #89d4b9; }
+
+.sx-week {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 18px 0 16px;
+  border-left: 1px solid #2a3238;
+  background: rgba(255, 255, 255, 0.02);
+}
+.sx-brand { color: #6f7c80; font-size: 10px; font-weight: 700; line-height: 12px; }
+.sx-days { display: flex; justify-content: space-between; }
+.sx-day { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.sx-w, .sx-n { color: #6f7c80; font-size: 10px; line-height: 12px; }
+.sx-dot { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px; font-size: 12px; font-weight: 800; }

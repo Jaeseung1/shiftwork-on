@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { AlarmClock, BatteryMedium, Cast, LockKeyhole, Bluetooth, Calculator, Camera, Flashlight, Mic, Moon, Pause, Plane, QrCode, Signal, SkipBack, SkipForward, Sun, SunMedium, Timer, Volume2, Wifi } from 'lucide-react'
+import { AlarmClock, BatteryMedium, Bluetooth, Calculator, Camera, Flashlight, Mic, Moon, Pause, Plane, QrCode, Signal, SkipBack, SkipForward, Sun, SunMedium, Timer, Volume2, Wifi } from 'lucide-react'
 import { Phone, Stage, WALLPAPER } from '../../kit'
 import './cc.css'
 
@@ -48,23 +48,12 @@ function Control({ col, row, icon, title, value, k }: { col: number; row: number
 
 const I = { size: 24, strokeWidth: 2, absoluteStrokeWidth: true } as const
 
-function ControlCenter({ one }: { one?: boolean }) {
+function ControlCenter() {
   return (
     <div className="cc-grid">
       {/* 교대온: 중간 크기 컨트롤 두 개. 사용자가 맨 윗줄에 둔 배치 */}
-      {one ? (
-        <>
-          {/* 한 개짜리 안: 제목에 오늘, 값에 내일. 남는 두 칸은 작은 기본 컨트롤 */}
-          <Control col={0} row={0} k="0" icon={<Sun {...I} />} title="오늘 일근" value="내일 야근" />
-          <Round col={2} row={0}><LockKeyhole {...I} /></Round>
-          <Round col={3} row={0}><Cast {...I} /></Round>
-        </>
-      ) : (
-        <>
-          <Control col={0} row={0} k="0" icon={<Sun {...I} />} title="오늘 근무" value="일근" />
-          <Control col={2} row={0} k="1" icon={<Moon {...I} />} title="내일 근무" value="야근" />
-        </>
-      )}
+      <Control col={0} row={0} k="0" icon={<Sun {...I} />} title="오늘 근무" value="일근" />
+      <Control col={2} row={0} k="1" icon={<Moon {...I} />} title="내일 근무" value="야근" />
 
       {/* 연결: 2×2 판 안의 원 네 개. Wi-Fi만 켜짐 */}
       <div className="cc-pane cc-connect" style={box(0, 1, 2, 2)}>
@@ -95,7 +84,7 @@ function ControlCenter({ one }: { one?: boolean }) {
   )
 }
 
-export function ShiftworkCC({ one }: { one?: boolean }) {
+export default function ShiftworkControlCenter() {
   return (
     <Stage width={720} height={480} compact={{ below: 560, width: 358, height: 460 }} className="swcc">
       {(_, __, layout) => {
@@ -105,15 +94,11 @@ export function ShiftworkCC({ one }: { one?: boolean }) {
         return (
           <div className="swcc-device" style={{ left: Math.round((w - pw) / 2), top: compact ? 16 : 40 }}>
             <Phone width={pw} frame="pro" dark wallpaper={`linear-gradient(rgba(8, 10, 20, .5), rgba(8, 10, 20, .5)), ${WALLPAPER}`}>
-              <ControlCenter one={one} />
+              <ControlCenter />
             </Phone>
           </div>
         )
       }}
     </Stage>
   )
-}
-
-export default function ShiftworkControlCenter() {
-  return <ShiftworkCC />
 }

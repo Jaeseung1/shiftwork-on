@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">교대온</string>
+    <string name="widget_4x1">교대온 4x1</string>
+    <string name="widget_2x1">교대온 2x1</string>
+    <string name="widget_1x1">교대온 1x1</string>
+    <string name="widget_4x1_desc">오늘·내일 근무와 앞으로 5일</string>
+    <string name="widget_2x1_desc">오늘 근무와 지금 상태, 내일 근무</string>
+    <string name="widget_1x1_desc">오늘 근무와 지금 상태</string>
+    <string name="widget_empty">앱을 한 번 열면 근무가 보여요</string>
+    <string name="next_5">앞으로 5일</string>
+</resources>

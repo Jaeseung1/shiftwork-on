@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="page">#0F1115</color>
+    <color name="w_bg">#1A1D24</color>
+    <color name="w_inset">#232730</color>
+    <color name="w_ink">#F2F4F6</color>
+    <color name="w_body">#B0B8C1</color>
+    <color name="w_sub">#8B95A1</color>
+    <color name="w_blue">#4795FF</color>
+    <color name="s_day">#F0B04A</color>
+    <color name="s_night">#B7A5ED</color>
+    <color name="s_dawn">#8FC0EA</color>
+    <color name="s_off">#5FD3A8</color>
+</resources>

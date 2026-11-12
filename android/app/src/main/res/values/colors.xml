@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 토스 스타일 값(design/pages/widget.html과 같음, 제3자 정리값이며 공식 토큰 아님) -->
+<resources>
+    <color name="page">#F2F4F6</color>
+    <color name="icon_bg">#3182F6</color>
+    <color name="w_bg">#FFFFFF</color>
+    <color name="w_inset">#F2F4F6</color>
+    <color name="w_ink">#191F28</color>
+    <color name="w_body">#4E5968</color>
+    <color name="w_sub">#8B95A1</color>
+    <color name="w_blue">#3182F6</color>
+    <color name="s_day">#D9820B</color>
+    <color name="s_night">#7866C2</color>
+    <color name="s_dawn">#3D84C4</color>
+    <color name="s_off">#05A672</color>
+</resources>

@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'app.shiftwork.on'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'app.shiftwork.on'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '0.1'
+        // 웹 앱 주소(예: Vercel 주소). 비우면 앱에 들어 있는 웹 파일을 쓴다.
+        // 빌드할 때 바꾸려면: ./gradlew assembleDebug -PwebAppUrl=https://...
+        buildConfigField 'String', 'WEB_APP_URL', "\"${project.findProperty('webAppUrl') ?: ''}\""
+    }
+
+    buildFeatures { buildConfig true }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main { assets.srcDirs += ["$buildDir/generated/webassets"] }
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+    implementation 'androidx.work:work-runtime:2.9.1'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+// 레포 루트의 웹 앱 파일을 앱 안(assets/web)에 넣는다
+def copyWebAssets = tasks.register('copyWebAssets', Copy) {
+    from(rootProject.file('..')) {
+        include 'index.html', 'sync.js', 'config.js', 'manifest.webmanifest', 'sw.js', 'icons/**'
+    }
+    into "$buildDir/generated/webassets/web"
+}
+preBuild.dependsOn copyWebAssets

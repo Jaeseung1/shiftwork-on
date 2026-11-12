@@ -34,6 +34,11 @@ public final class WidgetRender {
     private WidgetRender() {}
 
     public static RemoteViews build(Context c, Kind kind) {
+        return build(c, kind, Instant.now(), ZoneId.systemDefault());
+    }
+
+    /** 시험용: 시각과 시간대를 정해서 그린다. */
+    static RemoteViews build(Context c, Kind kind, Instant now, ZoneId zone) {
         int layout = kind == Kind.W4x1 ? R.layout.widget_4x1 : kind == Kind.W2x1 ? R.layout.widget_2x1 : R.layout.widget_1x1;
         RemoteViews v = new RemoteViews(c.getPackageName(), layout);
         Intent open = new Intent(c, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -45,15 +50,15 @@ public final class WidgetRender {
         v.setViewVisibility(R.id.empty, empty ? View.VISIBLE : View.GONE);
         if (empty) return v;
 
-        Instant now = Instant.now();
-        ZoneId zone = ZoneId.systemDefault();
         LocalDate today = ShiftCalc.kstDate(now);
         LocalDate tom = today.plusDays(1);
         String s = calc.shiftOn(today);
         String t = calc.shiftOn(tom);
         ShiftCalc.Status st = calc.status(now, zone);
 
-        v.setTextViewText(R.id.today_cap, kind == Kind.W1x1 ? "오늘 · " + today.getDayOfMonth() + "일" : "오늘 · " + today.getDayOfMonth() + "일 " + week(today));
+        // 작은 크기는 세 줄(근무 · 상태 · 시각)만 들어가므로 "오늘" 머리줄은 4x1에만 둔다
+        v.setTextViewText(R.id.today_cap, "오늘 · " + today.getDayOfMonth() + "일 " + week(today));
+        v.setViewVisibility(R.id.today_cap, kind == Kind.W4x1 ? View.VISIBLE : View.GONE);
         v.setTextViewText(R.id.today_name, ShiftCalc.name(s));
 
         if (kind == Kind.W4x1) {
@@ -86,10 +91,12 @@ public final class WidgetRender {
         return "내일 " + ShiftCalc.name(t);
     }
 
-    private static void next(RemoteViews v, LocalDate tom, String t, ZoneId zone, boolean withWeekday) {
-        v.setTextViewText(R.id.next_cap, "내일 · " + tom.getDayOfMonth() + "일" + (withWeekday ? " " + week(tom) : ""));
+    /** 내일 칸. 4x1은 근무 구간(17:30–08:30), 좁은 2x1은 출근 시각만(17:30 출근). */
+    private static void next(RemoteViews v, LocalDate tom, String t, ZoneId zone, boolean compact) {
+        v.setTextViewText(R.id.next_cap, compact ? "내일 " + tom.getDayOfMonth() + "일" : "내일 · " + tom.getDayOfMonth() + "일");
         v.setTextViewText(R.id.next_name, ShiftCalc.name(t));
-        v.setTextViewText(R.id.next_time, ShiftCalc.shortRange(tom, t, zone));
+        Instant[] p = ShiftCalc.instants(tom, t);
+        v.setTextViewText(R.id.next_time, compact ? (p == null ? "" : ShiftCalc.time(p[0], zone) + " 출근") : ShiftCalc.shortRange(tom, t, zone));
     }
 
     private static String week(LocalDate d) {

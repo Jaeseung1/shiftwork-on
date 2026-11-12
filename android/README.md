@@ -23,7 +23,8 @@
 ## 정식 빌드와 서명 키 (업데이트하려면 꼭 필요)
 - 정식 APK: `./gradlew assembleRelease` → `app/build/outputs/apk/release/app-release.apk`
 - 서명 키: `android/signing/shiftwork-release.jks`와 비밀번호가 든 `android/keystore.properties`. **둘 다 저장소에 넣지 않는다**(.gitignore). 2026-11-12에 만들어 사용자에게 파일로 전달했다(인증서 SHA-256 `1d9fe2ac…e377`).
-- 새 작업 세션(컨테이너)에서는 이 두 파일이 없으므로, 사용자가 받은 zip을 올리면 `android/`에 풀고 빌드한다. 키가 없으면 release APK가 서명되지 않는다.
+- 보관: 사용자 요청으로 Supabase 프로젝트 shiftwork-on의 **Vault**에 키 zip을 base64로 넣어 두었다(이름 `shiftwork_android_signing_key_zip_b64`, zip SHA-256 `357492d8…5b97`). anon·authenticated는 읽을 수 없다.
+- 새 작업 세션(컨테이너)에서는 키 파일이 없으므로, Supabase 커넥터로 `select decrypted_secret from vault.decrypted_secrets where name = 'shiftwork_android_signing_key_zip_b64'`를 읽어 `base64 -d > shiftwork-signing-key.zip` → SHA-256 확인 → `android/`에 `keystore.properties`, `android/signing/`에 `shiftwork-release.jks`를 둔다. 키가 없으면 release APK가 서명되지 않는다.
 - 같은 키로 빌드해야 이미 설치된 앱 위에 덮어 설치된다. 키를 잃어버리면 앱을 지우고 다시 깔아야 하고, 폰에만 저장된 근무표는 사라진다(로그인해서 서버에 저장된 근무표는 남는다).
 - 업데이트할 때는 `app/build.gradle`의 `versionCode`를 1씩 올린다.
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f2f4f6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)"><title>교대온 · 근무표</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f2f4f6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)"><title>교대온 · 근무표</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="교대온"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 /* 교대온 v2 디자인: 토스 스타일. 위젯(design/pages/widget.html)·제어 센터·Stageshow 데모와 같은 값.
    토스 값은 제3자 정리 페이지(oppadu) 기준이며 공식 토큰이 아님. 아이콘은 lucide(ISC). */
@@ -229,4 +229,8 @@ document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=()=>setScreen(b.
 window.shiftApp={data,key,render(){$('#anchorDate').value=data.anchor;$('#anchorShift').value=data.anchorShift;renderHome();renderCalendar()},cache(){localStorage.setItem(key,JSON.stringify({anchor:data.anchor,anchorShift:data.anchorShift,overrides:data.overrides,invite:data.invite}))},toast:showToast,setScreen,onChange:null,readOnly:false}})();
 </script>
 <script type="module" src="sync.js"></script>
+<script>
+// 홈 화면 앱(PWA)용 오프라인 캐시. 안드로이드 앱(WebView, ShiftBridge 있음) 안에서는 앱이 파일을 직접 주므로 쓰지 않는다.
+if('serviceWorker' in navigator&&!window.ShiftBridge&&(location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname))){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
 </body></html>

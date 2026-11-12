@@ -52,6 +52,14 @@
 - 별도 리뷰어 검토, 실제 앱 화면과의 나란히 비교, reduced motion, 실기기 확인.
 - 실제 설치 가능한 위젯은 네이티브 앱(안드로이드 앱 위젯, iOS WidgetKit/컨트롤)이 필요. 레포에는 manifest, 서비스 워커 없음.
 
+## 실제 앱 개발 (2026-11-12, 사용자 결정: 무료 구성)
+- 아이폰은 웹 앱(PWA), 갤럭시는 안드로이드 앱 + 위젯, 서버는 Supabase, 웹 공개는 Vercel. 애플 연회비가 없어 아이폰 위젯·제어 센터는 보류.
+- 1 Supabase: supabase/ (스키마·RLS·함수, 로컬 PostgreSQL 권한 시험 24개). 시험 중 insert…returning이 RLS에 막히는 버그를 찾아 고침.
+- 2 웹 앱 연결: config.js, sync.js (이메일 코드 로그인, 저장, 초대, 가족 읽기 전용, 위젯 전달). 끝에서 끝까지 시험 25개.
+- 3 안드로이드: android/ (WebView + ShiftBridge + RefreshWorker + 위젯 3종, ShiftCalc 30개 시험). 안드로이드 SDK가 없어 실제 빌드는 못 함.
+- 4 PWA·배포: manifest.webmanifest, sw.js, icons/, vercel.json, .vercelignore. 오프라인 새로고침 확인.
+- 남은 일: 사용자가 Supabase 프로젝트·Vercel 계정 만들기, config.js 채우기, Android Studio로 APK 빌드·실기기 확인.
+
 ## 다음 후보
 1. ~~위젯·제어 센터 목업을 PNG로 내보내기~~ (완료, images/export/)
 2. 레포에 웹 앱 manifest 추가(홈 화면에 추가용)

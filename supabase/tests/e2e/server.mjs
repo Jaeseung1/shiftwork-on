@@ -55,6 +55,6 @@ http.createServer((req, res) => {
   }
   const f = path.join(root, decodeURIComponent(req.url.split('?')[0]) === '/' ? 'index.html' : decodeURIComponent(req.url.split('?')[0]))
   if (!fs.existsSync(f)) { res.statusCode = 404; return res.end('no') }
-  res.setHeader('content-type', f.endsWith('.js') ? 'text/javascript' : f.endsWith('.html') ? 'text/html; charset=utf-8' : 'application/octet-stream')
+  res.setHeader('content-type', f.endsWith('.js') ? 'text/javascript' : f.endsWith('.png') ? 'image/png' : f.endsWith('.webmanifest') ? 'application/manifest+json' : f.endsWith('.html') ? 'text/html; charset=utf-8' : 'application/octet-stream')
   res.end(fs.readFileSync(f))
 }).listen(Number(port), () => console.log('listening', port))

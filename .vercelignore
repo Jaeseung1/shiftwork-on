@@ -1,0 +1,7 @@
+# 웹 앱에 필요 없는 폴더는 배포하지 않는다
+design
+android
+supabase
+assets
+control-center-concept.html
+*.md

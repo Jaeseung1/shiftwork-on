@@ -1,10 +1,10 @@
 # 교대온 — 교대근무표
 
-오늘·내일 근무를 한눈에 보고, 가족과 근무표를 나누는 교대근무 앱입니다.
+오늘·내일 근무를 한눈에 보고, 다른 사람과 근무표를 나누는 교대근무 앱입니다.
 
-- **아이폰·PC**: 웹 앱(PWA). Safari에서 열고 "홈 화면에 추가"하면 앱처럼 쓴다. 인터넷이 없어도 열린다.
+- **아이폰·PC**: 웹 앱(PWA). Safari에서 열고 "홈 화면에 추가"하면 앱처럼 쓴다. 인터넷이 없어도 열린다. 아이폰 제어 센터에는 단축어로 오늘·내일 근무 버튼을 둔다.
 - **갤럭시**: 안드로이드 앱 + 홈 화면 위젯 4x1·2x1·1x1 (`android/`).
-- **서버(선택)**: Supabase. 로그인, 근무표 저장, 가족 초대(가족은 읽기만) (`supabase/`).
+- **서버(선택)**: Supabase. 로그인, 근무표 저장, 초대 코드 공유(공유받는 사람은 읽기만) (`supabase/`).
 
 서버를 설정하지 않아도 앱은 그 기기 안에서 그대로 동작합니다.
 
@@ -17,11 +17,11 @@
 
 ## 처음 설정하는 순서 (모두 무료 요금제 기준)
 
-### 1. Supabase (가족 공유를 쓸 때)
-`supabase/README.md`를 따른다. 요약:
-1. supabase.com에서 프로젝트를 만들고, SQL Editor에서 `supabase/migrations/20261112000000_init.sql`을 실행한다.
-2. Authentication에서 Email을 켜고, Email Templates의 Magic Link 양식에 `{{ .Token }}`을 넣는다(앱 안에서 메일 코드로 로그인하기 위해).
-3. Project Settings → API의 Project URL과 anon key를 `config.js`에 넣는다. service_role key는 넣지 않는다.
+### 1. Supabase (공유를 쓸 때)
+`supabase/README.md`를 따른다(이 레포의 프로젝트는 이미 만들어 적용해 두었다). 요약:
+1. 프로젝트를 만들고 `supabase/migrations/`의 SQL을 이름 순서대로 실행한다.
+2. Authentication에서 Email(이메일+비밀번호)과 익명 로그인을 켠다. 공유받는 사람은 메일 없이 초대 코드만 넣는다.
+3. Project URL과 Publishable key를 `config.js`에 넣는다. secret·service_role key는 넣지 않는다.
 
 ### 2. Vercel (웹 앱 공개)
 1. vercel.com에서 이 GitHub 레포를 Import한다.
@@ -30,16 +30,18 @@
 4. 나온 주소를 Supabase의 Authentication → URL Configuration(Site URL, Redirect URLs)에 넣는다.
 
 ### 3. 아이폰에 설치
-Safari로 웹 앱 주소를 열고 공유 버튼 → "홈 화면에 추가". 설정 탭에서 이메일로 로그인한다(메일의 코드를 넣는다).
+1. Safari로 웹 앱 주소(Vercel)를 열고 공유 버튼 → "홈 화면에 추가".
+2. 홈 화면의 교대온을 열고 설정 탭에서 이메일+비밀번호로 로그인한다(공유받는 사람은 공유 탭에 초대 코드만 넣는다).
+3. 제어 센터 버튼(iOS 18 이상): 설정 탭 "아이폰 제어 센터"의 "단축어 주소 복사" → 단축어 앱에서 "URL 콘텐츠 가져오기"(주소 붙여 넣기) → "사전 값 가져오기"(키 `today`·`tomorrow`·`text`) → "알림 보기" → 제어 센터 편집에서 "제어 항목 추가" → "단축어"로 그 단축어를 고른다. 주소는 `share_summary_json`을 부르며 토큰이 들어 있어 읽기 전용 열쇠 역할을 한다.
 
 ### 4. 갤럭시에 설치
-`android/README.md`를 따른다. Android Studio에서 APK를 만들어 가족 폰에 보내 설치하고, 홈 화면을 길게 눌러 교대온 위젯을 놓는다. 웹 앱 주소로 열려면 `-PwebAppUrl=<Vercel 주소>`로 빌드한다.
+`android/README.md`를 따른다. 정식 서명 APK(`shiftwork-on-0.3.apk` 등)를 폰에 보내 설치하고, 홈 화면을 길게 눌러 교대온 위젯을 놓는다. 갤럭시 앱은 웹 파일을 앱 안에 넣은 채로 쓰고, 업데이트는 같은 키로 서명한 새 APK를 덮어 설치한다.
 
-### 가족 초대
-근무표 주인이 가족 탭에서 "초대 코드 만들기"(7일 유효) → 가족은 로그인 후 가족 탭의 "초대 코드 입력"에 넣는다. 가족은 근무표를 볼 수만 있고, 갤럭시 위젯도 주인의 근무표를 보여 준다.
+### 공유(초대 코드)
+근무표 주인이 공유 탭에서 "초대 코드 만들기"(7일 유효) → 받는 사람은 로그인 없이 공유 탭의 "초대 코드 입력"에 넣는다. 받는 사람은 근무표를 볼 수만 있고, 갤럭시 위젯·아이폰 단축어도 주인의 근무표를 보여 준다.
 
 ## 파일
-- `index.html` — 앱 화면(홈, 근무표, 가족, 설정)
+- `index.html` — 앱 화면(홈, 근무표, 공유, 설정)
 - `sync.js` — 서버 연결과 안드로이드 위젯 전달
 - `config.js` — Supabase 주소·anon key(비우면 기기 저장)
 - `manifest.webmanifest`, `sw.js`, `icons/` — 홈 화면 설치와 오프라인
@@ -49,11 +51,10 @@ Safari로 웹 앱 주소를 열고 공유 버튼 → "홈 화면에 추가". 설
 - `design/` — 디자인 목업(위젯, 제어 센터, Stageshow 데모)과 인계 문서
 
 ## 시험
-- 권한 SQL: `PGHOST=… PGPORT=… PGUSER=postgres bash supabase/tests/run.sh` (24개)
-- 웹 앱 + 서버 끝에서 끝까지: `PGHOST=… PGPORT=… bash supabase/tests/e2e/run.sh` (25개, 가짜 supabase-js + 로컬 PostgreSQL)
-- 위젯 근무 계산: `android/README.md` (30개, 웹 앱 결과와 대조)
+- 권한 SQL: `PGHOST=… PGPORT=… PGUSER=postgres bash supabase/tests/run.sh` (권한 24개 + 단축어 함수 11개)
+- 웹 앱 + 서버 끝에서 끝까지: `PGHOST=… PGPORT=… bash supabase/tests/e2e/run.sh` (34개, 가짜 supabase-js + 로컬 PostgreSQL)
+- 위젯: `android/README.md` (근무 계산 30개를 웹 앱 결과와 대조 + 위젯 그림 시험 10개)
 
 ## 한계
-- 아이폰 위젯·제어 센터 컨트롤은 웹 앱으로 만들 수 없어 넣지 않았다(목업만 `design/`에 있음). 애플 개발자 프로그램(연 $99)이 필요하다.
-- 안드로이드 앱은 이 저장소를 만든 환경에서 빌드해 보지 못했다(안드로이드 SDK 없음). 처음 빌드 때 오류가 날 수 있다.
-- 실제 Supabase 프로젝트와 실제 메일 발송, 실기기는 아직 시험하지 않았다.
+- 아이폰 전용 위젯·제어 센터 컨트롤(앱 자체)은 웹 앱으로 만들 수 없다. 네이티브 앱은 Mac·Xcode와 애플 개발자 프로그램(연 $99)이 필요해, 대신 단축어로 제어 센터 버튼을 만든다. 단축어 버튼은 누르면 알림으로 보여 주고, 버튼 자체에 근무가 늘 떠 있지는 않다.
+- 아이폰 실기기에서 단축어·제어 센터는 아직 시험하지 않았다. 갤럭시 위젯도 실기기 화면은 아직 못 봤다(그림 시험만).

@@ -125,7 +125,7 @@ button:disabled{opacity:.5;cursor:default}
 .privacy{font-size:13px;line-height:1.6;color:var(--muted)}
 .privacy b{color:var(--ink)}
 .bottom-spacer{height:4px}
-.acct-state{margin:-6px 0 14px;font-size:14px;color:var(--muted);line-height:1.5}
+.steps{margin:14px 0 0;padding-left:20px;font-size:14px;color:var(--muted);line-height:1.6}.steps li+li{margin-top:4px}.steps code{font-size:13px;background:var(--inset);border-radius:6px;padding:1px 5px;color:var(--ink)}.acct-state{margin:-6px 0 14px;font-size:14px;color:var(--muted);line-height:1.5}
 .acct-login{display:grid;gap:8px}
 .join-row{display:grid;grid-template-columns:1fr auto;gap:8px}
 .join-row .date-input{letter-spacing:.12em;text-transform:uppercase;font-weight:700}
@@ -205,7 +205,8 @@ html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly
 <div class="panel" id="patternPanel"><h3>반복 주기 기준</h3><div class="row"><div class="form-item"><label class="setting-label" for="anchorDate">기준 날짜</label><input class="date-input full" id="anchorDate" type="date"></div><div class="form-item"><label class="setting-label" for="anchorShift">그날 근무</label><select class="select full" id="anchorShift"><option value="일">일근</option><option value="야">야근</option><option value="조">조근</option><option value="휴">휴무</option></select></div></div><button class="primary full" id="savePattern">패턴 저장</button><p class="notice">기준 날짜의 근무를 입력하면 일 → 야 → 조 → 휴 순으로 반복 계산돼요.</p></div>
 <div class="panel"><h3>근무 시간 · 한국시간</h3><div class="form-item"><label class="setting-label">일근</label><div class="row"><input class="date-input full" value="08:30" aria-label="일근 시작" disabled><input class="date-input full" value="17:30" aria-label="일근 종료" disabled></div></div><div class="form-item"><label class="setting-label">야근 · 조근</label><div class="row"><input class="date-input full" value="17:30 야근 시작" disabled><input class="date-input full" value="08:30 조근 퇴근" disabled></div></div><p class="notice">현재 근무시간은 네가 알려준 기준으로 설정되어 있어요.</p></div>
 <div class="panel"><h3>근무표 공유</h3><p class="page-sub" style="margin:0 0 14px">초대 코드를 받은 사람이 앱에서 내 근무표를 볼 수 있어요.</p><button class="secondary full" data-go="family">공유 관리 열기</button></div>
-<p class="notice" style="text-align:center">교대온 · 디자인 시제품 v0.2</p>
+<div class="panel" id="iosPanel"><h3>아이폰 제어 센터</h3><p class="page-sub" style="margin:0 0 14px" id="iosState">단축어를 만들면 제어 센터 버튼으로 오늘·내일 근무를 볼 수 있어요.</p><button class="secondary full" id="iosCopy">단축어 주소 복사</button><input class="date-input full" id="iosUrl" readonly hidden aria-label="단축어 주소" style="margin-top:10px"><ol class="steps"><li>위 버튼으로 주소를 복사해요.</li><li>단축어 앱에서 <b>+</b>를 누르고 <b>URL 콘텐츠 가져오기</b>를 넣은 뒤 주소를 붙여 넣어요.</li><li><b>사전 값 가져오기</b>를 넣고 키에 <code>today</code>(오늘), <code>tomorrow</code>(내일), <code>text</code>(둘 다) 중 하나를 적어요.</li><li><b>알림 보기</b>를 넣고 단축어 이름을 “오늘 근무”처럼 정해요.</li><li>제어 센터를 열고 왼쪽 위 <b>+</b> → <b>제어 항목 추가</b> → <b>단축어</b>에서 방금 만든 단축어를 골라요.</li></ol><p class="notice">주소에는 내 근무표를 읽는 열쇠가 들어 있어요. 믿는 사람에게만 알려 주세요. 오늘·내일을 따로 두려면 단축어를 두 개 만들면 돼요.</p></div>
+<p class="notice" style="text-align:center">교대온 v0.3</p>
 </section>
 </main>
 <nav class="nav" aria-label="주요 메뉴">

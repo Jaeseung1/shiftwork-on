@@ -238,6 +238,7 @@ function bindUI() {
     await onSession(null)
     app.toast('로그아웃했어요')
   }
+  $('#iosCopy').onclick = copyShortcut
   $('#joinBtn').onclick = async () => {
     const code = $('#joinCode').value.trim().toUpperCase()
     if (!CODE_RE.test(code)) return app.toast('코드 6자리를 확인해 주세요')
@@ -273,6 +274,7 @@ function bindUI() {
     if (!st.inviteReady) return
     navigator.clipboard?.writeText(app.data.invite).catch(() => {})
     $('#modalText').textContent = `초대 코드 ${app.data.invite}를 보내고, 받은 사람은 앱의 공유 탭에서 코드를 입력하면 돼요.`
+    $('#modal .demo').hidden = true // "시제품이라 동작하지 않아요" 안내는 서버 없는 모드에서만
     $('#modal').classList.add('open')
   }
 }
@@ -292,7 +294,48 @@ async function createInvite() {
   app.toast('초대 코드를 만들었어요')
 }
 
+// ---- 아이폰 단축어(제어 센터) ----
+// 단축어가 로그인 없이 부를 주소. 토큰은 근무표를 읽기만 하는 열쇠(widget_schedule과 같은 토큰).
+function shortcutUrl() {
+  if (!st.schedule?.widget_token || !cfg.supabaseUrl || !cfg.supabaseAnonKey) return ''
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Seoul'
+  const q = new URLSearchParams({ p_token: st.schedule.widget_token, p_tz: tz, apikey: cfg.supabaseAnonKey })
+  return `${cfg.supabaseUrl}/rest/v1/rpc/share_summary_json?${q}`
+}
+
+function renderIos() {
+  const panel = $('#iosPanel')
+  if (!panel) return
+  // 안드로이드 앱 안에서는 홈 화면 위젯이 있으니 숨긴다
+  panel.hidden = !!window.ShiftBridge
+  const url = shortcutUrl()
+  $('#iosCopy').disabled = !url
+  $('#iosState').textContent = url
+    ? '단축어를 만들면 제어 센터 버튼으로 오늘·내일 근무를 볼 수 있어요.'
+    : '로그인하거나 초대 코드로 참여하면 쓸 수 있어요(단축어가 서버에서 근무표를 읽어요).'
+  if (!url) $('#iosUrl').hidden = true
+}
+
+async function copyShortcut() {
+  const url = shortcutUrl()
+  if (!url) return app.toast('먼저 로그인하거나 초대 코드로 참여해 주세요')
+  const box = $('#iosUrl')
+  try {
+    await navigator.clipboard.writeText(url)
+    box.hidden = true
+    app.toast('단축어 주소를 복사했어요')
+  } catch (e) {
+    // 복사가 막힌 브라우저면 주소를 보여 주고 직접 복사하게 한다
+    box.value = url
+    box.hidden = false
+    box.focus()
+    box.select()
+    app.toast('주소를 길게 눌러 복사해 주세요')
+  }
+}
+
 function renderAccount() {
+  renderIos()
   const state = $('#acctState')
   const login = $('#acctLogin')
   const out = $('#acctOut')

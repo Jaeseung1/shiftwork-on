@@ -6,4 +6,10 @@ android/app/build/
 android/local.properties
 android/.idea/
 *.iml
-shiftwork-on-debug.apk
+shiftwork-on*.apk
+shiftwork-signing-key.zip
+# 서명 키는 저장소에 넣지 않는다
+*.jks
+*.keystore
+android/keystore.properties
+android/signing/

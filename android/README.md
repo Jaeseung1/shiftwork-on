@@ -20,8 +20,15 @@
    결과: `android/app/build/outputs/apk/debug/app-debug.apk`
 4. 웹 앱 주소를 쓰려면: `./gradlew assembleDebug -PwebAppUrl=https://<내 주소>`
 
+## 정식 빌드와 서명 키 (업데이트하려면 꼭 필요)
+- 정식 APK: `./gradlew assembleRelease` → `app/build/outputs/apk/release/app-release.apk`
+- 서명 키: `android/signing/shiftwork-release.jks`와 비밀번호가 든 `android/keystore.properties`. **둘 다 저장소에 넣지 않는다**(.gitignore). 2026-11-12에 만들어 사용자에게 파일로 전달했다(인증서 SHA-256 `1d9fe2ac…e377`).
+- 새 작업 세션(컨테이너)에서는 이 두 파일이 없으므로, 사용자가 받은 zip을 올리면 `android/`에 풀고 빌드한다. 키가 없으면 release APK가 서명되지 않는다.
+- 같은 키로 빌드해야 이미 설치된 앱 위에 덮어 설치된다. 키를 잃어버리면 앱을 지우고 다시 깔아야 하고, 폰에만 저장된 근무표는 사라진다(로그인해서 서버에 저장된 근무표는 남는다).
+- 업데이트할 때는 `app/build.gradle`의 `versionCode`를 1씩 올린다.
+
 ## 가족 폰에 설치
-`app-debug.apk`를 카카오톡·메일 등으로 보내고, 가족 폰에서 열어 설치한다. 처음에는 "출처를 알 수 없는 앱 설치"를 허용해야 한다. 홈 화면을 길게 눌러 위젯 → 교대온을 고르면 위젯이 놓인다. 위젯은 앱을 한 번 연 뒤부터 근무를 보여 준다.
+정식 APK(`app-release.apk`)를 카카오톡·메일 등으로 보내고, 가족 폰에서 열어 설치한다. 처음에는 "출처를 알 수 없는 앱 설치"를 허용해야 한다. 홈 화면을 길게 눌러 위젯 → 교대온을 고르면 위젯이 놓인다. 위젯은 앱을 한 번 연 뒤부터 근무를 보여 준다.
 
 ## 시험
 ```bash

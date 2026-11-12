@@ -19,4 +19,4 @@ Not checked 추가: 라이트 v2의 --states 시트, fresh-eye 리뷰, 실제 �
 Gate v3: 정지 1280·390, 루프 1280·390 모두 rehearsal passed. 커버리지는 이번에도 inconclusive(샘플 간격 최대 약 95ms, 샌드박스 부하).
 이미지: design/images/export/sw-demo-wide.png(720×340), sw-demo-compact.png(358×440). reduced motion으로 poster(15일 야근 저장 후)를 찍음. v2 이미지(sw-light-*.png)는 git 기록에만 남김.
 Not checked: fresh-eye 리뷰, 실제 앱(index.html) 화면과의 나란히 비교. 실제 앱은 아직 초록(#087f70) 토큰이라 데모와 앱의 색이 지금은 다름.
-v3.1: 근무 시간 정정(사용자 확인: 야근 17:30–24:00, 조근 00:00–08:30). 편집 패널 요약이 "한국시간 17:30–24:00"으로 바뀜(앱 index.html의 timezoneSummary와 같은 문구). 게이트 정지·루프 1280·390 다시 통과, 커버리지 inconclusive.
+v3.1: 야근 17:30–24:00 / 조근 00:00–08:30으로 쪼개 보여 주는 안을 시도했다가 사용자 확인으로 되돌림(이어지는 한 구간 17:30–다음 날 08:30이 맞음). 데모 문구와 이미지는 v3 그대로.

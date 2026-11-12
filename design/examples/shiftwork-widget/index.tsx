@@ -11,7 +11,7 @@ const day = (d: number) => ({ d, w: WEEK[mod(d - 12 + 4, 7)]!, s: mod(d - 12, 4)
 
 const MAIN = [
   { label: '오늘', ...day(12), time: '08:30–17:30' },
-  { label: '내일', ...day(13), time: '17:30–24:00' },
+  { label: '내일', ...day(13), time: '17:30–08:30' },
 ]
 const NEXT = [14, 15, 16, 17, 18].map(day)
 

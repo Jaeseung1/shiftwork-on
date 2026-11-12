@@ -7,8 +7,5 @@
     <color name="w_body">#B0B8C1</color>
     <color name="w_sub">#8B95A1</color>
     <color name="w_blue">#4795FF</color>
-    <color name="s_day">#F0B04A</color>
-    <color name="s_night">#B7A5ED</color>
-    <color name="s_dawn">#8FC0EA</color>
-    <color name="s_off">#5FD3A8</color>
+    <color name="w_blue_soft">#1E2B40</color>
 </resources>

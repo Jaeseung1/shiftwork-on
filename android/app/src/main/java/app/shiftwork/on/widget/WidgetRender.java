@@ -17,19 +17,16 @@ import app.shiftwork.on.Store;
 import app.shiftwork.on.core.ShiftCalc;
 
 /**
- * 위젯 그리기. 디자인은 design/pages/widget.html(토스 스타일)과 같다.
- * - 4x1: 오늘(큰 파란 글씨) · 내일 · 앞으로 5일
- * - 2x1: 오늘 + 근무 중/퇴근 시각 · 내일(회색 안쪽 카드)
- * - 1x1: 오늘 + 근무 중/퇴근 시각
+ * 위젯 그리기. 큰 근무 이름 하나, 상태 칩 하나, 파란색은 "근무 중"과 진행 막대에만.
+ * - 4x1: 오늘(이름 · 상태 칩 · 시간과 남은 시간 · 진행 막대) | 내일(회색 카드)
+ * - 2x1: 오늘 이름 · 상태 칩과 퇴근/출근 시각 · "내일 ○○ · 시각"
+ * - 1x1: 오늘 이름 · 상태 칩 · 퇴근/출근 시각 또는 "내일 ○○"
  * 날짜·근무는 한국 날짜 기준, 시각은 기기 시간대.
  */
 public final class WidgetRender {
     public enum Kind { W4x1, W2x1, W1x1 }
 
     private static final String[] WEEK = {"월", "화", "수", "목", "금", "토", "일"};
-    private static final int[] DAY_W = {R.id.d0_w, R.id.d1_w, R.id.d2_w, R.id.d3_w, R.id.d4_w};
-    private static final int[] DAY_S = {R.id.d0_s, R.id.d1_s, R.id.d2_s, R.id.d3_s, R.id.d4_s};
-    private static final int[] DAY_N = {R.id.d0_n, R.id.d1_n, R.id.d2_n, R.id.d3_n, R.id.d4_n};
 
     private WidgetRender() {}
 
@@ -55,61 +52,72 @@ public final class WidgetRender {
         String s = calc.shiftOn(today);
         String t = calc.shiftOn(tom);
         ShiftCalc.Status st = calc.status(now, zone);
+        Instant end = calc.endOfCurrent(now);
+        Instant[] todayPair = ShiftCalc.instants(today, s);
 
-        // 작은 크기는 세 줄(근무 · 상태 · 시각)만 들어가므로 "오늘" 머리줄은 4x1에만 둔다
-        v.setTextViewText(R.id.today_cap, "오늘 · " + today.getDayOfMonth() + "일 " + week(today));
-        v.setViewVisibility(R.id.today_cap, kind == Kind.W4x1 ? View.VISIBLE : View.GONE);
         v.setTextViewText(R.id.today_name, ShiftCalc.name(s));
 
-        if (kind == Kind.W4x1) {
-            v.setTextViewText(R.id.today_time, ShiftCalc.shortRange(today, s, zone));
-            next(v, tom, t, zone, false);
-            for (int i = 0; i < 5; i++) {
-                LocalDate d = today.plusDays(i + 2);
-                String ds = calc.shiftOn(d);
-                v.setTextViewText(DAY_W[i], week(d));
-                v.setTextViewText(DAY_S[i], ShiftCalc.name(ds).substring(0, 1));
-                v.setTextViewText(DAY_N[i], String.valueOf(d.getDayOfMonth()));
-                color(c, v, DAY_S[i], shiftColor(ds));
-            }
-        } else {
-            // 작은 크기는 지금 상태: 근무 중이면 "근무 중 / 17:30 퇴근", 아니면 "퇴근 후 / 내일 야근 · 17:30 출근" 같은 문구
-            Instant end = calc.endOfCurrent(now);
-            v.setTextViewText(R.id.live, st.working ? "근무 중" : st.title);
-            color(c, v, R.id.live, st.working ? R.color.w_blue : R.color.w_sub);
-            v.setTextViewText(R.id.live_time, st.working && end != null ? ShiftCalc.time(end, zone) + " 퇴근" : liveLine(st, s, t, today, zone, kind));
-            if (kind == Kind.W2x1) next(v, tom, t, zone, true);
+        boolean working = st.working;
+        // 글꼴 크기를 키운 폰에서는 칸 높이(1줄)를 넘지 않게 덜 중요한 줄 하나를 뺀다
+        boolean bigFont = c.getResources().getConfiguration().fontScale > 1.1f;
+        if (kind == Kind.W1x1) {
+            // 칩 자리가 없으니 근무 중이면 퇴근 시각을 파란색으로, 아니면 출근 시각이나 내일 근무를 회색으로
+            String when = when(st, end, todayPair, zone);
+            v.setTextViewText(R.id.live_time, when.isEmpty() ? "내일 " + ShiftCalc.name(t) : when);
+            color(c, v, R.id.live_time, working ? R.color.w_blue : R.color.w_body);
+            if (bigFont) v.setViewPadding(R.id.root, dp(c, 8), dp(c, 6), dp(c, 6), dp(c, 6));
+            return v;
         }
+
+        // 상태 칩: 근무 중이면 파랑, 아니면 회색. 휴무 날은 이름과 겹치지 않게 "쉬는 날"
+        v.setTextViewText(R.id.live, working ? "근무 중" : st.title.equals("휴무") ? "쉬는 날" : st.title);
+        v.setInt(R.id.live, "setBackgroundResource", working ? R.drawable.widget_chip_on : R.drawable.widget_chip_off);
+        color(c, v, R.id.live, working ? R.color.w_blue : R.color.w_body);
+
+        if (kind == Kind.W4x1) {
+            v.setTextViewText(R.id.today_cap, "오늘 · " + today.getDayOfMonth() + "일 " + week(today));
+            v.setViewVisibility(R.id.today_cap, bigFont ? View.GONE : View.VISIBLE);
+            // 휴무면 시간 줄을 숨긴다("휴무 / 쉬는 날"처럼 같은 말을 두 번 하지 않게)
+            String range = ShiftCalc.shortRange(today, s, zone);
+            v.setTextViewText(R.id.today_time, working ? range + " · " + st.remaining : range);
+            v.setViewVisibility(R.id.today_time, range.isEmpty() ? View.GONE : View.VISIBLE);
+            v.setTextViewText(R.id.next_cap, "내일 · " + tom.getDayOfMonth() + "일 " + week(tom));
+            // 글꼴이 크면 "내일 · 13일 금" 줄을 빼고 이름에 "내일"을 붙인다
+            v.setViewVisibility(R.id.next_cap, bigFont ? View.GONE : View.VISIBLE);
+            v.setTextViewText(R.id.next_name, (bigFont ? "내일 " : "") + ShiftCalc.name(t));
+            // 내일 조근은 오늘 밤 야근이 이어지는 것이라 끝나는 시각만
+            Instant[] np = ShiftCalc.instants(tom, t);
+            String next = t.equals("조") && np != null ? ShiftCalc.time(np[1], zone) + " 퇴근" : ShiftCalc.shortRange(tom, t, zone);
+            v.setTextViewText(R.id.next_time, next);
+            v.setViewVisibility(R.id.next_time, next.isEmpty() ? View.GONE : View.VISIBLE);
+            return v;
+        }
+
+        // 2x1
+        String when = when(st, end, todayPair, zone);
+        v.setTextViewText(R.id.live_time, when);
+        v.setViewVisibility(R.id.live_time, when.isEmpty() ? View.GONE : View.VISIBLE);
+        // 내일이 조근이면 오늘 밤 야근에 이어지는 근무라 시작이 아니라 끝나는 시각을 적는다
+        Instant[] p = ShiftCalc.instants(tom, t);
+        String at = p == null ? "" : t.equals("조") ? " · " + ShiftCalc.time(p[1], zone) + " 퇴근" : " · " + ShiftCalc.time(p[0], zone);
+        v.setTextViewText(R.id.next_time, "내일 " + ShiftCalc.name(t) + at);
+        v.setViewVisibility(R.id.next_time, bigFont && !when.isEmpty() ? View.GONE : View.VISIBLE);
         return v;
     }
 
-    private static String liveLine(ShiftCalc.Status st, String s, String t, LocalDate today, ZoneId zone, Kind kind) {
-        // 2x1은 오른쪽 카드에 내일이 있으니 오늘 시각을 보여 준다
-        if (kind == Kind.W2x1) return s.equals("휴") ? "" : ShiftCalc.shortRange(today, s, zone);
-        // 1x1은 짧게: 근무 전이면 "08:30 출근", 퇴근 후·휴무면 "내일 야근"
-        if (st.title.equals("근무 전")) return st.sub.replace("오늘 ", "");
-        return "내일 " + ShiftCalc.name(t);
+    /** 근무 중이면 "17:30 퇴근", 근무 전이면 "08:30 출근", 그 밖에는 "" */
+    private static String when(ShiftCalc.Status st, Instant end, Instant[] todayPair, ZoneId zone) {
+        if (st.working && end != null) return ShiftCalc.time(end, zone) + " 퇴근";
+        if (st.title.equals("근무 전") && todayPair != null) return ShiftCalc.time(todayPair[0], zone) + " 출근";
+        return "";
     }
 
-    /** 내일 칸. 4x1은 근무 구간(17:30–08:30), 좁은 2x1은 출근 시각만(17:30 출근). */
-    private static void next(RemoteViews v, LocalDate tom, String t, ZoneId zone, boolean compact) {
-        v.setTextViewText(R.id.next_cap, compact ? "내일 " + tom.getDayOfMonth() + "일" : "내일 · " + tom.getDayOfMonth() + "일");
-        v.setTextViewText(R.id.next_name, ShiftCalc.name(t));
-        Instant[] p = ShiftCalc.instants(tom, t);
-        v.setTextViewText(R.id.next_time, compact ? (p == null ? "" : ShiftCalc.time(p[0], zone) + " 출근") : ShiftCalc.shortRange(tom, t, zone));
+    private static int dp(Context c, int dp) {
+        return Math.round(dp * c.getResources().getDisplayMetrics().density);
     }
 
     private static String week(LocalDate d) {
         return WEEK[d.getDayOfWeek().getValue() - 1];
-    }
-
-    private static int shiftColor(String s) {
-        switch (s) {
-            case "일": return R.color.s_day;
-            case "야": return R.color.s_night;
-            case "조": return R.color.s_dawn;
-            default: return R.color.s_off;
-        }
     }
 
     /** 안드로이드 12 이상은 색 리소스를 넘겨 런처의 다크 모드를 그대로 따르고, 그 아래는 지금 색으로 칠한다. */

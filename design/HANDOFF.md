@@ -65,7 +65,8 @@
 - Supabase(2026-11-12 진행): 프로젝트 shiftwork-on(rsmuvlythhcgrfnunnrn, 서울) 생성, 마이그레이션 2개 적용, 실제 DB 권한 시험 통과, config.js에 Publishable key. 가족은 익명 로그인 + 초대 코드(기본 메일은 팀원 주소로만 가서). 주인 로그인은 이메일+비밀번호(무료 요금제는 SMTP 없이 메일 양식 수정 불가라 메일 코드 방식 포기). 남은 것: 사용자가 대시보드에서 익명 로그인 켜기, 실제 가입·로그인 시험(가입 확인 메일 한 번 클릭).
 - 안드로이드 정식 서명 키: Supabase Vault `shiftwork_android_signing_key_zip_b64`에 보관(꺼내는 법은 android/README.md). 0.2부터 이 키로 서명. 업데이트 때 versionCode를 올리고 같은 키로 assembleRelease.
 - Vercel: 커넥터 연결 또는 vercel.com/new에서 레포 Import(브랜치 claude/design-handoff, Framework Other). 배포 주소를 Supabase URL Configuration에 넣기.
-- 실기기: 사용자가 APK(./gradlew assembleDebug) 설치 후 위젯 확인. 위젯 칸 크기는 어림값이라 실제 화면을 보고 조정.
+- 갤럭시 앱 0.3(versionCode 3): 사용자가 "위젯 별로, 더 깔끔하게"라고 해서 위젯을 다시 그림. 5일 칸을 빼고 근무 이름 + 상태 칩 + 한 줄 위주(자세한 것은 android/README.md). 한글 줄 높이 때문에 1칸에 글 세 줄까지만, 글꼴 120%도 시험. 같은 키로 서명해 0.2 위에 덮어 설치.
+- 실기기: 위젯 칸 크기는 어림값(80dp 높이)이라 실제 화면을 보고 조정.
 
 ## 다음 후보
 1. ~~위젯·제어 센터 목업을 PNG로 내보내기~~ (완료, images/export/)

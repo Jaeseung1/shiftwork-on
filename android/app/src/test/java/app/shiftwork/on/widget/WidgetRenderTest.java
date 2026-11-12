@@ -32,7 +32,7 @@ import app.shiftwork.on.core.ShiftCalc;
 
 /**
  * 위젯 3종을 실제 안드로이드 레이아웃으로 그려 글자와 그림(PNG)을 확인한다(실기기 대신).
- * 그림은 app/build/widget-shots/에 생긴다. 크기는 삼성 런처 칸을 어림한 값(4x1 ≈ 350×90dp)이다.
+ * 그림은 app/build/widget-shots/에 생긴다. 크기는 삼성 런처 칸을 작게 어림한 값(4x1 340×80dp, 2x1 160×80dp, 1x1 75×80dp)이다.
  */
 @RunWith(RobolectricTestRunner.class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -87,51 +87,146 @@ public class WidgetRenderTest {
         TextView t = root.findViewById(id);
         float need = t.getPaint().measureText(t.getText().toString());
         assertTrue("잘림: " + t.getText() + " need=" + need + " have=" + t.getWidth(), need <= t.getWidth() + 1);
+        assertTrue("…로 줄어듦: " + t.getText(), t.getLayout() == null || t.getLayout().getEllipsisCount(0) == 0);
+    }
+
+    private static int color(int res) {
+        return RuntimeEnvironment.getApplication().getColor(res);
+    }
+
+    private static int vis(View root, int id) {
+        return root.findViewById(id).getVisibility();
+    }
+
+    private static final int[] W4 = {R.id.today_cap, R.id.live, R.id.today_name, R.id.today_time, R.id.next_cap, R.id.next_name, R.id.next_time};
+
+    private static void check4x1(View v) {
+        for (int id : W4) if (vis(v, id) == View.VISIBLE) { fits(v, id); inside(v, id); }
     }
 
     @Test
     @Config(qualifiers = "w411dp-h891dp-xxhdpi")
-    public void w4x1_light() throws Exception {
+    public void w4x1_working() throws Exception {
         View v = render(WidgetRender.Kind.W4x1, "2026-11-12T13:00", "Asia/Seoul", 340, 80, "4x1-light");
         assertEquals("오늘 · 12일 목", text(v, R.id.today_cap));
+        assertEquals("근무 중", text(v, R.id.live));
         assertEquals("일근", text(v, R.id.today_name));
-        assertEquals("08:30–17:30", text(v, R.id.today_time));
+        assertEquals("08:30–17:30 · 4시간 30분 남음", text(v, R.id.today_time));
+        assertEquals("내일 · 13일 금", text(v, R.id.next_cap));
         assertEquals("야근", text(v, R.id.next_name));
         assertEquals("17:30–08:30", text(v, R.id.next_time));
-        assertEquals("조", text(v, R.id.d0_s));
-        assertEquals("야", text(v, R.id.d1_s)); // 11/15 바꾼 근무
-        for (int id : new int[]{R.id.today_cap, R.id.today_name, R.id.today_time, R.id.next_cap, R.id.next_name, R.id.next_time}) fits(v, id);
-        inside(v, R.id.today_cap, R.id.today_name, R.id.today_time, R.id.next_cap, R.id.next_name, R.id.next_time, R.id.d0_w, R.id.d0_s, R.id.d0_n, R.id.d4_n);
+        check4x1(v);
     }
 
     @Test
     @Config(qualifiers = "w411dp-h891dp-night-xxhdpi")
-    public void w4x1_dark() throws Exception {
-        render(WidgetRender.Kind.W4x1, "2026-11-12T13:00", "Asia/Seoul", 340, 80, "4x1-dark");
+    public void w4x1_night_shift_dark() throws Exception {
+        // 13일 야근 23:00, 남은 시간이 가장 긴 글
+        View v = render(WidgetRender.Kind.W4x1, "2026-11-13T23:00", "Asia/Seoul", 340, 80, "4x1-dark");
+        assertEquals("야근", text(v, R.id.today_name));
+        assertEquals("17:30–08:30 · 9시간 30분 남음", text(v, R.id.today_time));
+        assertEquals("조근", text(v, R.id.next_name));
+        assertEquals("08:30 퇴근", text(v, R.id.next_time));
+        check4x1(v);
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-xxhdpi")
+    public void w4x1_after_work() throws Exception {
+        // 14일 조근이 08:30에 끝난 뒤, 15일은 야근으로 바꾼 날
+        View v = render(WidgetRender.Kind.W4x1, "2026-11-14T10:00", "Asia/Seoul", 340, 80, "4x1-after");
+        assertEquals("퇴근 후", text(v, R.id.live));
+        assertEquals("조근", text(v, R.id.today_name));
+        assertEquals("야근", text(v, R.id.next_name));
+        check4x1(v);
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-xxhdpi")
+    public void w4x1_day_off() throws Exception {
+        View v = render(WidgetRender.Kind.W4x1, "2026-11-19T12:00", "Asia/Seoul", 340, 80, "4x1-off");
+        assertEquals("쉬는 날", text(v, R.id.live));
+        assertEquals("휴무", text(v, R.id.today_name));
+        assertEquals(View.GONE, vis(v, R.id.today_time));
+        assertEquals("일근", text(v, R.id.next_name));
+        assertEquals("08:30–17:30", text(v, R.id.next_time));
+        check4x1(v);
     }
 
     @Test
     @Config(qualifiers = "w411dp-h891dp-xxhdpi")
     public void w2x1_working() throws Exception {
         View v = render(WidgetRender.Kind.W2x1, "2026-11-12T13:00", "Asia/Seoul", 160, 80, "2x1-light");
+        assertEquals("일근", text(v, R.id.today_name));
         assertEquals("근무 중", text(v, R.id.live));
         assertEquals("17:30 퇴근", text(v, R.id.live_time));
-        assertEquals("야근", text(v, R.id.next_name));
-        assertEquals("17:30 출근", text(v, R.id.next_time));
-        assertEquals(View.GONE, v.findViewById(R.id.today_cap).getVisibility());
-        for (int id : new int[]{R.id.today_name, R.id.live, R.id.live_time, R.id.next_cap, R.id.next_name, R.id.next_time}) fits(v, id);
-        inside(v, R.id.today_name, R.id.live, R.id.live_time, R.id.next_cap, R.id.next_name, R.id.next_time);
+        assertEquals("내일 야근 · 17:30", text(v, R.id.next_time));
+        for (int id : new int[]{R.id.today_name, R.id.live, R.id.live_time, R.id.next_time}) fits(v, id);
+        inside(v, R.id.today_name, R.id.live, R.id.live_time, R.id.next_time);
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-night-xxhdpi")
+    public void w2x1_night_then_morning_end() throws Exception {
+        // 내일이 조근이면 시작(오늘 17:30)이 아니라 끝나는 시각
+        View v = render(WidgetRender.Kind.W2x1, "2026-11-13T12:00", "Asia/Seoul", 160, 80, "2x1-dark");
+        assertEquals("근무 전", text(v, R.id.live));
+        assertEquals("17:30 출근", text(v, R.id.live_time));
+        assertEquals("내일 조근 · 08:30 퇴근", text(v, R.id.next_time));
+        for (int id : new int[]{R.id.today_name, R.id.live, R.id.live_time, R.id.next_time}) fits(v, id);
+        inside(v, R.id.today_name, R.id.live, R.id.live_time, R.id.next_time);
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-xxhdpi")
+    public void w1x1_working() throws Exception {
+        View v = render(WidgetRender.Kind.W1x1, "2026-11-12T13:00", "Asia/Seoul", 75, 80, "1x1-light");
+        assertEquals("일근", text(v, R.id.today_name));
+        assertEquals("17:30 퇴근", text(v, R.id.live_time));
+        assertEquals(color(R.color.w_blue), ((TextView) v.findViewById(R.id.live_time)).getCurrentTextColor());
+        for (int id : new int[]{R.id.today_name, R.id.live_time}) fits(v, id);
+        inside(v, R.id.today_name, R.id.live_time);
     }
 
     @Test
     @Config(qualifiers = "w411dp-h891dp-night-xxhdpi")
     public void w1x1_after_work_toronto() throws Exception {
         View v = render(WidgetRender.Kind.W1x1, "2026-11-12T20:00", "America/Toronto", 75, 80, "1x1-dark");
-        assertEquals("퇴근 후", text(v, R.id.live));
         assertEquals("내일 야근", text(v, R.id.live_time));
-        for (int id : new int[]{R.id.today_name, R.id.live, R.id.live_time}) fits(v, id);
-        inside(v, R.id.today_name, R.id.live, R.id.live_time);
+        assertEquals(color(R.color.w_body), ((TextView) v.findViewById(R.id.live_time)).getCurrentTextColor());
+        for (int id : new int[]{R.id.today_name, R.id.live_time}) fits(v, id);
+        inside(v, R.id.today_name, R.id.live_time);
     }
+
+    /** 글자 크기를 20% 키운 기기(설정 > 글꼴 크기)에서도 넘치지 않는지. 더 키우면 끝이 "…"로 줄어든다. */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-xxhdpi")
+    public void bigger_font() throws Exception {
+        org.robolectric.RuntimeEnvironment.setFontScale(FONT);
+        try {
+            View v = render(WidgetRender.Kind.W4x1, "2026-11-13T23:00", "Asia/Seoul", 340, 80, "4x1-font");
+            check4x1(v);
+            assertEquals(View.GONE, vis(v, R.id.today_cap));
+            assertEquals(View.GONE, vis(v, R.id.next_cap));
+            assertEquals("내일 조근", text(v, R.id.next_name));
+            v = render(WidgetRender.Kind.W2x1, "2026-11-13T12:00", "Asia/Seoul", 160, 80, "2x1-font");
+            assertEquals(View.GONE, vis(v, R.id.next_time));
+            for (int id : new int[]{R.id.today_name, R.id.live, R.id.live_time}) fits(v, id);
+            inside(v, R.id.today_name, R.id.live, R.id.live_time);
+            v = render(WidgetRender.Kind.W2x1, "2026-11-12T20:00", "Asia/Seoul", 160, 80, "2x1-font-after");
+            assertEquals(View.GONE, vis(v, R.id.live_time));
+            assertEquals("내일 야근 · 17:30", text(v, R.id.next_time));
+            for (int id : new int[]{R.id.today_name, R.id.live, R.id.next_time}) fits(v, id);
+            inside(v, R.id.today_name, R.id.live, R.id.next_time);
+            v = render(WidgetRender.Kind.W1x1, "2026-11-12T13:00", "Asia/Seoul", 75, 80, "1x1-font");
+            for (int id : new int[]{R.id.today_name, R.id.live_time}) fits(v, id);
+            inside(v, R.id.today_name, R.id.live_time);
+        } finally {
+            org.robolectric.RuntimeEnvironment.setFontScale(1f);
+        }
+    }
+
+    static final float FONT = 1.2f;
 
     @Test
     @Config(qualifiers = "w411dp-h891dp-xxhdpi")

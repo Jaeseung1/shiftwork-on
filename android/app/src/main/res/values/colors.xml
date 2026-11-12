@@ -9,8 +9,5 @@
     <color name="w_body">#4E5968</color>
     <color name="w_sub">#8B95A1</color>
     <color name="w_blue">#3182F6</color>
-    <color name="s_day">#D9820B</color>
-    <color name="s_night">#7866C2</color>
-    <color name="s_dawn">#3D84C4</color>
-    <color name="s_off">#05A672</color>
+    <color name="w_blue_soft">#E8F3FF</color>
 </resources>

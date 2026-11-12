@@ -60,6 +60,12 @@
 - 4 PWA·배포: manifest.webmanifest, sw.js, icons/, vercel.json, .vercelignore. 오프라인 새로고침 확인.
 - 남은 일: 사용자가 Supabase 프로젝트·Vercel 계정 만들기, config.js 채우기, Android Studio로 APK 빌드·실기기 확인.
 
+## 다음 세션에서 이어 할 일 (2026-11-12 기준)
+- 안드로이드: 이 세션 컨테이너에서 빌드 성공(android/README.md). 새 세션은 컨테이너가 새로 만들어져 Android SDK가 없으므로, 환경 `shiftwork-on`(dl.google.com, gcp.mirrors.maven.org 허용)을 고르고 SDK를 다시 받아야 함(cmdline-tools 11076708 → platforms;android-34, build-tools;34.0.0).
+- Supabase: 사용자가 claude.ai 커넥터에서 Supabase를 연결한 뒤 새 세션에서 진행. 할 일: 프로젝트 만들기 → supabase/migrations/20261112000000_init.sql 적용 → Email 켜기, Magic Link 양식에 {{ .Token }} → Project URL·anon key를 config.js에 → 실제 메일 로그인 시험(사용자 허락 시 Gmail 커넥터로 코드 확인).
+- Vercel: 커넥터 연결 또는 vercel.com/new에서 레포 Import(브랜치 claude/design-handoff, Framework Other). 배포 주소를 Supabase URL Configuration에 넣기.
+- 실기기: 사용자가 APK(./gradlew assembleDebug) 설치 후 위젯 확인. 위젯 칸 크기는 어림값이라 실제 화면을 보고 조정.
+
 ## 다음 후보
 1. ~~위젯·제어 센터 목업을 PNG로 내보내기~~ (완료, images/export/)
 2. 레포에 웹 앱 manifest 추가(홈 화면에 추가용)

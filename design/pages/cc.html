@@ -1,19 +1,22 @@
 <title>교대온 제어 센터</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-/* 레이아웃: 어두운 월페이퍼 위에 제어 센터 타일을 놓고, 아래에 무엇이 들어가고 무엇이 못 들어가는지 정리. 제어 센터 특성상 한 가지 룩(어두운 유리)으로 고정. */
+/* 레이아웃: widget.html과 같은 토스 스타일 페이지. 주인공은 제어 센터 이미지 하나, 그 아래 원칙 세 줄과 짧은 근거.
+   토스 색 값은 제3자 정리 페이지(oppadu)의 값이며 공식 토큰이 아닙니다. 이미지는 Stageshow 예시(examples/shiftwork-cc)에서 찍었습니다. */
 :root {
-  --page: #0b0e12;
-  --ink: #f2f4f6;
-  --muted: #9aa6aa;
-  --line: #262c33;
-  --accent: #71c6aa;
-  --tile: rgba(255, 255, 255, .16);
-  --tile-text: #ffffff;
-  --tile-sub: rgba(255, 255, 255, .62);
-  --s0: #f0b04a; --s1: #b7a5ed; --s2: #8fc0ea; --s3: #5fd3a8;
-  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif;
-  color-scheme: dark;
+  --page: #f2f4f6; --ink: #191f28; --muted: #6b7684; --track: #e5e8eb; --accent: #3182f6; --thumb: #ffffff;
+  --card: #ffffff; --card-line: transparent;
+  --font: 'Toss Product Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Noto Sans CJK KR', 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0f1115; --ink: #f2f4f6; --muted: #8b95a1; --track: #1f222a; --accent: #4795ff; --thumb: #2c303a;
+    --card: #1a1d24; --card-line: #232730; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0f1115; --ink: #f2f4f6; --muted: #8b95a1; --track: #1f222a; --accent: #4795ff; --thumb: #2c303a;
+  --card: #1a1d24; --card-line: #232730; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body {
@@ -21,177 +24,100 @@ body {
   padding-block: 32px 56px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
+  letter-spacing: -.01em;
+  word-break: keep-all;
 }
-main { max-width: 640px; margin: 0 auto; display: grid; gap: 28px; }
-h1 { margin: 0; font-size: 26px; letter-spacing: -.03em; line-height: 1.3; text-wrap: balance; }
-h2 { margin: 0 0 12px; font-size: 14px; color: var(--muted); font-weight: 650; letter-spacing: .02em; }
-p { margin: 0; line-height: 1.6; }
-.lead { color: var(--muted); font-size: 15px; margin-top: 8px; }
+main { max-width: 720px; margin: 0 auto; display: grid; gap: 24px; }
+header { display: grid; gap: 14px; }
+h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -.03em; line-height: 1.3; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+.toggle { display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: var(--track); width: 200px; }
+.toggle button { font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); background: transparent; border: 0; padding: 9px 0; border-radius: 10px; cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--thumb); color: var(--ink); box-shadow: 0 1px 4px rgba(0, 23, 51, .08); }
+.toggle button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
-.wall {
-  border-radius: 28px; padding: 16px; display: grid; gap: 20px; max-width: 390px;
-  background:
-    radial-gradient(70% 60% at 15% 10%, #2e8a77, transparent 70%),
-    radial-gradient(70% 70% at 95% 90%, #3b4f9a, transparent 70%),
-    #121821;
+/* 이미지: 테마와 폭에 맞는 한 장만 보임 */
+.shot { margin: 0; border-radius: 28px; overflow: hidden; }
+.shot img { display: block; width: 100%; height: auto; }
+.shot .d { display: none; }
+:root[data-theme="dark"] .shot .l { display: none; }
+:root[data-theme="dark"] .shot .d { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .shot .l { display: none; }
+  :root:not([data-theme="light"]) .shot .d { display: block; }
 }
-.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.tile {
-  background: var(--tile); border-radius: 22px; padding: 12px; color: var(--tile-text);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  display: flex; flex-direction: column; justify-content: space-between; min-width: 0; aspect-ratio: 1;
-}
-.tile.m { grid-column: span 2; aspect-ratio: 2.1 / 1; }
-.sym { width: 30px; height: 30px; border-radius: 50%; background: rgba(255, 255, 255, .2); display: grid; place-items: center; }
-.tile.s { align-items: center; justify-content: center; }
-.tile.s .sym { width: 44px; height: 44px; background: transparent; }
-.sym svg { width: 20px; height: 20px; }
-.tile.s .sym svg { width: 28px; height: 28px; }
-[data-k="0"] .sym { color: var(--s0); } [data-k="1"] .sym { color: var(--s1); }
-[data-k="2"] .sym { color: var(--s2); } [data-k="3"] .sym { color: var(--s3); }
-.t { font-size: 12px; color: var(--tile-sub); line-height: 1.3; }
-.v { font-size: 17px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; }
-.red .v, .red .t { filter: blur(5px); user-select: none; }
-.cap { font-size: 12px; color: var(--muted); margin-top: 8px; }
-.ghost { background: rgba(255, 255, 255, .08); }
+.note { margin: -12px 0 0; font-size: 12px; color: var(--muted); }
 
+ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; font-size: 15px; line-height: 1.6; }
+li { padding-left: 16px; position: relative; }
+li::before { content: ""; position: absolute; left: 0; top: .7em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+li b { font-weight: 700; }
 
-.tile.two { flex-direction: row; gap: 0; padding: 0; aspect-ratio: 2.1 / 1; }
-.half { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; min-width: 0; }
-.half.nx { border-left: 1px solid rgba(255, 255, 255, .14); }
-.tile.l { grid-column: span 4; aspect-ratio: auto; gap: 8px; justify-content: flex-start; padding: 14px; }
-.lrow { display: flex; align-items: center; gap: 10px; }
-.kst { font-size: 12px; font-weight: 500; color: var(--tile-sub); margin-left: 6px; white-space: nowrap; }
-.times { display: flex; gap: 18px; font-size: 14px; padding-left: 40px; color: var(--tile-sub); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
-.times b { color: var(--tile-text); font-weight: 700; }
-.times i { font-style: normal; font-size: 11px; color: var(--accent); margin-left: 2px; }
-.sep { height: 1px; background: rgba(255, 255, 255, .14); margin: 2px 0; }
-.ctl { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-.ctl select { font: inherit; color: var(--ink); background: #161b22; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
-.ctl select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.card { background: var(--card); border: 1px solid var(--card-line); border-radius: 20px; padding: 20px; display: grid; gap: 8px; align-content: start; }
+.card h2 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -.02em; }
+.card p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.card q { color: var(--ink); quotes: "“" "”"; }
 
-.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-.card { border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
-.card h3 { margin: 0 0 6px; font-size: 15px; }
-.card p { font-size: 14px; color: var(--muted); }
-.card.no h3 { color: #f0a0a0; } .card.ok h3 { color: var(--accent); }
-.src { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.src { font-size: 12px; color: var(--muted); line-height: 1.7; margin: 0; }
 .src a { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { body { transition: background .2s ease, color .2s ease; } }
 </style>
-
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></symbol>
-    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor"/></symbol>
-    <symbol id="i-rise" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 17a6 6 0 0 1 12 0" fill="currentColor"/><path d="M2 20h20M12 4v3M4.9 9.9l1.4 1.4M19.1 9.9l-1.4 1.4"/></g></symbol>
-    <symbol id="i-rest" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z" fill="currentColor"/><path d="M16 11h2a2.5 2.5 0 0 1 0 5h-2M8 3v3M12 3v3"/></g></symbol>
-  </defs>
-</svg>
 
 <main>
   <header>
     <h1>교대온 제어 센터</h1>
-    <p class="lead">아이폰 제어 센터에서 오늘과 내일 근무를 확인하는 컨트롤 목업입니다. 앱의 실제 기능이 아닙니다.</p>
+    <p>아이폰 제어 센터에 오늘 근무와 내일 근무를 컨트롤 두 개로 넣은 목업입니다.</p>
+    <div class="toggle" role="group" aria-label="화면 모드">
+      <button type="button" id="b-light" aria-pressed="false">라이트</button>
+      <button type="button" id="b-dark" aria-pressed="false">다크</button>
+    </div>
   </header>
 
-  <section>
-    <h2>중간 크기: 오늘 + 내일</h2>
-    <div class="wall">
-      <div class="grid">
-        <div class="tile m two" data-k="0" role="img" aria-label="오늘 근무 일근, 내일 야근">
-          <div class="half">
-            <span class="sym"><svg><use href="#i-sun"/></svg></span>
-            <span><span class="t">오늘 근무</span><br><span class="v">일근</span></span>
-          </div>
-          <div class="half nx" data-k="1">
-            <span class="sym"><svg><use href="#i-moon"/></svg></span>
-            <span><span class="t">내일</span><br><span class="v">야근</span></span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <p class="cap">남는 오른쪽 칸에 내일 근무를 넣었습니다. 아이콘 색이 근무 종류를 알려 줍니다.</p>
-  </section>
+  <figure class="shot">
+    <picture class="l">
+      <source media="(max-width: 560px)" srcset="../images/export/cc-compact-light.png">
+      <img src="../images/export/cc-wide-light.png" width="720" height="480" alt="아이폰 제어 센터 맨 윗줄에 교대온 컨트롤 두 개: 해 아이콘의 오늘 근무 일근, 달 아이콘의 내일 근무 야근. 아래로 연결, 음악, 손전등, 타이머 같은 기본 컨트롤">
+    </picture>
+    <picture class="d">
+      <source media="(max-width: 560px)" srcset="../images/export/cc-compact-dark.png">
+      <img src="../images/export/cc-wide-dark.png" width="720" height="480" alt="아이폰 제어 센터 맨 윗줄에 교대온 컨트롤 두 개: 해 아이콘의 오늘 근무 일근, 달 아이콘의 내일 근무 야근. 아래로 연결, 음악, 손전등, 타이머 같은 기본 컨트롤">
+    </picture>
+  </figure>
+  <p class="note">디자인 목업입니다. 앱의 실제 기능이 아닙니다.</p>
 
-  <section>
-    <h2>한국 근무 일정을 내 기기 시간으로</h2>
-    <div class="ctl">
-      <label for="tz">기기 시간대(미리보기용)</label>
-      <select id="tz"></select>
-    </div>
-    <div class="wall">
-      <div class="grid">
-        <div class="tile l" data-k="0" role="group" aria-label="시간 표시">
-          <div class="lrow">
-            <span class="sym"><svg><use href="#i-sun"/></svg></span>
-            <span><span class="t">오늘 근무 · 서울 기준</span><br><span class="v">일근 <span class="kst">한국시간 08:30–17:30</span></span></span>
-          </div>
-          <div class="times" id="t0"></div>
-          <div class="sep"></div>
-          <div class="lrow nx" data-k="1">
-            <span class="sym"><svg><use href="#i-moon"/></svg></span>
-            <span><span class="t">내일 근무 · 서울 기준</span><br><span class="v">야근 <span class="kst">한국시간 17:30–08:30</span></span></span>
-          </div>
-          <div class="times" id="t1"></div>
-        </div>
-      </div>
-    </div>
-    <p class="cap" id="tzcap"></p>
-  </section>
+  <ul>
+    <li><b>시스템 구조 그대로.</b> 컨트롤 하나에 심볼, 제목, 값 하나씩만 둡니다. 오늘과 내일은 컨트롤 두 개로 나눴습니다.</li>
+    <li><b>색은 심볼에만.</b> 해는 일근 색, 달은 야근 색입니다. 판과 글자는 제어 센터 기본 모습 그대로입니다.</li>
+    <li><b>값은 짧게.</b> 값에는 근무 종류만 넣습니다. 출퇴근 시각은 위젯과 앱에서 보여 줍니다.</li>
+  </ul>
 
-  <section class="cols">
-    <div class="card ok">
-      <h3>넣을 수 있는 것</h3>
-      <p>아이콘 하나, 제목, 선택 사항인 값 하나. 오늘 근무 종류와 "내일 야근" 정도의 짧은 글이 맞습니다.</p>
+  <section class="cards" aria-label="근거와 한계">
+    <div class="card">
+      <h2>근거</h2>
+      <p>Apple HIG는 <q>Controls contain a symbol image, a title, and, optionally, a value.</q>라고 하고, 제어 센터에서는 <q>a control displays its symbol and, at larger sizes, its title and value.</q>라고 합니다. 그래서 글자가 보이는 중간 크기를 썼습니다.</p>
     </div>
-    <div class="card no">
-      <h3>확인하지 못한 것</h3>
-      <p>위의 "시간 표시" 타일처럼 줄이 여러 개인 구성이 제어 센터의 어느 크기에서 가능한지 모릅니다. 공식 안내는 컨트롤이 아이콘, 제목, 값으로 이루어진다고만 설명합니다. 그래서 이 타일은 구상안이고, 실제로는 값 한 줄("일근 · 내일 야근")로 줄여야 할 수 있습니다.</p>
+    <div class="card">
+      <h2>확인하지 못한 것</h2>
+      <p>칸 크기, 간격, 반투명 질감은 눈대중입니다. 틴트는 HIG에서 <q>a control toggle’s symbol in its on state</q>에 적용된다고만 나와 있어, 버튼 컨트롤에 고정 색을 줄 수 있는지는 모릅니다. 아이콘은 SF Symbols 대신 lucide를 썼습니다.</p>
     </div>
   </section>
 
-  <p class="src">
-    확인한 근거: <a href="https://developer.apple.com/design/human-interface-guidelines/controls.md">Apple HIG, Controls</a>는 컨트롤을 "버튼 또는 토글"이며 "심볼 이미지, 제목, 선택적으로 값"을 가진다고 설명하고, 제어 센터에서는 "더 큰 크기에서" 제목과 값이 나온다고 합니다. 잠금 상태에서 제목과 값을 가리는 옵션도 이 문서에 있습니다. <a href="https://wwdcnotes.com/documentation/wwdc24-10157-extend-your-apps-controls-across-the-system/">WWDC24 10157 정리</a>는 제어 센터 컨트롤이 3가지 크기로 표시된다고 하지만 크기 이름과 치수는 밝히지 않습니다.<br>
-    모르는 것: 중간 크기 비율, 큰 크기의 구성, 값에 넣을 수 있는 글자 수. 이 화면의 비율과 반투명 질감은 제가 눈대중으로 맞춘 것이라 실제와 다를 수 있습니다.
-  </p>
+  <p class="src">출처: <a href="https://developer.apple.com/design/human-interface-guidelines/controls">Apple HIG, Controls</a>. 바탕과 글자 색은 제3자 정리 페이지 <a href="https://www.oppadu.com/tools/design-systems-site/brand/toss.html">oppadu Toss 디자인 시스템 갤러리</a>와 <a href="https://www.oppadu.com/tools/design-systems-site/brand/toss-dark-mode.html">다크 모드 페이지</a> 값을 참고했고, 공식 토큰은 아닙니다.</p>
 </main>
 
 <script>
 (function () {
-  // 근무 시간은 한국시간(UTC+9)으로 고정한 구간, 출퇴근 시각은 선택한 기기 시간대로 환산해서 표시
-  var KST = 9 * 3600000;
-  function kst(y, mo, d, h, mi) { return Date.UTC(y, mo - 1, d, h, mi) - KST; }
-  var SHIFTS = [
-    { id: 't0', start: kst(2026, 11, 12, 8, 30), end: kst(2026, 11, 12, 17, 30) },
-    { id: 't1', start: kst(2026, 11, 13, 17, 30), end: kst(2026, 11, 14, 8, 30) }
-  ];
-  var ZONES = [['Asia/Seoul', '서울'], ['America/Toronto', '캐나다 토론토'], ['America/Vancouver', '캐나다 밴쿠버'], ['Asia/Tokyo', '도쿄'], ['Europe/Paris', '파리']];
-  var sel = document.getElementById('tz');
-  var dev = '';
-  try { dev = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
-  var known = ZONES.some(function (z) { return z[0] === dev; });
-  if (dev && !known) ZONES.unshift([dev, '이 기기 (' + dev + ')']);
-  sel.innerHTML = ZONES.map(function (z) { return '<option value="' + z[0] + '">' + z[1] + '</option>'; }).join('');
-  sel.value = known || dev ? dev : 'Asia/Seoul';
-  if (!sel.value) sel.value = 'Asia/Seoul';
-
-  function hm(ms, tz) { return new Intl.DateTimeFormat('ko-KR', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false }).format(ms); }
-  function day(ms, tz) { return new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(ms); }
-  function dd(ms, tz) { return Number(day(ms, tz).slice(8)); }
-  function render() {
-    var tz = sel.value, label = sel.options[sel.selectedIndex].text;
-    SHIFTS.forEach(function (s) {
-      var sd = dd(s.start, tz), ed = dd(s.end, tz);
-      var kd = dd(s.start, 'Asia/Seoul');
-      var tagS = sd !== kd ? ' <i>' + sd + '일</i>' : '';
-      var tagE = ed !== dd(s.end, 'Asia/Seoul') || ed !== sd ? ' <i>' + ed + '일</i>' : '';
-      document.getElementById(s.id).innerHTML =
-        '<span>출근 <b>' + hm(s.start, tz) + '</b>' + tagS + '</span><span>퇴근 <b>' + hm(s.end, tz) + '</b>' + tagE + '</span>';
-    });
-    document.getElementById('tzcap').textContent = '어떤 근무인지와 오늘·내일은 항상 서울 날짜로 정합니다. 출근·퇴근 시각은 한국 근무 시간에 맞춰 두고, 보는 기기의 시간대(' + label + ')로 환산해 보여 줍니다. 한국과 날짜가 달라지는 시각에는 그날을 작게 붙입니다.';
+  var root = document.documentElement, bl = document.getElementById('b-light'), bd = document.getElementById('b-dark');
+  function current() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-  sel.addEventListener('change', render);
-  render();
+  function sync() { var t = current(); bl.setAttribute('aria-pressed', t === 'light'); bd.setAttribute('aria-pressed', t === 'dark'); }
+  function set(t) { root.setAttribute('data-theme', t); sync(); }
+  bl.addEventListener('click', function () { set('light'); });
+  bd.addEventListener('click', function () { set('dark'); });
+  sync();
 })();
 </script>
-

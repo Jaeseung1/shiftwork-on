@@ -20,9 +20,9 @@ const REST_DAY = 3
 const initial: S = { pick: REST_DAY, saved: REST_DAY }
 const poster: S = { pick: 1, saved: 1 }
 
-// The product's own wording: Korean time, and a range that crosses midnight
-// carries its dates (rangeInZone in index.html)
-const SUMMARY = ['한국시간 08:30–17:30', '한국시간 11/15 17:30–11/16 08:30', '한국시간 11/14 17:30–11/15 08:30', '한국 기준 휴무']
+// The product's own wording (timezoneSummary in index.html): 일근 08:30–17:30,
+// 야근 17:30–24:00, 조근 00:00–08:30, all Korean time
+const SUMMARY = ['한국시간 08:30–17:30', '한국시간 17:30–24:00', '한국시간 00:00–08:30', '한국 기준 휴무']
 
 // 2026-11-12 is the anchor day (일근); the cycle is 일 → 야 → 조 → 휴
 const TODAY = 12

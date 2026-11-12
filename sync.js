@@ -1,11 +1,12 @@
 // 교대온 서버 연결(Supabase)과 안드로이드 위젯 전달.
 // - config.js가 비어 있으면 서버 없이 지금처럼 이 기기에만 저장한다.
-// - 로그인하면 근무표를 서버에 저장하고, 초대 코드로 들어온 가족은 읽기만 한다.
+// - 근무표 주인은 메일 코드로 로그인해 근무표를 서버에 저장한다.
+// - 가족은 메일 없이 초대 코드만 넣는다(익명 로그인 후 참여, 읽기만). Supabase 기본 메일은 팀원 주소로만 가기 때문.
 // - 안드로이드 앱(WebView) 안이면 근무표와 위젯 토큰을 ShiftBridge로 넘겨 홈 화면 위젯이 쓰게 한다.
 const cfg = window.SHIFTWORK_CONFIG || {}
 const app = window.shiftApp
 const $ = (s) => document.querySelector(s)
-const SUPABASE_MODULE = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm'
+const SUPABASE_MODULE = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm'
 const CODE_RE = /^[A-HJ-NP-Z2-9]{6}$/
 
 const st = { client: null, user: null, schedule: null, role: null, synced: null, applying: false, timer: null, loading: null }
@@ -88,6 +89,16 @@ function load() {
         sched = r.data
         role = 'viewer'
       }
+    }
+    if (!sched && st.user.is_anonymous) {
+      // 코드로 들어온 가족인데 참여한 근무표가 없으면(나갔거나 근무표가 지워짐) 기기 근무표를 그대로 둔다
+      st.schedule = null
+      st.role = null
+      setReadOnly(false)
+      renderAccount()
+      renderFamily()
+      sendToWidget()
+      return
     }
     if (!sched) {
       const r = await c.from('schedules').select('*').eq('owner_id', uid).maybeSingle()
@@ -216,8 +227,10 @@ function bindUI() {
     if (!CODE_RE.test(code)) return app.toast('코드 6자리를 확인해 주세요')
     if (!st.client) return app.toast('서버가 아직 설정되지 않았어요')
     if (!st.user) {
-      app.toast('설정에서 먼저 로그인해 주세요')
-      return app.setScreen('settings')
+      // 가족은 메일 없이 익명으로 들어온다
+      const { data, error } = await st.client.auth.signInAnonymously()
+      if (error) return fail(error, /anonymous/i.test(error.message || '') ? '가족 참여 기능이 서버에서 아직 꺼져 있어요(Supabase 익명 로그인)' : '참여하지 못했어요. 잠시 뒤 다시 해 주세요')
+      st.user = data.user
     }
     const { error } = await st.client.rpc('join_with_code', { p_code: code })
     if (error) return fail(error, '코드가 맞지 않거나 기간이 지났어요')
@@ -279,6 +292,14 @@ function renderAccount() {
     out.hidden = true
     return
   }
+  if (st.user.is_anonymous) {
+    state.textContent = st.role === 'viewer' ? '초대 코드로 가족 근무표를 보는 중이에요(읽기 전용)' : '초대 코드를 가족 탭에서 넣어 주세요'
+    login.hidden = true
+    out.hidden = false
+    out.textContent = '가족 근무표 연결 끊기'
+    return
+  }
+  out.textContent = '로그아웃'
   const who = st.user.email || '이 계정'
   state.textContent = st.role === 'viewer' ? `${who} · 가족 근무표를 보는 중이에요(읽기 전용)` : `${who} · 내 근무표가 서버에 저장돼요`
   login.hidden = true

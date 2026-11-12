@@ -63,8 +63,8 @@ public final class RefreshWorker extends Worker {
         con.setRequestMethod("POST");
         con.setDoOutput(true);
         con.setRequestProperty("Content-Type", "application/json");
+        // 새 공개 키(sb_publishable_…)는 Authorization이 아니라 apikey 헤더로만 보낸다(Supabase 문서)
         con.setRequestProperty("apikey", anonKey);
-        con.setRequestProperty("Authorization", "Bearer " + anonKey);
         try (OutputStream out = con.getOutputStream()) {
             out.write(new JSONObject().put("p_token", token).toString().getBytes(StandardCharsets.UTF_8));
         }

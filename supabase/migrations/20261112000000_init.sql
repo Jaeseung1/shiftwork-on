@@ -137,13 +137,14 @@ language sql stable security definer set search_path = '' as $$
 $$;
 
 -- 함수 실행 권한: 기본(public)에서 빼고 필요한 역할에만.
+-- Supabase는 새 함수·표에 anon·authenticated 권한을 기본으로 주므로 public과 anon 모두에서 뺀 뒤 필요한 것만 다시 준다.
 revoke execute on function public.is_schedule_owner(uuid), public.can_view_schedule(uuid), public.touch_schedule(),
-  public.create_invite(), public.join_with_code(text), public.widget_schedule(uuid) from public;
+  public.create_invite(), public.join_with_code(text), public.widget_schedule(uuid) from public, anon, authenticated;
 grant execute on function public.is_schedule_owner(uuid), public.can_view_schedule(uuid) to authenticated;
 grant execute on function public.create_invite(), public.join_with_code(text) to authenticated;
 grant execute on function public.widget_schedule(uuid) to anon, authenticated;
 
 -- 표 권한: 로그인한 사용자만(RLS가 줄 단위로 거름). 로그인 안 한 사용자는 위젯 함수만.
-revoke all on public.schedules, public.overrides, public.members, public.invites from anon;
+revoke all on public.schedules, public.overrides, public.members, public.invites from anon, authenticated;
 grant select, insert, update, delete on public.schedules, public.overrides to authenticated;
 grant select, delete on public.members, public.invites to authenticated;

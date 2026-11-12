@@ -45,6 +45,14 @@ export function createClient() {
         setTimeout(() => fire('SIGNED_IN'), 0)
         return { error: null }
       },
+      signInAnonymously: async () => {
+        const uid = 'cccccccc-0000-4000-8000-' + String(Date.now()).slice(-12).padStart(12, '0')
+        await post('/__login', { uid })
+        const user = { id: uid, is_anonymous: true }
+        localStorage.setItem(KEY, JSON.stringify({ user }))
+        setTimeout(() => fire('SIGNED_IN'), 0)
+        return { data: { user }, error: null }
+      },
       signOut: async () => { localStorage.removeItem(KEY); fire('SIGNED_OUT'); return { error: null } },
     },
   }

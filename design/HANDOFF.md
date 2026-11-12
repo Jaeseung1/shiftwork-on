@@ -12,6 +12,13 @@
 - pages/widget.html: 4x1 위젯 토스 스타일 목업. 오늘(큰 파란 글씨), 내일, 앞으로 5일. "근무 중"은 1x1·2x1에서만 쓰기로 함.
 - pages/cc.html: 아이폰 제어 센터 컨트롤 목업. 오늘+내일, 근무는 서울 기준, 출퇴근은 기기 시간대로 환산(캐나다에서 보는 사람 가정).
 - images/: 위 결과 이미지.
+- images/export/ (2026-11-12 추가, 후보 1 완료): pages/의 목업을 PNG로 내보냄. 2배율.
+  - widget-4x1-light.png, widget-4x1-dark.png: 위젯만, 모서리 투명(RGBA), 그림자 제외.
+  - widget-4x1-light-wall.png, widget-4x1-dark-wall.png: 홈 화면 배경 포함.
+  - cc-medium.png: 제어 센터 중간 크기(오늘+내일).
+  - cc-times-toronto.png, cc-times-seoul.png: 시간 표시 타일, 기기 시간대별.
+  - 다시 만들기: 레포 루트에서 `node design/scripts/export-mockups.js` (컨테이너에 사전 설치된 Playwright 사용).
+  - 한계: 이 컨테이너에는 Noto Sans KR이 없어 한글이 WenQuanYi Zen Hei로 렌더링됨(fc-list로 확인). 실제 기기 글꼴과 모양이 다름. 글꼴 설치는 다운로드라 하지 않음.
 
 ## 결정과 가정
 - 근무 종류와 "오늘·내일"은 서울 날짜 기준, 출퇴근 시각은 한국 근무 시간(일근 08:30–17:30, 야근 17:30–08:30)을 기기 시간대로 환산해 표시.
@@ -26,7 +33,7 @@
 - 실제 설치 가능한 위젯은 네이티브 앱(안드로이드 앱 위젯, iOS WidgetKit/컨트롤)이 필요. 레포에는 manifest, 서비스 워커 없음.
 
 ## 다음 후보
-1. 위젯·제어 센터 목업을 PNG로 내보내기
+1. ~~위젯·제어 센터 목업을 PNG로 내보내기~~ (완료, images/export/)
 2. 레포에 웹 앱 manifest 추가(홈 화면에 추가용)
 3. 네이티브 위젯 프로젝트 뼈대(Android, iOS)
 4. 근무표 데모와 1x1·2x1 위젯을 토스 스타일로 통일

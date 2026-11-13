@@ -56,34 +56,40 @@ public final class WidgetRender {
         Instant[] todayPair = ShiftCalc.instants(today, s);
 
         v.setTextViewText(R.id.today_name, ShiftCalc.name(s));
+        // 위젯 하나에 색 하나: 오늘 근무의 색이 아이콘·이름·"근무 중" 칩에 쓰인다(앱 v0.4와 같은 색)
+        int tone = tone(s);
+        color(c, v, R.id.today_name, tone);
+        v.setImageViewResource(R.id.today_ico, icon(s));
 
         boolean working = st.working;
         // 글꼴 크기를 키운 폰에서는 칸 높이(1줄)를 넘지 않게 덜 중요한 줄 하나를 뺀다
         boolean bigFont = c.getResources().getConfiguration().fontScale > 1.1f;
         if (kind == Kind.W1x1) {
-            // 칩 자리가 없으니 근무 중이면 퇴근 시각을 파란색으로, 아니면 출근 시각이나 내일 근무를 회색으로
+            // 칩 자리가 없으니 근무 중이면 퇴근 시각을 근무 색으로, 아니면 출근 시각이나 내일 근무를 기본 글자색으로
             String when = when(st, end, todayPair, zone);
             v.setTextViewText(R.id.live_time, when.isEmpty() ? "내일 " + ShiftCalc.name(t) : when);
-            color(c, v, R.id.live_time, working ? R.color.w_blue : R.color.w_body);
+            color(c, v, R.id.live_time, working ? tone : R.color.w_body);
+            v.setViewVisibility(R.id.today_ico, bigFont ? View.GONE : View.VISIBLE);
             if (bigFont) v.setViewPadding(R.id.root, dp(c, 8), dp(c, 6), dp(c, 6), dp(c, 6));
             return v;
         }
 
-        // 상태 칩: 근무 중이면 파랑, 아니면 회색. 휴무 날은 이름과 겹치지 않게 "쉬는 날"
+        // 상태 칩: 근무 중이면 근무 색, 아니면 회색. 휴무 날은 이름과 겹치지 않게 "쉬는 날"
         v.setTextViewText(R.id.live, working ? "근무 중" : st.title.equals("휴무") ? "쉬는 날" : st.title);
-        v.setInt(R.id.live, "setBackgroundResource", working ? R.drawable.widget_chip_on : R.drawable.widget_chip_off);
-        color(c, v, R.id.live, working ? R.color.w_blue : R.color.w_body);
+        v.setInt(R.id.live, "setBackgroundResource", working ? chip(s) : R.drawable.widget_chip_off);
+        color(c, v, R.id.live, working ? tone : R.color.w_body);
+        v.setImageViewResource(R.id.next_ico, icon(t));
 
         if (kind == Kind.W4x1) {
             v.setTextViewText(R.id.today_cap, "오늘 · " + today.getDayOfMonth() + "일 " + week(today));
-            v.setViewVisibility(R.id.today_cap, bigFont ? View.GONE : View.VISIBLE);
+            v.setViewVisibility(R.id.today_cap_row, bigFont ? View.GONE : View.VISIBLE);
             // 휴무면 시간 줄을 숨긴다("휴무 / 쉬는 날"처럼 같은 말을 두 번 하지 않게)
             String range = ShiftCalc.shortRange(today, s, zone);
             v.setTextViewText(R.id.today_time, working ? range + " · " + st.remaining : range);
             v.setViewVisibility(R.id.today_time, range.isEmpty() ? View.GONE : View.VISIBLE);
             v.setTextViewText(R.id.next_cap, "내일 · " + tom.getDayOfMonth() + "일 " + week(tom));
             // 글꼴이 크면 "내일 · 13일 금" 줄을 빼고 이름에 "내일"을 붙인다
-            v.setViewVisibility(R.id.next_cap, bigFont ? View.GONE : View.VISIBLE);
+            v.setViewVisibility(R.id.next_cap_row, bigFont ? View.GONE : View.VISIBLE);
             v.setTextViewText(R.id.next_name, (bigFont ? "내일 " : "") + ShiftCalc.name(t));
             // 내일 조근은 오늘 밤 야근이 이어지는 것이라 끝나는 시각만
             Instant[] np = ShiftCalc.instants(tom, t);
@@ -101,7 +107,7 @@ public final class WidgetRender {
         Instant[] p = ShiftCalc.instants(tom, t);
         String at = p == null ? "" : t.equals("조") ? " · " + ShiftCalc.time(p[1], zone) + " 퇴근" : " · " + ShiftCalc.time(p[0], zone);
         v.setTextViewText(R.id.next_time, "내일 " + ShiftCalc.name(t) + at);
-        v.setViewVisibility(R.id.next_time, bigFont && !when.isEmpty() ? View.GONE : View.VISIBLE);
+        v.setViewVisibility(R.id.next_row, bigFont && !when.isEmpty() ? View.GONE : View.VISIBLE);
         return v;
     }
 
@@ -110,6 +116,33 @@ public final class WidgetRender {
         if (st.working && end != null) return ShiftCalc.time(end, zone) + " 퇴근";
         if (st.title.equals("근무 전") && todayPair != null) return ShiftCalc.time(todayPair[0], zone) + " 출근";
         return "";
+    }
+
+    private static int tone(String s) {
+        switch (s) {
+            case "일": return R.color.s_day;
+            case "야": return R.color.s_night;
+            case "조": return R.color.s_dawn;
+            default: return R.color.s_off;
+        }
+    }
+
+    private static int icon(String s) {
+        switch (s) {
+            case "일": return R.drawable.ic_shift_day;
+            case "야": return R.drawable.ic_shift_night;
+            case "조": return R.drawable.ic_shift_dawn;
+            default: return R.drawable.ic_shift_off;
+        }
+    }
+
+    private static int chip(String s) {
+        switch (s) {
+            case "일": return R.drawable.widget_chip_s_day;
+            case "야": return R.drawable.widget_chip_s_night;
+            case "조": return R.drawable.widget_chip_s_dawn;
+            default: return R.drawable.widget_chip_s_off;
+        }
     }
 
     private static int dp(Context c, int dp) {

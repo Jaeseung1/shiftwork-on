@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 교대온 위젯 1x1 (어림 75×80dp). 근무 이름과 한 줄(근무 중이면 파란 퇴근 시각, 아니면 출근 시각이나 내일 근무). 크기 시험: WidgetRenderTest. android:text는 위젯 고르는 화면 미리보기(previewLayout)용 예시이고, 실제 글은 WidgetRender가 넣는다.
-     한글 글꼴은 줄 높이가 글자 크기의 약 1.5배라(예: 20sp → 약 30dp), 1칸 높이(어림 80dp)에는 글 세 줄까지만 넣는다. -->
+<!-- 교대온 위젯 1x1 (어림 75×80dp): 아이콘 / 근무 이름 / 한 줄(근무 중이면 근무 색 퇴근 시각, 아니면 출근 시각이나 내일 근무).
+     시안: design/examples/shiftwork-widgets(Stageshow, 위젯 하나에 오늘 근무 색 하나). 한글 줄 높이는 글자 크기의 약 1.5배라 1칸(어림 80dp)에 글 세 줄까지.
+     android:text는 위젯 고르는 화면 미리보기용 예시이고, 실제 글·색·아이콘은 WidgetRender가 넣는다. 크기 시험: WidgetRenderTest -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="HardcodedText"
+    tools:ignore="HardcodedText,ContentDescription"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,7 +17,8 @@
     <TextView android:id="@+id/empty" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="@string/widget_empty" android:textColor="@color/w_sub" android:textSize="11sp" android:visibility="gone" />
 
     <LinearLayout android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical">
-        <TextView android:id="@+id/today_name" android:text="일근" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:maxLines="1" android:textSize="22sp" android:textColor="@color/w_ink" android:textStyle="bold" />
-        <TextView android:id="@+id/live_time" android:text="17:30 퇴근" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="10sp" android:textColor="@color/w_body" android:textStyle="bold" />
+        <ImageView android:id="@+id/today_ico" android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_shift_day" />
+        <TextView android:id="@+id/today_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="일근" android:includeFontPadding="false" android:maxLines="1" android:textSize="20sp" android:textColor="@color/s_day" android:textStyle="bold" />
+        <TextView android:id="@+id/live_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="17:30 퇴근" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="10sp" android:textColor="@color/w_ink" android:textStyle="bold" />
     </LinearLayout>
 </FrameLayout>

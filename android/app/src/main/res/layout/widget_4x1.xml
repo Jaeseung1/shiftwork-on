@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 교대온 위젯 4x1 (어림 340×80dp). 왼쪽 오늘(날짜 · 근무와 상태 칩 · 시간과 남은 시간), 오른쪽 회색 카드에 내일. 크기 시험: WidgetRenderTest. android:text는 위젯 고르는 화면 미리보기(previewLayout)용 예시이고, 실제 글은 WidgetRender가 넣는다.
-     한글 글꼴은 줄 높이가 글자 크기의 약 1.5배라(예: 20sp → 약 30dp), 1칸 높이(어림 80dp)에는 글 세 줄까지만 넣는다. -->
+<!-- 교대온 위젯 4x1 (어림 340×80dp): 왼쪽 오늘(아이콘·날짜 / 근무 이름과 칩 / 시간과 남은 시간), 오른쪽 끝까지 붙은 회색 판에 내일.
+     시안: design/examples/shiftwork-widgets(Stageshow, 위젯 하나에 오늘 근무 색 하나). 한글 줄 높이는 글자 크기의 약 1.5배라 1칸(어림 80dp)에 글 세 줄까지.
+     android:text는 위젯 고르는 화면 미리보기용 예시이고, 실제 글·색·아이콘은 WidgetRender가 넣는다. 크기 시험: WidgetRenderTest -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="HardcodedText"
+    tools:ignore="HardcodedText,ContentDescription"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg"
-    android:paddingStart="14dp"
-    android:paddingTop="6dp"
-    android:paddingEnd="10dp"
-    android:paddingBottom="6dp">
+    android:padding="0dp">
 
     <TextView android:id="@+id/empty" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="@string/widget_empty" android:textColor="@color/w_sub" android:textSize="11sp" android:visibility="gone" />
 
     <LinearLayout android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent" android:baselineAligned="false" android:orientation="horizontal">
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:gravity="center_vertical" android:orientation="vertical" android:paddingStart="0dp" android:paddingEnd="12dp">
-            <TextView android:id="@+id/today_cap" android:text="오늘" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_sub" android:textStyle="bold" />
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <TextView android:id="@+id/today_name" android:text="일근" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:maxLines="1" android:textSize="20sp" android:textColor="@color/w_ink" android:textStyle="bold" />
-                <TextView android:id="@+id/live" android:text="근무 중" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:background="@drawable/widget_chip_on" android:includeFontPadding="false" android:maxLines="1" android:paddingStart="7dp" android:paddingTop="2dp" android:paddingEnd="7dp" android:paddingBottom="2dp" android:textColor="@color/w_blue" android:textSize="10sp" android:textStyle="bold" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:gravity="center_vertical" android:orientation="vertical" android:paddingStart="14dp" android:paddingTop="6dp" android:paddingEnd="10dp" android:paddingBottom="6dp">
+            <LinearLayout android:id="@+id/today_cap_row" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                <ImageView android:id="@+id/today_ico" android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/ic_shift_day" />
+                <TextView android:id="@+id/today_cap" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="오늘" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_sub" android:textStyle="bold" />
             </LinearLayout>
-            <TextView android:id="@+id/today_time" android:text="08:30–17:30" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_body" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:id="@+id/today_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="일근" android:includeFontPadding="false" android:maxLines="1" android:textSize="20sp" android:textColor="@color/s_day" android:textStyle="bold" />
+                <TextView android:id="@+id/live" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp" android:background="@drawable/widget_chip_s_day" android:includeFontPadding="false" android:maxLines="1" android:paddingStart="7dp" android:paddingTop="2dp" android:paddingEnd="7dp" android:paddingBottom="2dp" android:text="근무 중" android:textColor="@color/s_day" android:textSize="10sp" android:textStyle="bold" />
+            </LinearLayout>
+            <TextView android:id="@+id/today_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="08:30–17:30" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_body" />
         </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_inset" android:gravity="center_vertical" android:orientation="vertical" android:paddingStart="12dp" android:paddingEnd="8dp">
-            <TextView android:id="@+id/next_cap" android:text="내일" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_sub" android:textStyle="bold" />
-            <TextView android:id="@+id/next_name" android:text="야근" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="16sp" android:textColor="@color/w_ink" android:textStyle="bold" />
-            <TextView android:id="@+id/next_time" android:text="17:30–08:30" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_body" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_next_panel" android:gravity="center_vertical" android:orientation="vertical" android:paddingStart="12dp" android:paddingEnd="8dp">
+            <LinearLayout android:id="@+id/next_cap_row" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                <ImageView android:id="@+id/next_ico" android:layout_width="12dp" android:layout_height="12dp" android:src="@drawable/ic_shift_night" />
+                <TextView android:id="@+id/next_cap" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="내일" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_sub" android:textStyle="bold" />
+            </LinearLayout>
+            <TextView android:id="@+id/next_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="야근" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="16sp" android:textColor="@color/w_ink" android:textStyle="bold" />
+            <TextView android:id="@+id/next_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="17:30–08:30" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_body" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

@@ -8,6 +8,13 @@
     <color name="w_ink">#191F28</color>
     <color name="w_body">#4E5968</color>
     <color name="w_sub">#8B95A1</color>
-    <color name="w_blue">#3182F6</color>
-    <color name="w_blue_soft">#E8F3FF</color>
+    <!-- 근무 색(앱 index.html v0.4와 같음): s_ 글자·아이콘, t_ 연한 바탕 -->
+    <color name="s_day">#D9820B</color>
+    <color name="s_night">#7866C2</color>
+    <color name="s_dawn">#3D84C4</color>
+    <color name="s_off">#05A672</color>
+    <color name="t_day">#FCF0E2</color>
+    <color name="t_night">#EFEDF8</color>
+    <color name="t_dawn">#E7F0F8</color>
+    <color name="t_off">#E1F5EE</color>
 </resources>

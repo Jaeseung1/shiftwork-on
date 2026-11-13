@@ -218,6 +218,14 @@ html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly
 .next-hour{max-width:52%;text-align:right}
 .calday.dim .tag{visibility:hidden}
 .calday.dim{opacity:.3}
+/* v0.8: 중복 정리 — 큰 제목이 있는 화면에서는 위 "교대온" 글자를 숨긴다(홈에서만 앱 이름) */
+body:not(:has(#screen-home.active)) .topbar{height:12px;overflow:hidden}
+body:not(:has(#screen-home.active)) .logo{visibility:hidden}
+/* 홈 오늘 카드도 위젯처럼 색 하나: 상태 배지·진행 막대·남은 시간을 오늘 근무 색으로 */
+.hero[data-shift="일"]{--tone:var(--s1);--tint:var(--t1)}.hero[data-shift="야"]{--tone:var(--s2);--tint:var(--t2)}.hero[data-shift="조"]{--tone:var(--s3);--tint:var(--t3)}.hero[data-shift="휴"]{--tone:var(--s4);--tint:var(--t4)}
+.hero[data-working] .status-badge{background:var(--tint,var(--blue-soft));color:var(--tone,var(--blue))}
+.hero .progress i{background:var(--tone,var(--blue))}
+.progress-label span:first-child{color:var(--tone,var(--blue))}
 .member{border-radius:16px}
 </style></head>
 <body>
@@ -248,12 +256,11 @@ html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly
 <span hidden><span id="datePill"></span><span id="heroLabel"></span><span id="heroBadge"></span><span id="nextLabel"></span><span id="nextTime"></span></span>
 </div>
 <div class="card next-row" id="nextCard"><span class="shift-ico sm" aria-hidden="true"><svg class="ico g-일"><use href="#i-sun"/></svg><svg class="ico g-야"><use href="#i-moon"/></svg><svg class="ico g-조"><use href="#i-sunrise"/></svg><svg class="ico g-휴"><use href="#i-coffee"/></svg></span><div class="next-main"><div class="shift-head" id="tomorrowHead">내일</div><div class="next-name" id="tomorrowShiftName">—</div></div><div class="next-hour" id="tomorrowShiftHour">—</div></div>
-<div class="card"><div class="card-head"><span>앞으로 5일</span><button class="text-btn" data-screen="calendar">근무표 보기</button></div><div class="days" id="week5"></div></div>
-<button class="card row-link" data-go="family"><span><b>근무표 공유</b><small>초대 코드로 다른 사람과 근무표를 나눠요</small></span><svg class="ico s" aria-hidden="true"><use href="#i-right"/></svg></button>
+<div class="card"><div class="card-head"><span>앞으로 5일</span></div><div class="days" id="week5"></div></div>
 <div class="quick-hidden"><span id="iosStatus">—</span><span id="iosToday">—</span><span id="iosTomorrow">—</span><span id="androidStatus">—</span><span id="androidToday">—</span><span id="androidTomorrow">—</span></div>
 </section>
 <section class="screen" id="screen-calendar">
-<div class="page-head"><div class="page-title">근무표</div><p class="page-sub">날짜를 누르면 그날 근무를 바꿀 수 있어요. 날짜는 한국 기준, 시간은 이 기기 시간대로 보여 줘요.</p></div>
+<div class="page-head"><div class="page-title">근무표</div><p class="page-sub">날짜를 누르면 그날 근무를 바꿀 수 있어요.</p></div>
 <div class="card month-card">
 <div class="month-nav"><strong id="monthTitle">—</strong><div class="month-buttons"><button id="prevMonth" aria-label="이전 달"><svg class="ico s" aria-hidden="true"><use href="#i-left"/></svg></button><button id="nextMonth" aria-label="다음 달"><svg class="ico s" aria-hidden="true"><use href="#i-right"/></svg></button></div></div>
 <div class="week" id="week"></div>
@@ -266,7 +273,6 @@ html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly
 <select class="sr" id="editShift" tabindex="-1" aria-hidden="true"><option value="일">일근</option><option value="야">야근</option><option value="조">조근</option><option value="휴">휴무</option></select>
 <div class="editor-actions"><button class="primary" id="applyShift">저장</button><button class="soft" id="resetShift" title="반복 패턴으로 되돌리기">초기화</button></div>
 </div>
-<div class="panel"><h3>반복 패턴</h3><div class="cycle-view"><span class="cycle-chip tag-일">일</span><span class="arrow">›</span><span class="cycle-chip tag-야">야</span><span class="arrow">›</span><span class="cycle-chip tag-조">조</span><span class="arrow">›</span><span class="cycle-chip tag-휴">휴</span><span class="arrow" aria-label="반복">↻</span></div><p class="notice">기준 날짜를 정하면 이 순서가 자동으로 반복돼요. 기준은 설정에서 바꿀 수 있어요.</p></div>
 </section>
 <section class="screen" id="screen-family">
 <div class="page-head"><div class="page-title">근무표 공유</div><p class="page-sub">초대 코드를 보내면 받은 사람이 앱에서 내 근무표를 볼 수 있어요.</p></div>
@@ -278,14 +284,13 @@ html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly
 <div class="bottom-spacer"></div>
 </section>
 <section class="screen" id="screen-settings">
-<div class="page-head"><div class="page-title">설정</div><p class="page-sub">내 교대 패턴과 근무시간을 설정해요.</p></div>
+<div class="page-head"><div class="page-title">설정</div><p class="page-sub">계정과 반복 주기를 정해요.</p></div>
 <div class="panel" id="acctPanel"><h3>계정</h3><p class="acct-state" id="acctState">로그인하면 근무표가 저장되고 다른 사람과 공유할 수 있어요.</p><div class="acct-login" id="acctLogin"><input class="date-input full" id="acctEmail" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소" aria-label="이메일 주소"><input class="date-input full" id="acctPass" type="password" autocomplete="current-password" minlength="6" placeholder="비밀번호(6자 이상)" aria-label="비밀번호"><button class="primary full" id="acctSend">로그인</button><button class="text-btn" id="acctSignup">처음이면 가입하기</button></div><button class="secondary full" id="acctOut" hidden>로그아웃</button></div>
-<div class="panel" id="patternPanel"><h3>반복 주기 기준</h3><div class="row"><div class="form-item"><label class="setting-label" for="anchorDate">기준 날짜</label><input class="date-input full" id="anchorDate" type="date"></div><div class="form-item"><label class="setting-label" for="anchorShift">그날 근무</label><select class="select full" id="anchorShift"><option value="일">일근</option><option value="야">야근</option><option value="조">조근</option><option value="휴">휴무</option></select></div></div><button class="primary full" id="savePattern">패턴 저장</button><p class="notice">기준 날짜의 근무를 입력하면 일 → 야 → 조 → 휴 순으로 반복 계산돼요.</p></div>
+<div class="panel" id="patternPanel"><h3>반복 주기 기준</h3><div class="row"><div class="form-item"><label class="setting-label" for="anchorDate">기준 날짜</label><input class="date-input full" id="anchorDate" type="date"></div><div class="form-item"><label class="setting-label" for="anchorShift">그날 근무</label><select class="select full" id="anchorShift"><option value="일">일근</option><option value="야">야근</option><option value="조">조근</option><option value="휴">휴무</option></select></div></div><button class="primary full" id="savePattern">패턴 저장</button><div class="cycle-view" style="margin-top:14px"><span class="cycle-chip tag-일">일</span><span class="arrow">›</span><span class="cycle-chip tag-야">야</span><span class="arrow">›</span><span class="cycle-chip tag-조">조</span><span class="arrow">›</span><span class="cycle-chip tag-휴">휴</span><span class="arrow" aria-label="반복">↻</span></div><p class="notice">기준 날짜의 근무를 고르면 이 순서로 반복돼요. 날짜는 한국 기준, 시간은 이 기기 시간대로 보여 줘요.</p></div>
 <div class="panel"><h3>근무 시간 <span class="h-sub">한국 시간</span></h3><div class="list"><div class="li"><span class="li-tag tag-일">일</span><span class="li-main">일근</span><span class="li-val">08:30 – 17:30</span></div><div class="li"><span class="li-tag tag-야">야</span><span class="li-main">야근</span><span class="li-val">17:30 – 다음 날 08:30</span></div><div class="li"><span class="li-tag tag-조">조</span><span class="li-main">조근</span><span class="li-val">야근이 이어져 08:30 퇴근</span></div><div class="li"><span class="li-tag tag-휴">휴</span><span class="li-main">휴무</span><span class="li-val">쉬는 날</span></div></div></div>
-<div class="panel"><h3>근무표 공유</h3><p class="page-sub" style="margin:0 0 14px">초대 코드를 받은 사람이 앱에서 내 근무표를 볼 수 있어요.</p><button class="secondary full" data-go="family">공유 관리 열기</button></div>
 <div class="panel" id="lockPanel" data-web-only><h3>아이폰 잠금 화면 위젯</h3><p class="page-sub" style="margin:0 0 14px" id="lockState">잠금 화면에 오늘 근무가 늘 보여요. 무료 앱 Scriptable을 써요.</p><button class="primary full" id="lockCopy">위젯 코드 복사</button><textarea class="date-input full" id="lockCode" readonly hidden aria-label="위젯 코드" style="margin-top:10px;height:120px;font-size:12px;padding:10px"></textarea><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>App Store에서 무료 앱 <b>Scriptable</b>을 받아요.</li><li>위 버튼으로 위젯 코드를 복사해요.</li><li>Scriptable에서 <b>+</b>를 누르고 붙여 넣은 뒤, 위쪽 제목을 <b>교대온</b>으로 바꿔요.</li><li>잠금 화면을 길게 누르고 <b>사용자화</b> → 잠금 화면 → 시계 아래 위젯 칸 → <b>Scriptable</b>에서 직사각형을 넣어요.</li><li>넣은 위젯을 누르고 <b>Script</b>에서 <b>교대온</b>을 골라요.</li></ol></details><p class="notice">홈 화면에도 같은 방법으로 Scriptable 위젯(작은·중간)을 놓을 수 있어요. 아이폰이 새로 그리는 때를 정하므로 몇 분 늦게 바뀔 수 있어요. 코드에는 내 근무표를 읽는 열쇠가 들어 있어요.</p></div>
 <div class="panel" id="iosPanel" data-web-only><h3>아이폰 제어 센터 버튼</h3><p class="page-sub" style="margin:0 0 14px" id="iosState">단축어를 만들면 제어 센터 버튼을 눌러 오늘·내일 근무를 알림으로 볼 수 있어요.</p><button class="secondary full" id="iosCopy">단축어 주소 복사</button><input class="date-input full" id="iosUrl" readonly hidden aria-label="단축어 주소" style="margin-top:10px"><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>위 버튼으로 주소를 복사해요.</li><li>단축어 앱에서 <b>+</b>를 누르고 <b>URL 콘텐츠 가져오기</b>를 넣은 뒤 주소를 붙여 넣어요.</li><li><b>사전 값 가져오기</b>를 넣고 키에 <code>today</code>(오늘), <code>tomorrow</code>(내일), <code>text</code>(둘 다) 중 하나를 적어요.</li><li><b>알림 보기</b>를 넣고 단축어 이름을 “오늘 근무”처럼 정해요.</li><li>제어 센터를 열고 왼쪽 위 <b>+</b> → <b>제어 항목 추가</b> → <b>단축어</b>에서 방금 만든 단축어를 골라요.</li></ol></details><p class="notice">주소에는 내 근무표를 읽는 열쇠가 들어 있어요. 믿는 사람에게만 알려 주세요. 오늘·내일을 따로 두려면 단축어를 두 개 만들면 돼요.</p></div>
-<p class="notice" style="text-align:center">교대온 v0.7</p>
+<p class="notice" style="text-align:center">교대온 v0.8</p>
 </section>
 </main>
 <nav class="nav" aria-label="주요 메뉴">

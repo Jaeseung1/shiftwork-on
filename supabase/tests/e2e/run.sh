@@ -5,6 +5,7 @@ here="$(cd "$(dirname "$0")" && pwd)"; repo="$(cd "$here/../../.." && pwd)"
 work="$(mktemp -d)"; trap 'kill $(jobs -p) 2>/dev/null || true; rm -rf "$work"' EXIT
 mkdir -p "$work/app" "$work/local"
 cp "$repo/index.html" "$repo/sync.js" "$here/fake-supabase.js" "$work/app/"
+mkdir -p "$work/app/ios" && cp "$repo/ios/widget.js" "$work/app/ios/"
 echo "window.SHIFTWORK_CONFIG = { supabaseUrl: 'http://fake.local', supabaseAnonKey: 'anon', supabaseModule: '/fake-supabase.js' }" > "$work/app/config.js"
 cp "$repo/index.html" "$repo/sync.js" "$work/local/"
 echo "window.SHIFTWORK_CONFIG = { supabaseUrl: '', supabaseAnonKey: '' }" > "$work/local/config.js"

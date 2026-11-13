@@ -9,7 +9,7 @@ const $ = (s) => document.querySelector(s)
 const SUPABASE_MODULE = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm'
 const CODE_RE = /^[A-HJ-NP-Z2-9]{6}$/
 
-const st = { client: null, user: null, schedule: null, role: null, synced: null, applying: false, timer: null, loading: null }
+const st = { client: null, user: null, schedule: null, role: null, synced: null, applying: false, timer: null, loading: null, widgetTemplate: null }
 
 if (app) init()
 
@@ -239,6 +239,7 @@ function bindUI() {
     app.toast('로그아웃했어요')
   }
   $('#iosCopy').onclick = copyShortcut
+  $('#lockCopy').onclick = copyWidget
   $('#joinBtn').onclick = async () => {
     const code = $('#joinCode').value.trim().toUpperCase()
     if (!CODE_RE.test(code)) return app.toast('코드 6자리를 확인해 주세요')
@@ -303,15 +304,56 @@ function shortcutUrl() {
   return `${cfg.supabaseUrl}/rest/v1/rpc/share_summary_json?${q}`
 }
 
+// 잠금 화면 위젯(Scriptable) 코드: ios/widget.js의 CONFIG 줄에 서버 주소·키·토큰을 넣어 준다.
+// 아이폰 Safari는 누른 순간에만 복사를 허락하므로 코드 틀은 미리 받아 둔다.
+function prefetchWidget() {
+  if (st.widgetTemplate || window.ShiftBridge) return
+  fetch('ios/widget.js', { cache: 'no-cache' })
+    .then((r) => (r.ok ? r.text() : null))
+    .then((t) => { if (t && t.includes('const CONFIG = ')) st.widgetTemplate = t })
+    .catch(() => {})
+}
+
+function widgetCode() {
+  if (!st.widgetTemplate || !st.schedule?.widget_token || !cfg.supabaseUrl || !cfg.supabaseAnonKey) return ''
+  const conf = { url: cfg.supabaseUrl, key: cfg.supabaseAnonKey, token: st.schedule.widget_token, app: location.origin + location.pathname }
+  return st.widgetTemplate.replace(/^const CONFIG = .*$/m, () => 'const CONFIG = ' + JSON.stringify(conf))
+}
+
+async function copyWidget() {
+  const code = widgetCode()
+  if (!code) return app.toast(st.widgetTemplate ? '먼저 로그인하거나 초대 코드로 참여해 주세요' : '위젯 코드를 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요')
+  const box = $('#lockCode')
+  try {
+    await navigator.clipboard.writeText(code)
+    box.hidden = true
+    app.toast('위젯 코드를 복사했어요. Scriptable에 붙여 넣어 주세요')
+  } catch (e) {
+    box.value = code
+    box.hidden = false
+    box.focus()
+    box.select()
+    app.toast('코드를 모두 선택해 복사해 주세요')
+  }
+}
+
 function renderIos() {
   const panel = $('#iosPanel')
   if (!panel) return
   // 안드로이드 앱 안에서는 홈 화면 위젯이 있으니 숨긴다
   panel.hidden = !!window.ShiftBridge
+  $('#lockPanel').hidden = !!window.ShiftBridge
+  prefetchWidget()
+  const ready = !!shortcutUrl()
+  $('#lockCopy').disabled = !ready
+  $('#lockState').textContent = ready
+    ? '잠금 화면에 오늘 근무가 늘 보여요. 무료 앱 Scriptable을 써요.'
+    : '로그인하거나 초대 코드로 참여하면 쓸 수 있어요(위젯이 서버에서 근무표를 읽어요).'
+  if (!ready) $('#lockCode').hidden = true
   const url = shortcutUrl()
   $('#iosCopy').disabled = !url
   $('#iosState').textContent = url
-    ? '단축어를 만들면 제어 센터 버튼으로 오늘·내일 근무를 볼 수 있어요.'
+    ? '단축어를 만들면 제어 센터 버튼을 눌러 오늘·내일 근무를 알림으로 볼 수 있어요.'
     : '로그인하거나 초대 코드로 참여하면 쓸 수 있어요(단축어가 서버에서 근무표를 읽어요).'
   if (!url) $('#iosUrl').hidden = true
 }

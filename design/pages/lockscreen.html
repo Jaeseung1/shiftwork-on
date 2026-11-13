@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>아이폰 잠금 화면 위젯</title>
+<!-- ios/widget.js(Scriptable)가 잠금 화면·홈 화면에 그리는 모습을 어림해 그린 그림. 실제 iOS 화면이 아니다.
+     글은 ios/test.mjs가 같은 시각(서울 11/12 13:00, 11/13 23:00)에 위젯 코드에서 뽑은 값. -->
+<style>
+*{box-sizing:border-box}
+body{margin:0;width:max-content;background:#e5e8eb;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif}
+.row{display:flex;gap:28px;padding:28px;align-items:flex-start}
+.col{display:flex;flex-direction:column;gap:12px;align-items:center}
+.cap{font-size:15px;font-weight:700;color:#4e5968;text-align:center;line-height:1.4}
+.cap small{display:block;font-weight:500;color:#8b95a1;font-size:13px}
+.phone{position:relative;width:393px;height:852px;border-radius:44px;overflow:hidden;box-shadow:0 0 0 9px #111,0 18px 40px rgba(0,0,0,.25)}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:28px;border-radius:20px;background:#000;z-index:5}
+.lock{background:linear-gradient(170deg,#8fb7ef,#6283d2 45%,#3f52a3);color:#fff;text-align:center;padding-top:78px}
+.lock.night{background:linear-gradient(170deg,#2b3150,#1b1f33 50%,#120f1f)}
+.inline{font-size:15px;font-weight:600;opacity:.92}
+.clock{font-size:96px;font-weight:700;letter-spacing:-2px;line-height:1}
+.wrow{display:flex;justify-content:center;gap:10px;margin-top:12px}
+.rect{width:160px;height:72px;text-align:left;padding:0 2px;white-space:nowrap;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.rect b{font-size:15px;line-height:1.25}
+.rect span{font-size:12px;line-height:1.35}
+.rect span.dim{opacity:.7}
+.circ{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.circ b{font-size:15px}.circ span{font-size:11px}
+.home{background:linear-gradient(170deg,#dfe7f5,#c8d3ea);padding:70px 27px 0}
+.home.dark{background:linear-gradient(170deg,#1d2130,#111318)}
+.w{border-radius:22px;background:#fff;color:#191f28;padding:14px 14px 14px 16px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.dark .w{background:#1a1d24;color:#f2f4f6}
+.small{width:158px;height:158px;display:flex;flex-direction:column}
+.sub{font-size:12px;font-weight:700;color:#8b95a1}
+.name{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-top:3px}
+.chip{display:inline-block;align-self:flex-start;font-size:11px;font-weight:700;border-radius:9px;padding:2px 7px;margin-top:5px;background:#e8f3ff;color:#3182f6}
+.dark .chip{background:#1e2b40;color:#4795ff}
+.t{font-size:13px;color:#4e5968;margin-top:5px}.dark .t{color:#b0b8c1}
+.foot{margin-top:auto;font-size:12px;color:#8b95a1}
+.medium{width:338px;height:158px;display:flex;align-items:center;gap:10px;margin-top:16px}
+.medium .l{flex:1;min-width:0}
+.medium .card{width:124px;align-self:stretch;border-radius:16px;background:#f2f4f6;padding:12px;display:flex;flex-direction:column;justify-content:center}
+.dark .medium .card{background:#232730}
+.card .name{font-size:19px}
+.nr{display:flex;align-items:center;gap:7px}.nr .chip{margin-top:3px}
+.apps{display:grid;grid-template-columns:repeat(4,64px);gap:26px 27px;margin-top:22px;justify-content:center}
+.apps i{width:64px;height:64px;border-radius:15px;background:rgba(255,255,255,.55)}
+.dark .apps i{background:rgba(255,255,255,.12)}
+.note{font-size:12px;color:#8b95a1;text-align:center;padding:0 28px 22px;margin:0}
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="col">
+    <div class="phone lock"><div class="island"></div>
+      <div class="inline">일근 · 17:30 퇴근</div>
+      <div class="clock">1:00</div>
+      <div class="wrow">
+        <div class="rect"><b>일근 · 근무 중</b><span>17:30 퇴근 · 4시간 30분</span><span class="dim">내일 야근 · 17:30</span></div>
+        <div class="circ"><b>일근</b><span>17:30</span></div>
+      </div>
+    </div>
+    <div class="cap">잠금 화면 · 근무 중<small>시계 위 한 줄, 직사각형, 동그라미</small></div>
+  </div>
+  <div class="col">
+    <div class="phone lock night"><div class="island"></div>
+      <div class="inline">야근 · 08:30 퇴근</div>
+      <div class="clock">11:00</div>
+      <div class="wrow">
+        <div class="rect"><b>야근 · 근무 중</b><span>08:30 퇴근 · 9시간 30분</span><span class="dim">내일 조근 · 08:30 퇴근</span></div>
+      </div>
+    </div>
+    <div class="cap">잠금 화면 · 야근 밤<small>내일 조근은 끝나는 시각만</small></div>
+  </div>
+  <div class="col">
+    <div class="phone home"><div class="island"></div>
+      <div style="display:flex;gap:22px">
+        <div class="w small"><div class="sub">오늘 · 12일 목</div><div class="name">일근</div><span class="chip">근무 중</span><div class="t">17:30 퇴근</div><div class="foot">내일 야근 · 17:30</div></div>
+        <div style="display:grid;grid-template-columns:64px 64px;gap:30px 22px"><i style="width:64px;height:64px;border-radius:15px;background:rgba(255,255,255,.55)"></i><i style="width:64px;height:64px;border-radius:15px;background:rgba(255,255,255,.55)"></i><i style="width:64px;height:64px;border-radius:15px;background:rgba(255,255,255,.55)"></i><i style="width:64px;height:64px;border-radius:15px;background:rgba(255,255,255,.55)"></i></div>
+      </div>
+      <div class="w medium"><div class="l"><div class="sub">오늘 · 12일 목</div><div class="nr"><div class="name">일근</div><span class="chip">근무 중</span></div><div class="t">08:30–17:30</div><div class="t" style="margin-top:2px;color:#3182f6;font-weight:600">4시간 30분 남음</div></div><div class="card"><div class="sub">내일 · 13일 금</div><div class="name">야근</div><div class="t">17:30–08:30</div></div></div>
+      <div class="apps"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="cap">홈 화면 · 작은·중간<small>갤럭시 위젯과 같은 모양</small></div>
+  </div>
+</div>
+<p class="note">실제 아이폰 화면이 아니라 어림해 그린 그림입니다. 잠금 화면 위젯 글자색·크기는 iOS가 정하고, 글이 길면 조금 작아질 수 있어요. 글은 위젯 코드가 같은 시각에 실제로 만든 값입니다.</p>
+</body>
+</html>

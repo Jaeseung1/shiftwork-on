@@ -239,6 +239,7 @@ function bindUI() {
     app.toast('로그아웃했어요')
   }
   $('#iosCopy').onclick = copyShortcut
+  $('#lockCopy').onclick = copyWidget
   // 갤럭시 앱 안이면 버전과 새 버전 확인. 앱(자바)은 인터넷에서 APK를 찾지 않고, 이 화면이 받는 곳 페이지만 브라우저로 연다.
   const bridge = window.ShiftBridge
   if (bridge && typeof bridge.appVersionCode === 'function') {

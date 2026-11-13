@@ -6,3 +6,4 @@ assets
 control-center-concept.html
 *.md
 ios/test.mjs
+simple/test.cjs

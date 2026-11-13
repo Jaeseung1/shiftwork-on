@@ -98,7 +98,7 @@ public class WidgetRenderTest {
         return root.findViewById(id).getVisibility();
     }
 
-    private static final int[] W4 = {R.id.today_cap, R.id.live, R.id.today_name, R.id.today_time, R.id.next_cap, R.id.next_name, R.id.next_time};
+    private static final int[] W4 = {R.id.today_cap, R.id.today_name, R.id.today_time, R.id.next_cap, R.id.next_name, R.id.next_time};
 
     /** 자기와 부모가 모두 보이는지 */
     private static boolean shown(View root, int id) {
@@ -118,25 +118,24 @@ public class WidgetRenderTest {
     @Config(qualifiers = "w411dp-h891dp-xxhdpi")
     public void w4x1_working() throws Exception {
         View v = render(WidgetRender.Kind.W4x1, "2026-11-12T13:00", "Asia/Seoul", 340, 80, "4x1-light");
-        assertEquals("오늘 · 12일 목", text(v, R.id.today_cap));
-        assertEquals("근무 중", text(v, R.id.live));
+        assertEquals("오늘 · 근무 중", text(v, R.id.today_cap));
         assertEquals("일근", text(v, R.id.today_name));
-        assertEquals("08:30–17:30 · 4시간 30분 남음", text(v, R.id.today_time));
+        assertEquals("17:30 퇴근", text(v, R.id.today_time));
         assertEquals("오늘 근무 색(일근 주황)", color(R.color.s_day), textColor(v, R.id.today_name));
-        assertEquals("근무 중 칩도 같은 색", color(R.color.s_day), textColor(v, R.id.live));
         assertEquals("내일 · 13일 금", text(v, R.id.next_cap));
         assertEquals("야근", text(v, R.id.next_name));
-        assertEquals("17:30–08:30", text(v, R.id.next_time));
+        assertEquals("내일 이름은 기본 글자색", color(R.color.w_ink), textColor(v, R.id.next_name));
+        assertEquals("17:30 출근", text(v, R.id.next_time));
         check4x1(v);
     }
 
     @Test
     @Config(qualifiers = "w411dp-h891dp-night-xxhdpi")
     public void w4x1_night_shift_dark() throws Exception {
-        // 13일 야근 23:00, 남은 시간이 가장 긴 글
+        // 13일 야근 23:00. 내일 조근은 이어지는 근무라 끝나는 시각
         View v = render(WidgetRender.Kind.W4x1, "2026-11-13T23:00", "Asia/Seoul", 340, 80, "4x1-dark");
         assertEquals("야근", text(v, R.id.today_name));
-        assertEquals("17:30–08:30 · 9시간 30분 남음", text(v, R.id.today_time));
+        assertEquals("08:30 퇴근", text(v, R.id.today_time));
         assertEquals("조근", text(v, R.id.next_name));
         assertEquals("08:30 퇴근", text(v, R.id.next_time));
         check4x1(v);
@@ -147,9 +146,11 @@ public class WidgetRenderTest {
     public void w4x1_after_work() throws Exception {
         // 14일 조근이 08:30에 끝난 뒤, 15일은 야근으로 바꾼 날
         View v = render(WidgetRender.Kind.W4x1, "2026-11-14T10:00", "Asia/Seoul", 340, 80, "4x1-after");
-        assertEquals("퇴근 후", text(v, R.id.live));
+        assertEquals("오늘 · 퇴근 후", text(v, R.id.today_cap));
         assertEquals("조근", text(v, R.id.today_name));
+        assertEquals("17:30–08:30", text(v, R.id.today_time));
         assertEquals("야근", text(v, R.id.next_name));
+        assertEquals("17:30 출근", text(v, R.id.next_time));
         check4x1(v);
     }
 
@@ -157,11 +158,11 @@ public class WidgetRenderTest {
     @Config(qualifiers = "w411dp-h891dp-xxhdpi")
     public void w4x1_day_off() throws Exception {
         View v = render(WidgetRender.Kind.W4x1, "2026-11-19T12:00", "Asia/Seoul", 340, 80, "4x1-off");
-        assertEquals("쉬는 날", text(v, R.id.live));
+        assertEquals("오늘 · 쉬는 날", text(v, R.id.today_cap));
         assertEquals("휴무", text(v, R.id.today_name));
         assertEquals(View.GONE, vis(v, R.id.today_time));
         assertEquals("일근", text(v, R.id.next_name));
-        assertEquals("08:30–17:30", text(v, R.id.next_time));
+        assertEquals("08:30 출근", text(v, R.id.next_time));
         check4x1(v);
     }
 
@@ -220,9 +221,9 @@ public class WidgetRenderTest {
         try {
             View v = render(WidgetRender.Kind.W4x1, "2026-11-13T23:00", "Asia/Seoul", 340, 80, "4x1-font");
             check4x1(v);
-            assertEquals(View.GONE, vis(v, R.id.today_cap_row));
-            assertEquals(View.GONE, vis(v, R.id.next_cap_row));
-            assertEquals("내일 조근", text(v, R.id.next_name));
+            assertEquals("글꼴이 크면 시각 줄을 뺀다", View.GONE, vis(v, R.id.today_time));
+            assertEquals(View.GONE, vis(v, R.id.next_time));
+            assertEquals("내일 · 14일 토", text(v, R.id.next_cap));
             v = render(WidgetRender.Kind.W2x1, "2026-11-13T12:00", "Asia/Seoul", 160, 80, "2x1-font");
             assertEquals(View.GONE, vis(v, R.id.next_row));
             for (int id : new int[]{R.id.today_name, R.id.live, R.id.live_time}) fits(v, id);

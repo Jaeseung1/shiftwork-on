@@ -1,17 +1,17 @@
-import { Coffee, Moon, Sun, Sunrise } from 'lucide-react'
+import { Coffee, Moon, Sun, CloudSun } from 'lucide-react'
 import { Stage } from '../../kit'
 import './widgets.css'
 
 // 교대온 갤럭시 홈 화면 위젯 시안 v4 (4x1·2x1·1x1). 정지 이미지, 실제 위젯(Android RemoteViews)의 설계도.
 // 출발점: 이전 시안 shiftwork-widget(위젯 하나를 배경화면 위에) + gold static-card의 절제 규칙.
-// 앱 v0.4와 같은 말: 근무마다 한 가지 색(일 주황, 야 보라, 조 파랑, 휴 초록)과 아이콘(해·달·해돋이·커피, lucide).
+// 앱 v0.4와 같은 말: 근무마다 한 가지 색(일 주황, 야 보라, 조 파랑, 휴 초록)과 아이콘(해·달·구름 사이 해·커피, lucide).
 // 위젯 하나에는 색이 하나만: 오늘 근무의 색이 아이콘·이름·"근무 중" 칩에 쓰이고, 내일은 회색 카드에 작은 아이콘 색만.
 // 시각: 서울 2026-11-13(금) 13:00, 오늘 일근(근무 중, 4시간 30분 남음), 내일 14일(토) 야근.
 // 크기: 갤럭시 칸을 작게 어림한 dp의 1.5배(4x1 340×80dp → 510×120).
 
 type S = '일' | '야' | '조' | '휴'
 const NAME: Record<S, string> = { 일: '일근', 야: '야근', 조: '조근', 휴: '휴무' }
-const ICON = { 일: Sun, 야: Moon, 조: Sunrise, 휴: Coffee }
+const ICON = { 일: Sun, 야: Moon, 조: CloudSun, 휴: Coffee }
 
 function Glyph({ s, size = 15 }: { s: S; size?: number }) {
   const I = ICON[s]

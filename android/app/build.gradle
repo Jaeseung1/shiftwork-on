@@ -16,13 +16,11 @@ android {
         applicationId 'app.shiftwork.on'
         minSdk 26
         targetSdk 34
-        versionCode 4
-        versionName '0.4'
+        versionCode 5
+        versionName '0.5'
         // 웹 앱 주소(예: Vercel 주소). 비우면 앱에 들어 있는 웹 파일을 쓴다.
         // 빌드할 때 바꾸려면: ./gradlew assembleDebug -PwebAppUrl=https://...
         buildConfigField 'String', 'WEB_APP_URL', "\"${project.findProperty('webAppUrl') ?: ''}\""
-        // 새 버전 알림: 이 주소의 version.json(웹에 함께 올림, downloads/)을 하루 한 번 확인한다
-        buildConfigField 'String', 'UPDATE_URL', '"https://jaeseung1.github.io/shiftwork-on/downloads/version.json"'
     }
 
     signingConfigs {

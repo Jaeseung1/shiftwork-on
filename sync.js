@@ -239,14 +239,16 @@ function bindUI() {
     app.toast('로그아웃했어요')
   }
   $('#iosCopy').onclick = copyShortcut
-  // 갤럭시 앱 안이면 버전과 업데이트 확인 버튼(앱 0.4부터)
+  // 갤럭시 앱 안이면 버전과 새 버전 확인. 앱(자바)은 인터넷에서 APK를 찾지 않고, 이 화면이 받는 곳 페이지만 브라우저로 연다.
   const bridge = window.ShiftBridge
-  if (bridge && typeof bridge.checkUpdate === 'function') {
+  if (bridge && typeof bridge.appVersionCode === 'function') {
     $('#appPanel').hidden = false
     try { $('#appVer').textContent = bridge.appVersion() } catch (e) {}
-    $('#appUpdate').onclick = () => { bridge.checkUpdate(); app.toast('새 버전을 확인하고 있어요') }
+    $('#appUpdate').onclick = () => checkUpdate(true)
+    let last = 0
+    try { last = Number(localStorage.getItem('shiftwork-update-check') || 0) } catch (e) {}
+    if (Date.now() - last > 24 * 3600 * 1000) setTimeout(() => checkUpdate(false), 3000)
   }
-  $('#lockCopy').onclick = copyWidget
   $('#joinBtn').onclick = async () => {
     const code = $('#joinCode').value.trim().toUpperCase()
     if (!CODE_RE.test(code)) return app.toast('코드 6자리를 확인해 주세요')
@@ -284,6 +286,26 @@ function bindUI() {
     $('#modalText').textContent = `초대 코드 ${app.data.invite}를 보내고, 받은 사람은 앱의 공유 탭에서 코드를 입력하면 돼요.`
     $('#modal .demo').hidden = true // "시제품이라 동작하지 않아요" 안내는 서버 없는 모드에서만
     $('#modal').classList.add('open')
+  }
+}
+
+const UPDATE_URL = 'https://jaeseung1.github.io/shiftwork-on/downloads/version.json'
+const UPDATE_PAGE = 'https://jaeseung1.github.io/shiftwork-on/downloads/'
+async function checkUpdate(manual) {
+  const bridge = window.ShiftBridge
+  try {
+    const r = await fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store' })
+    const j = await r.json()
+    try { localStorage.setItem('shiftwork-update-check', String(Date.now())) } catch (e) {}
+    const mine = Number(bridge.appVersionCode())
+    if (Number(j.versionCode) > mine) {
+      $('#appUpdate').textContent = `새 버전 ${j.versionName} 받으러 가기`
+      $('#appUpdate').onclick = () => { location.href = UPDATE_PAGE }
+      $('#appUpdate').className = 'primary full'
+      app.toast(`새 버전 ${j.versionName}이 있어요. 설정에서 받을 수 있어요`)
+    } else if (manual) app.toast('최신 버전이에요')
+  } catch (e) {
+    if (manual) app.toast('확인하지 못했어요. 인터넷 연결을 확인해 주세요')
   }
 }
 

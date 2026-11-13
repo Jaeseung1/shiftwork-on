@@ -49,12 +49,12 @@ cd android
 - 못 한 것: 실기기·에뮬레이터(이 컨테이너는 가상화 KVM이 없음). 삼성 런처의 실제 칸 크기와 글꼴(One UI)은 다를 수 있다.
 - debug APK는 개발용 서명이다. 오래 쓰려면 release 서명 키를 만들어 `assembleRelease`로 빌드한다(키를 잃어버리면 업데이트 설치가 안 된다).
 
-## 새 버전 알림과 배포 (0.4부터)
-- 앱은 열 때 하루 한 번 `https://jaeseung1.github.io/shiftwork-on/downloads/version.json`을 읽고, `versionCode`가 지금 앱보다 크면 "새 버전이 나왔어요" 창을 띄운다. "받기"를 누르면 브라우저로 APK를 받고, 받은 파일을 열어 설치하면 같은 서명 키라 덮어 설치된다(근무표·위젯 유지). 설정 탭 "갤럭시 앱 → 업데이트 확인"은 바로 확인한다(`UpdateChecker.java`).
+## 새 버전 알림과 배포 (0.5부터)
+- 0.4에서는 앱(자바)이 직접 version.json을 읽고 APK 받기 창을 띄웠는데, 설치 뒤 Play 프로텍트가 "잠재적으로 유해한 앱"으로 막았다(사용자 보고, 2026-11-13). 다른 APK를 받게 하는 앱을 위험하게 보는 것으로 짐작하며(구글이 기준을 공개하지 않아 확실하지 않음) 0.5에서 그 코드를 뺐다.
+- 0.5부터: 설정 탭 "갤럭시 앱 → 새 버전 확인"(그리고 하루 한 번 자동)은 웹 화면(sync.js)이 `downloads/version.json`을 읽고, 새 버전이면 받는 곳 페이지 `downloads/`를 브라우저로 연다. 앱은 `ShiftBridge.appVersionCode()`로 지금 버전만 알려 준다.
 - 새 버전 내보내는 순서:
   1. `app/build.gradle`의 `versionCode`를 1 올리고 `versionName`을 바꾼다.
   2. 정식 키로 `./gradlew assembleRelease`(키 꺼내는 법은 위 "정식 빌드와 서명 키").
-  3. `app/build/outputs/apk/release/app-release.apk`를 레포 `downloads/app-<버전>.apk`로 복사하고, 예전 APK는 지운다.
+  3. APK를 `downloads/app-<버전>.apk`로 복사하고 예전 APK는 지운다.
   4. `downloads/version.json`의 `versionCode`·`versionName`·`url`·`notes`를 고친다.
-  5. `main`에 올리면 GitHub Pages가 1~2분 뒤 새 파일을 내보내고, 앱들이 알림을 띄운다.
-- 0.3 이하에는 이 기능이 없어서 0.4는 한 번 직접 설치해야 한다.
+  5. `main`에 올리면 GitHub Pages가 1~2분 뒤 새 파일을 내보낸다.

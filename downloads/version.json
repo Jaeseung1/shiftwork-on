@@ -1,6 +1,6 @@
 {
-  "versionCode": 4,
-  "versionName": "0.4",
-  "url": "https://jaeseung1.github.io/shiftwork-on/downloads/app-0.4.apk",
-  "notes": "화면을 새로 다듬었어요(근무 색 칩, 해·달 아이콘). 설정에 업데이트 확인이 생겼어요."
+  "versionCode": 5,
+  "versionName": "0.5",
+  "url": "https://jaeseung1.github.io/shiftwork-on/downloads/app-0.5.apk",
+  "notes": "앱이 직접 새 파일을 찾던 기능을 빼고, 설정의 '새 버전 확인'이 받는 곳 페이지를 열어요."
 }

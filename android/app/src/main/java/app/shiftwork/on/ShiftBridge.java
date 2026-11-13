@@ -1,6 +1,5 @@
 package app.shiftwork.on;
 
-import android.app.Activity;
 import android.content.Context;
 import android.webkit.JavascriptInterface;
 
@@ -9,11 +8,9 @@ import app.shiftwork.on.widget.WidgetUpdater;
 /** 웹 앱(sync.js)이 window.ShiftBridge로 부른다. 근무표와 서버 접속 정보를 받아 위젯을 다시 그린다. */
 public final class ShiftBridge {
     private final Context ctx;
-    private final Activity activity;
 
-    public ShiftBridge(Activity activity) {
-        this.activity = activity;
-        this.ctx = activity.getApplicationContext();
+    public ShiftBridge(Context ctx) {
+        this.ctx = ctx.getApplicationContext();
     }
 
     @JavascriptInterface
@@ -28,10 +25,10 @@ public final class ShiftBridge {
         RefreshWorker.schedule(ctx);
     }
 
-    /** 설정 화면의 "업데이트 확인" */
+    /** 설정 화면의 앱 버전 표시와 새 버전 비교용(새 버전 확인과 안내는 웹 화면이 한다) */
     @JavascriptInterface
-    public void checkUpdate() {
-        UpdateChecker.check(activity, true);
+    public int appVersionCode() {
+        return BuildConfig.VERSION_CODE;
     }
 
     @JavascriptInterface

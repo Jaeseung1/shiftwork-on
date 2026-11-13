@@ -60,7 +60,6 @@ public class MainActivity extends Activity {
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(home);
         RefreshWorker.schedule(this);
-        UpdateChecker.check(this, false);
     }
 
     @Override

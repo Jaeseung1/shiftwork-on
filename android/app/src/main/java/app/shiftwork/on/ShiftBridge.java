@@ -24,15 +24,4 @@ public final class ShiftBridge {
         Store.saveRemote(ctx, json);
         RefreshWorker.schedule(ctx);
     }
-
-    /** 설정 화면의 앱 버전 표시와 새 버전 비교용(새 버전 확인과 안내는 웹 화면이 한다) */
-    @JavascriptInterface
-    public int appVersionCode() {
-        return BuildConfig.VERSION_CODE;
-    }
-
-    @JavascriptInterface
-    public String appVersion() {
-        return BuildConfig.VERSION_NAME;
-    }
 }

@@ -238,18 +238,10 @@ function bindUI() {
     await onSession(null)
     app.toast('로그아웃했어요')
   }
+  // <web-only> 아이폰 전용(갤럭시 앱 빌드에서는 빠진다: android/app/build.gradle copyWebAssets)
   $('#iosCopy').onclick = copyShortcut
   $('#lockCopy').onclick = copyWidget
-  // 갤럭시 앱 안이면 버전과 새 버전 확인. 앱(자바)은 인터넷에서 APK를 찾지 않고, 이 화면이 받는 곳 페이지만 브라우저로 연다.
-  const bridge = window.ShiftBridge
-  if (bridge && typeof bridge.appVersionCode === 'function') {
-    $('#appPanel').hidden = false
-    try { $('#appVer').textContent = bridge.appVersion() } catch (e) {}
-    $('#appUpdate').onclick = () => checkUpdate(true)
-    let last = 0
-    try { last = Number(localStorage.getItem('shiftwork-update-check') || 0) } catch (e) {}
-    if (Date.now() - last > 24 * 3600 * 1000) setTimeout(() => checkUpdate(false), 3000)
-  }
+  // </web-only>
   $('#joinBtn').onclick = async () => {
     const code = $('#joinCode').value.trim().toUpperCase()
     if (!CODE_RE.test(code)) return app.toast('코드 6자리를 확인해 주세요')
@@ -290,26 +282,6 @@ function bindUI() {
   }
 }
 
-const UPDATE_URL = 'https://jaeseung1.github.io/shiftwork-on/downloads/version.json'
-const UPDATE_PAGE = 'https://jaeseung1.github.io/shiftwork-on/downloads/'
-async function checkUpdate(manual) {
-  const bridge = window.ShiftBridge
-  try {
-    const r = await fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store' })
-    const j = await r.json()
-    try { localStorage.setItem('shiftwork-update-check', String(Date.now())) } catch (e) {}
-    const mine = Number(bridge.appVersionCode())
-    if (Number(j.versionCode) > mine) {
-      $('#appUpdate').textContent = `새 버전 ${j.versionName} 받으러 가기`
-      $('#appUpdate').onclick = () => { location.href = UPDATE_PAGE }
-      $('#appUpdate').className = 'primary full'
-      app.toast(`새 버전 ${j.versionName}이 있어요. 설정에서 받을 수 있어요`)
-    } else if (manual) app.toast('최신 버전이에요')
-  } catch (e) {
-    if (manual) app.toast('확인하지 못했어요. 인터넷 연결을 확인해 주세요')
-  }
-}
-
 function isOwnerOnline() {
   return !!(st.client && st.user && st.schedule && st.role === 'owner')
 }
@@ -325,6 +297,7 @@ async function createInvite() {
   app.toast('초대 코드를 만들었어요')
 }
 
+// <web-only> 아이폰 전용(갤럭시 앱 빌드에서는 빠진다)
 // ---- 아이폰 단축어(제어 센터) ----
 // 단축어가 로그인 없이 부를 주소. 토큰은 근무표를 읽기만 하는 열쇠(widget_schedule과 같은 토큰).
 function shortcutUrl() {
@@ -405,9 +378,10 @@ async function copyShortcut() {
     app.toast('주소를 길게 눌러 복사해 주세요')
   }
 }
+// </web-only>
 
 function renderAccount() {
-  renderIos()
+  if (typeof renderIos === 'function') renderIos()
   const state = $('#acctState')
   const login = $('#acctLogin')
   const out = $('#acctOut')

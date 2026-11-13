@@ -1,6 +1,6 @@
 {
-  "versionCode": 6,
-  "versionName": "0.6",
-  "url": "https://jaeseung1.github.io/shiftwork-on/downloads/app-0.6.apk",
-  "notes": "새 서명 키와 새 앱 ID로 다시 만든 앱이에요. 예전 교대온 앱을 지운 뒤 설치해 주세요."
+  "versionCode": 7,
+  "versionName": "0.7",
+  "url": "https://jaeseung1.github.io/shiftwork-on/downloads/app-0.7.apk",
+  "notes": "앱 안의 업데이트 확인 기능을 모두 뺐어요. 새 버전은 이 페이지에서 직접 받아요."
 }

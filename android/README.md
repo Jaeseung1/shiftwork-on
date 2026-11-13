@@ -50,12 +50,6 @@ cd android
 - 못 한 것: 실기기·에뮬레이터(이 컨테이너는 가상화 KVM이 없음). 삼성 런처의 실제 칸 크기와 글꼴(One UI)은 다를 수 있다.
 - debug APK는 개발용 서명이다. 오래 쓰려면 release 서명 키를 만들어 `assembleRelease`로 빌드한다(키를 잃어버리면 업데이트 설치가 안 된다).
 
-## 새 버전 알림과 배포 (0.5부터)
-- 0.4에서는 앱(자바)이 직접 version.json을 읽고 APK 받기 창을 띄웠는데, 설치 뒤 Play 프로텍트가 "잠재적으로 유해한 앱"으로 막았다(사용자 보고, 2026-11-13). 다른 APK를 받게 하는 앱을 위험하게 보는 것으로 짐작하며(구글이 기준을 공개하지 않아 확실하지 않음) 0.5에서 그 코드를 뺐다.
-- 0.5부터: 설정 탭 "갤럭시 앱 → 새 버전 확인"(그리고 하루 한 번 자동)은 웹 화면(sync.js)이 `downloads/version.json`을 읽고, 새 버전이면 받는 곳 페이지 `downloads/`를 브라우저로 연다. 앱은 `ShiftBridge.appVersionCode()`로 지금 버전만 알려 준다.
-- 새 버전 내보내는 순서:
-  1. `app/build.gradle`의 `versionCode`를 1 올리고 `versionName`을 바꾼다.
-  2. 정식 키로 `./gradlew assembleRelease`(키 꺼내는 법은 위 "정식 빌드와 서명 키").
-  3. APK를 `downloads/app-<버전>.apk`로 복사하고 예전 APK는 지운다.
-  4. `downloads/version.json`의 `versionCode`·`versionName`·`url`·`notes`를 고친다.
-  5. `main`에 올리면 GitHub Pages가 1~2분 뒤 새 파일을 내보낸다.
+## 새 버전 배포 (0.7부터, 앱 안 업데이트 기능 없음)
+- 0.4에 넣은 "앱 안 새 버전 알림" 뒤로 Play 프로텍트가 계속 "잠재적으로 유해한 앱"으로 막았다(0.4·0.5·0.6, 새 키·새 앱 ID에서도). 0.5·0.6은 자바 코드만 뺐고 화면(sync.js)에 확인 기능이 남아 있었다. 0.7에서 업데이트 기능을 화면까지 모두 지우고, 아이폰 전용 코드(단축어 주소·잠금 화면 위젯 코드 만들기)도 갤럭시 앱에는 넣지 않는다(`copyWebAssets`가 `// <web-only>` 블록과 `data-web-only` 줄을 뺌). 구글이 기준을 공개하지 않아 원인은 짐작이다.
+- 새 버전은 받는 곳 페이지 `https://jaeseung1.github.io/shiftwork-on/downloads/`에서 직접 받는다. 올리는 순서: versionCode 올리기 → 새 키로 assembleRelease → `downloads/app-<버전>.apk`(예전 것 지우기) → `downloads/version.json` 고치기 → main에 올리기.

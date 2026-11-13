@@ -16,8 +16,8 @@ android {
         applicationId 'app.gyodaeon'
         minSdk 26
         targetSdk 34
-        versionCode 6
-        versionName '0.6'
+        versionCode 7
+        versionName '0.7'
         // 웹 앱 주소(예: Vercel 주소). 비우면 앱에 들어 있는 웹 파일을 쓴다.
         // 빌드할 때 바꾸려면: ./gradlew assembleDebug -PwebAppUrl=https://...
         buildConfigField 'String', 'WEB_APP_URL', "\"${project.findProperty('webAppUrl') ?: ''}\""
@@ -65,10 +65,23 @@ dependencies {
 }
 
 // 레포 루트의 웹 앱 파일을 앱 안(assets/web)에 넣는다
+// 아이폰 전용 부분(단축어·잠금 화면 위젯 코드 만들기)은 갤럭시 앱에 넣지 않는다:
+// sync.js의 "// <web-only>" ~ "// </web-only>" 줄과 index.html의 data-web-only 줄을 뺀다.
 def copyWebAssets = tasks.register('copyWebAssets', Copy) {
     from(rootProject.file('..')) {
         include 'index.html', 'sync.js', 'config.js', 'manifest.webmanifest', 'sw.js', 'icons/**'
     }
     into "$buildDir/generated/webassets/web"
+    filesMatching('sync.js') {
+        def skip = false
+        filter { String line ->
+            if (line.contains('// <web-only>')) { skip = true; return null }
+            if (line.contains('// </web-only>')) { skip = false; return null }
+            skip ? null : line
+        }
+    }
+    filesMatching('index.html') {
+        filter { String line -> line.contains('data-web-only') ? null : line }
+    }
 }
 preBuild.dependsOn copyWebAssets

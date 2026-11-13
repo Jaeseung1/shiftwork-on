@@ -239,6 +239,13 @@ function bindUI() {
     app.toast('로그아웃했어요')
   }
   $('#iosCopy').onclick = copyShortcut
+  // 갤럭시 앱 안이면 버전과 업데이트 확인 버튼(앱 0.4부터)
+  const bridge = window.ShiftBridge
+  if (bridge && typeof bridge.checkUpdate === 'function') {
+    $('#appPanel').hidden = false
+    try { $('#appVer').textContent = bridge.appVersion() } catch (e) {}
+    $('#appUpdate').onclick = () => { bridge.checkUpdate(); app.toast('새 버전을 확인하고 있어요') }
+  }
   $('#lockCopy').onclick = copyWidget
   $('#joinBtn').onclick = async () => {
     const code = $('#joinCode').value.trim().toUpperCase()

@@ -48,3 +48,13 @@ cd android
 - 그림 시험으로 찾아 고친 것: 4x1 높이 부족(시간·날짜 숫자 잘림), 2x1 오른쪽 카드 말줄임, 2x1·1x1 넷째 줄 찌그러짐. 0.3: 새 디자인의 세로 넘침(한글 줄 높이), 글꼴 120%에서 1x1 "…" 줄임과 4x1 가로 잘림.
 - 못 한 것: 실기기·에뮬레이터(이 컨테이너는 가상화 KVM이 없음). 삼성 런처의 실제 칸 크기와 글꼴(One UI)은 다를 수 있다.
 - debug APK는 개발용 서명이다. 오래 쓰려면 release 서명 키를 만들어 `assembleRelease`로 빌드한다(키를 잃어버리면 업데이트 설치가 안 된다).
+
+## 새 버전 알림과 배포 (0.4부터)
+- 앱은 열 때 하루 한 번 `https://jaeseung1.github.io/shiftwork-on/downloads/version.json`을 읽고, `versionCode`가 지금 앱보다 크면 "새 버전이 나왔어요" 창을 띄운다. "받기"를 누르면 브라우저로 APK를 받고, 받은 파일을 열어 설치하면 같은 서명 키라 덮어 설치된다(근무표·위젯 유지). 설정 탭 "갤럭시 앱 → 업데이트 확인"은 바로 확인한다(`UpdateChecker.java`).
+- 새 버전 내보내는 순서:
+  1. `app/build.gradle`의 `versionCode`를 1 올리고 `versionName`을 바꾼다.
+  2. 정식 키로 `./gradlew assembleRelease`(키 꺼내는 법은 위 "정식 빌드와 서명 키").
+  3. `app/build/outputs/apk/release/app-release.apk`를 레포 `downloads/app-<버전>.apk`로 복사하고, 예전 APK는 지운다.
+  4. `downloads/version.json`의 `versionCode`·`versionName`·`url`·`notes`를 고친다.
+  5. `main`에 올리면 GitHub Pages가 1~2분 뒤 새 파일을 내보내고, 앱들이 알림을 띄운다.
+- 0.3 이하에는 이 기능이 없어서 0.4는 한 번 직접 설치해야 한다.

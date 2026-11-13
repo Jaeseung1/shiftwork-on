@@ -13,11 +13,11 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId 'app.shiftwork.on'
+        applicationId 'app.gyodaeon'
         minSdk 26
         targetSdk 34
-        versionCode 5
-        versionName '0.5'
+        versionCode 6
+        versionName '0.6'
         // 웹 앱 주소(예: Vercel 주소). 비우면 앱에 들어 있는 웹 파일을 쓴다.
         // 빌드할 때 바꾸려면: ./gradlew assembleDebug -PwebAppUrl=https://...
         buildConfigField 'String', 'WEB_APP_URL', "\"${project.findProperty('webAppUrl') ?: ''}\""

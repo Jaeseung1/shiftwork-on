@@ -13,3 +13,4 @@ shiftwork-signing-key.zip
 *.keystore
 android/keystore.properties
 android/signing/
+gyodaeon-*.apk

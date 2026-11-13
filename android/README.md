@@ -25,6 +25,7 @@
 4. 웹 앱 주소를 쓰려면: `./gradlew assembleDebug -PwebAppUrl=https://<내 주소>`
 
 ## 정식 빌드와 서명 키 (업데이트하려면 꼭 필요)
+- **0.6(2026-11-13)부터 새 키와 새 앱 ID(`app.gyodaeon`)를 쓴다.** 0.4 설치 뒤 Play 프로텍트가 "잠재적으로 유해한 앱"으로 막아, 예전 키(`app.shiftwork.on`)는 그만 쓴다. 새 키는 Supabase Vault `gyodaeon_android_signing_key_zip_b64`(zip SHA-256 `1a5ce6a4…99ef`, 인증서 SHA-256 `bae3d2d2…9641`)에 있고, 꺼내는 법은 아래 예전 키와 같다(이름만 바꿔서). 아래 예전 키 설명은 기록으로 남겨 둔다.
 - 정식 APK: `./gradlew assembleRelease` → `app/build/outputs/apk/release/app-release.apk`
 - 서명 키: `android/signing/shiftwork-release.jks`와 비밀번호가 든 `android/keystore.properties`. **둘 다 저장소에 넣지 않는다**(.gitignore). 2026-11-12에 만들어 사용자에게 파일로 전달했다(인증서 SHA-256 `1d9fe2ac…e377`).
 - 보관: 사용자 요청으로 Supabase 프로젝트 shiftwork-on의 **Vault**에 키 zip을 base64로 넣어 두었다(이름 `shiftwork_android_signing_key_zip_b64`, zip SHA-256 `357492d8…5b97`). anon·authenticated는 읽을 수 없다.

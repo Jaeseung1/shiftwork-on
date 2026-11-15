@@ -16,11 +16,13 @@ android {
         applicationId 'app.gyodaeon'
         minSdk 26
         targetSdk 34
-        versionCode 9
-        versionName '0.9'
+        versionCode 10
+        versionName '1.0'
         // 웹 앱 주소(예: Vercel 주소). 비우면 앱에 들어 있는 웹 파일을 쓴다.
         // 빌드할 때 바꾸려면: ./gradlew assembleDebug -PwebAppUrl=https://...
         buildConfigField 'String', 'WEB_APP_URL', "\"${project.findProperty('webAppUrl') ?: ''}\""
+        // 화면 자동 업데이트: 앱 화면 파일을 이 주소(main 브랜치의 GitHub Pages)에서 먼저 받아 쓴다. 비우면 앱에 든 파일만 쓴다.
+        buildConfigField 'String', 'UPDATE_BASE', '"https://jaeseung1.github.io/shiftwork-on/"'
     }
 
     signingConfigs {
@@ -50,6 +52,8 @@ android {
 
     testOptions {
         unitTests.includeAndroidResources = true
+        // 위젯 그림 시험(NATIVE 그리기)과 다른 시험이 한 JVM에서 섞이면 Robolectric이 가끔 깨진다: 시험 묶음마다 새 JVM
+        unitTests.all { forkEvery = 1 }
     }
 
     sourceSets {

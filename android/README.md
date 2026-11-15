@@ -50,6 +50,12 @@ cd android
 - 못 한 것: 실기기·에뮬레이터(이 컨테이너는 가상화 KVM이 없음). 삼성 런처의 실제 칸 크기와 글꼴(One UI)은 다를 수 있다.
 - debug APK는 개발용 서명이다. 오래 쓰려면 release 서명 키를 만들어 `assembleRelease`로 빌드한다(키를 잃어버리면 업데이트 설치가 안 된다).
 
+## 화면 자동 업데이트 (1.0부터)
+- 앱이 화면 파일(index.html, sync.js 등)을 열 때마다 `https://jaeseung1.github.io/shiftwork-on/`(main 브랜치)의 최신 파일을 먼저 받아 쓰고, 인터넷이 안 되면 앱에 든 파일을 쓴다(`MainActivity.fromWeb`, 시험 `RemoteUrlTest`). 주소(appassets)가 그대로라 로그인·근무표가 유지된다.
+- 그래서 **main에 올리는 화면 변경은 1~2분 뒤 모든 갤럭시 앱에 바로 반영된다.** 올리기 전에 시험을 꼭 돌린다.
+- 위젯 모양, 자바 코드 같은 앱 자체 변경만 새 APK가 필요하다. 앱이 APK를 받거나 설치하지는 않는다(다른 앱 설치 권한은 삼성 보안 기능이 피싱으로 볼 수 있어 넣지 않음).
+- 새 APK 올리는 순서: versionCode 올리기 → 새 키로 assembleRelease → `downloads/app-<버전>.apk`(예전 것 지우기) → `downloads/version.json` → main.
+
 ## 새 버전 배포 (0.7부터, 앱 안 업데이트 기능 없음)
 - 0.4에 넣은 "앱 안 새 버전 알림" 뒤로 Play 프로텍트가 계속 "잠재적으로 유해한 앱"으로 막았다(0.4·0.5·0.6, 새 키·새 앱 ID에서도). 0.5·0.6은 자바 코드만 뺐고 화면(sync.js)에 확인 기능이 남아 있었다. 0.7에서 업데이트 기능을 화면까지 모두 지우고, 아이폰 전용 코드(단축어 주소·잠금 화면 위젯 코드 만들기)도 갤럭시 앱에는 넣지 않는다(`copyWebAssets`가 `// <web-only>` 블록과 `data-web-only` 줄을 뺌). 구글이 기준을 공개하지 않아 원인은 짐작이다.
 - 새 버전은 받는 곳 페이지 `https://jaeseung1.github.io/shiftwork-on/downloads/`에서 직접 받는다. 올리는 순서: versionCode 올리기 → 새 키로 assembleRelease → `downloads/app-<버전>.apk`(예전 것 지우기) → `downloads/version.json` 고치기 → main에 올리기.

@@ -1,10 +1,11 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f2f4f6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)"><title>교대온 · 근무표</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="교대온"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>try{var t=localStorage.getItem("shiftwork-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 /* 교대온 v2 디자인: 토스 스타일. 위젯(design/pages/widget.html)·제어 센터·Stageshow 데모와 같은 값.
    토스 값은 제3자 정리 페이지(oppadu) 기준이며 공식 토큰이 아님. 아이콘은 lucide(ISC). */
 :root{--page:#f2f4f6;--card:#fff;--inset:#f2f4f6;--thumb:#fff;--ink:#191f28;--body:#4e5968;--muted:#6b7684;--sub:#8b95a1;--line:#e5e8eb;--blue:#3182f6;--blue-soft:color-mix(in srgb,#3182f6 10%,#fff);--s1:#d9820b;--s2:#7866c2;--s3:#3d84c4;--s4:#05a672;--shadow:0 8px 24px rgba(0,23,51,.08);--nav:rgba(255,255,255,.94);--font:'Toss Product Sans',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Noto Sans CJK KR',sans-serif;color-scheme:light}
-@media(prefers-color-scheme:dark){:root{--page:#0f1115;--card:#1a1d24;--inset:#232730;--thumb:#2c303a;--ink:#f2f4f6;--body:#b0b8c1;--muted:#8b95a1;--sub:#8b95a1;--line:#262a32;--blue:#4795ff;--blue-soft:color-mix(in srgb,#4795ff 18%,#1a1d24);--s1:#f0b04a;--s2:#b7a5ed;--s3:#8fc0ea;--s4:#5fd3a8;--shadow:none;--nav:rgba(22,25,31,.94);color-scheme:dark}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0f1115;--card:#1a1d24;--inset:#232730;--thumb:#2c303a;--ink:#f2f4f6;--body:#b0b8c1;--muted:#8b95a1;--sub:#8b95a1;--line:#262a32;--blue:#4795ff;--blue-soft:color-mix(in srgb,#4795ff 18%,#1a1d24);--s1:#f0b04a;--s2:#b7a5ed;--s3:#8fc0ea;--s4:#5fd3a8;--shadow:none;--nav:rgba(22,25,31,.94);color-scheme:dark}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);letter-spacing:-.01em;word-break:keep-all;-webkit-font-smoothing:antialiased}
@@ -148,7 +149,7 @@ html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly
 
 /* ── v3 (2026-11-13): 토스 + 아이폰. 근무마다 색(칩·아이콘), 오늘은 파란 원, 설정은 아이폰식 목록, 긴 설명은 접기 ── */
 :root{--t1:color-mix(in srgb,var(--s1) 14%,var(--card));--t2:color-mix(in srgb,var(--s2) 14%,var(--card));--t3:color-mix(in srgb,var(--s3) 14%,var(--card));--t4:color-mix(in srgb,var(--s4) 14%,var(--card));--red:#f04452;--sat:#3182f6}
-@media(prefers-color-scheme:dark){:root{--t1:color-mix(in srgb,var(--s1) 20%,var(--card));--t2:color-mix(in srgb,var(--s2) 20%,var(--card));--t3:color-mix(in srgb,var(--s3) 20%,var(--card));--t4:color-mix(in srgb,var(--s4) 20%,var(--card));--red:#ff6b76;--sat:#6ea8ff}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--t1:color-mix(in srgb,var(--s1) 20%,var(--card));--t2:color-mix(in srgb,var(--s2) 20%,var(--card));--t3:color-mix(in srgb,var(--s3) 20%,var(--card));--t4:color-mix(in srgb,var(--s4) 20%,var(--card));--red:#ff6b76;--sat:#6ea8ff}}
 .card,.panel,.invite,.privacy{border-radius:22px}
 .screen{padding:4px 16px 28px}
 .topbar{height:52px}
@@ -229,6 +230,20 @@ body:not(:has(#screen-home.active)) .logo{visibility:hidden}
 /* 퇴근 후에는 '내일 ○○ 출근' 줄을 빼고 바로 아래 내일 카드로 보여 준다(같은 말 두 번 X) */
 .hero[data-state="퇴근 후"] .hero-sub{display:none}
 .member{border-radius:16px}
+
+/* 설정 > 화면에서 고른 밝기(자동이면 위 미디어 쿼리) */
+:root[data-theme="dark"]{--page:#0f1115;--card:#1a1d24;--inset:#232730;--thumb:#2c303a;--ink:#f2f4f6;--body:#b0b8c1;--muted:#8b95a1;--sub:#8b95a1;--line:#262a32;--blue:#4795ff;--blue-soft:color-mix(in srgb,#4795ff 18%,#1a1d24);--s1:#f0b04a;--s2:#b7a5ed;--s3:#8fc0ea;--s4:#5fd3a8;--shadow:none;--nav:rgba(22,25,31,.94);color-scheme:dark}
+:root[data-theme="dark"]{--t1:color-mix(in srgb,var(--s1) 20%,var(--card));--t2:color-mix(in srgb,var(--s2) 20%,var(--card));--t3:color-mix(in srgb,var(--s3) 20%,var(--card));--t4:color-mix(in srgb,var(--s4) 20%,var(--card));--red:#ff6b76;--sat:#6ea8ff}
+:root[data-theme="dark"]{color-scheme:dark}:root[data-theme="light"]{color-scheme:light}
+/* 공유받은 사람(읽기 전용) 화면 */
+.t-viewer,#viewerPanel{display:none}
+html[data-readonly] .t-owner{display:none}html[data-readonly] .t-viewer{display:inline}
+html[data-readonly] #viewerPanel{display:block}
+html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readonly] #membersPanel,html[data-readonly] .privacy,html[data-readonly] #screen-family .page-sub{display:none}
+.viewer-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.viewer-ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;background:var(--blue-soft);color:var(--blue)}
+.viewer-text b{display:block;font-size:16px;letter-spacing:-.02em}
+.viewer-text small{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
 </style></head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -277,11 +292,12 @@ body:not(:has(#screen-home.active)) .logo{visibility:hidden}
 </div>
 </section>
 <section class="screen" id="screen-family">
-<div class="page-head"><div class="page-title">근무표 공유</div><p class="page-sub">초대 코드를 보내면 받은 사람이 앱에서 내 근무표를 볼 수 있어요.</p></div>
+<div class="page-head"><div class="page-title"><span class="t-owner">근무표 공유</span><span class="t-viewer">공유받은 근무표</span></div><p class="page-sub">초대 코드를 보내면 받은 사람이 앱에서 내 근무표를 볼 수 있어요.</p></div>
+<div class="panel" id="viewerPanel"><div class="viewer-top"><span class="viewer-ico" aria-hidden="true"><svg class="ico"><use href="#i-users"/></svg></span><div class="viewer-text"><b>다른 사람의 근무표를 보고 있어요</b><small>주인이 근무를 바꾸면 바로 반영돼요. 볼 수만 있어요.</small></div></div><button class="secondary full" id="leaveBtn" hidden>연결 끊기</button><p class="notice">다른 근무표를 보려면 연결을 끊고 새 초대 코드를 넣어 주세요.</p></div>
 <div class="invite"><h2>내 근무표 공유하기</h2><p>초대 코드를 받은 사람은 내 근무표를 볼 수만 있어요.</p><div class="invite-code"><strong id="inviteCode">— — — — — —</strong><button id="copyCode">복사</button></div><div class="invite-note" id="inviteInfo">코드는 화면 시연용입니다. 실제 앱에서는 안전한 초대 코드로 연결돼요.</div></div>
-<div class="panel" id="joinPanel"><h3>초대 코드 입력</h3><p class="page-sub" style="margin:-6px 0 14px">받은 코드를 넣으면 그 사람의 근무표를 볼 수 있어요.</p><div class="join-row"><input class="date-input" id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC234" aria-label="초대 코드"><button class="primary" id="joinBtn">참여</button></div><button class="text-btn" id="leaveBtn" hidden>이 근무표에서 나가기</button></div>
-<div class="section-head"><h2>공유받는 사람</h2><button class="text-btn" id="newInvite">초대 코드 만들기</button></div>
-<div class="panel"><div class="members" id="members"><div class="member"><div class="avatar">나</div><div class="member-main"><strong>나 (근무표 관리자)</strong><span>이 기기에서 스케줄 관리</span></div><span class="role">관리자</span></div></div><p class="notice">초대 코드를 입력한 사람이 여기에 표시돼요.</p></div>
+<div class="panel" id="joinPanel"><h3>초대 코드 입력</h3><p class="page-sub" style="margin:-6px 0 14px">받은 코드를 넣으면 그 사람의 근무표를 볼 수 있어요.</p><div class="join-row"><input class="date-input" id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC234" aria-label="초대 코드"><button class="primary" id="joinBtn">참여</button></div></div>
+<div class="section-head" id="membersHead"><h2>공유받는 사람</h2><button class="text-btn" id="newInvite">초대 코드 만들기</button></div>
+<div class="panel" id="membersPanel"><div class="members" id="members"><div class="member"><div class="avatar">나</div><div class="member-main"><strong>나 (근무표 관리자)</strong><span>이 기기에서 스케줄 관리</span></div><span class="role">관리자</span></div></div><p class="notice">초대 코드를 입력한 사람이 여기에 표시돼요.</p></div>
 <div class="privacy"><b>공유 범위</b><br>공유받는 사람은 근무 종류와 월간 근무표만 볼 수 있어요. 근무표 수정과 초대 관리는 나만 할 수 있어요.</div>
 <div class="bottom-spacer"></div>
 </section>
@@ -289,10 +305,11 @@ body:not(:has(#screen-home.active)) .logo{visibility:hidden}
 <div class="page-head"><div class="page-title">설정</div><p class="page-sub">계정과 반복 주기를 정해요.</p></div>
 <div class="panel" id="acctPanel"><h3>계정</h3><p class="acct-state" id="acctState">로그인하면 근무표가 저장되고 다른 사람과 공유할 수 있어요.</p><div class="acct-login" id="acctLogin"><input class="date-input full" id="acctEmail" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소" aria-label="이메일 주소"><input class="date-input full" id="acctPass" type="password" autocomplete="current-password" minlength="6" placeholder="비밀번호(6자 이상)" aria-label="비밀번호"><button class="primary full" id="acctSend">로그인</button><button class="text-btn" id="acctSignup">처음이면 가입하기</button></div><button class="secondary full" id="acctOut" hidden>로그아웃</button></div>
 <div class="panel" id="patternPanel"><h3>반복 주기 기준</h3><div class="row"><div class="form-item"><label class="setting-label" for="anchorDate">기준 날짜</label><input class="date-input full" id="anchorDate" type="date"></div><div class="form-item"><label class="setting-label" for="anchorShift">그날 근무</label><select class="select full" id="anchorShift"><option value="일">일근</option><option value="야">야근</option><option value="조">조근</option><option value="휴">휴무</option></select></div></div><button class="primary full" id="savePattern">패턴 저장</button><div class="cycle-view" style="margin-top:14px"><span class="cycle-chip tag-일">일</span><span class="arrow">›</span><span class="cycle-chip tag-야">야</span><span class="arrow">›</span><span class="cycle-chip tag-조">조</span><span class="arrow">›</span><span class="cycle-chip tag-휴">휴</span><span class="arrow" aria-label="반복">↻</span></div><p class="notice">기준 날짜의 근무를 고르면 이 순서로 반복돼요. 날짜는 한국 기준, 시간은 이 기기 시간대로 보여 줘요.</p></div>
+<div class="panel"><h3>화면</h3><div class="seg" id="themeSeg" role="group" aria-label="화면 밝기" style="grid-template-columns:repeat(3,1fr)"><button type="button" data-t="auto">자동</button><button type="button" data-t="light">밝게</button><button type="button" data-t="dark">어둡게</button></div><p class="notice">자동은 휴대폰 설정(다크 모드)을 따라가요.</p></div>
 <div class="panel"><h3>근무 시간 <span class="h-sub">한국 시간</span></h3><div class="list"><div class="li"><span class="li-tag tag-일">일</span><span class="li-main">일근</span><span class="li-val">08:30 – 17:30</span></div><div class="li"><span class="li-tag tag-야">야</span><span class="li-main">야근</span><span class="li-val">17:30 – 다음 날 08:30</span></div><div class="li"><span class="li-tag tag-조">조</span><span class="li-main">조근</span><span class="li-val">야근이 이어져 08:30 퇴근</span></div><div class="li"><span class="li-tag tag-휴">휴</span><span class="li-main">휴무</span><span class="li-val">쉬는 날</span></div></div></div>
 <div class="panel" id="lockPanel" data-web-only><h3>아이폰 잠금 화면 위젯</h3><p class="page-sub" style="margin:0 0 14px" id="lockState">잠금 화면에 오늘 근무가 늘 보여요. 무료 앱 Scriptable을 써요.</p><button class="primary full" id="lockCopy">위젯 코드 복사</button><textarea class="date-input full" id="lockCode" readonly hidden aria-label="위젯 코드" style="margin-top:10px;height:120px;font-size:12px;padding:10px"></textarea><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>App Store에서 무료 앱 <b>Scriptable</b>을 받아요.</li><li>위 버튼으로 위젯 코드를 복사해요.</li><li>Scriptable에서 <b>+</b>를 누르고 붙여 넣은 뒤, 위쪽 제목을 <b>교대온</b>으로 바꿔요.</li><li>잠금 화면을 길게 누르고 <b>사용자화</b> → 잠금 화면 → 시계 아래 위젯 칸 → <b>Scriptable</b>에서 직사각형을 넣어요.</li><li>넣은 위젯을 누르고 <b>Script</b>에서 <b>교대온</b>을 골라요.</li></ol></details><p class="notice">홈 화면에도 같은 방법으로 Scriptable 위젯(작은·중간)을 놓을 수 있어요. 아이폰이 새로 그리는 때를 정하므로 몇 분 늦게 바뀔 수 있어요. 코드에는 내 근무표를 읽는 열쇠가 들어 있어요.</p></div>
 <div class="panel" id="iosPanel" data-web-only><h3>아이폰 제어 센터 버튼</h3><p class="page-sub" style="margin:0 0 14px" id="iosState">단축어를 만들면 제어 센터 버튼을 눌러 오늘·내일 근무를 알림으로 볼 수 있어요.</p><button class="secondary full" id="iosCopy">단축어 주소 복사</button><input class="date-input full" id="iosUrl" readonly hidden aria-label="단축어 주소" style="margin-top:10px"><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>위 버튼으로 주소를 복사해요.</li><li>단축어 앱에서 <b>+</b>를 누르고 <b>URL 콘텐츠 가져오기</b>를 넣은 뒤 주소를 붙여 넣어요.</li><li><b>사전 값 가져오기</b>를 넣고 키에 <code>today</code>(오늘), <code>tomorrow</code>(내일), <code>text</code>(둘 다) 중 하나를 적어요.</li><li><b>알림 보기</b>를 넣고 단축어 이름을 “오늘 근무”처럼 정해요.</li><li>제어 센터를 열고 왼쪽 위 <b>+</b> → <b>제어 항목 추가</b> → <b>단축어</b>에서 방금 만든 단축어를 골라요.</li></ol></details><p class="notice">주소에는 내 근무표를 읽는 열쇠가 들어 있어요. 믿는 사람에게만 알려 주세요. 오늘·내일을 따로 두려면 단축어를 두 개 만들면 돼요.</p></div>
-<p class="notice" style="text-align:center">교대온 v0.9</p>
+<p class="notice" style="text-align:center">교대온 v1.0</p>
 </section>
 </main>
 <nav class="nav" aria-label="주요 메뉴">
@@ -315,6 +332,7 @@ document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=()=>setScreen(b.
 // sync.js(서버 연결)가 쓰는 연결 고리
 window.shiftApp={data,key,render(){$('#anchorDate').value=data.anchor;$('#anchorShift').value=data.anchorShift;renderHome();renderCalendar()},cache(){localStorage.setItem(key,JSON.stringify({anchor:data.anchor,anchorShift:data.anchorShift,overrides:data.overrides,invite:data.invite}))},toast:showToast,setScreen,onChange:null,readOnly:false}})();
 </script>
+<script>(()=>{const seg=document.getElementById("themeSeg");if(!seg)return;const get=()=>{try{return localStorage.getItem("shiftwork-theme")||"auto"}catch(e){return "auto"}};const set=v=>{try{v==="auto"?localStorage.removeItem("shiftwork-theme"):localStorage.setItem("shiftwork-theme",v)}catch(e){}if(v==="auto")delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=v;seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.t===v)))};seg.querySelectorAll("button").forEach(b=>b.onclick=()=>set(b.dataset.t));set(get())})()</script>
 <script type="module" src="sync.js"></script>
 <script>
 // 홈 화면 앱(PWA)용 오프라인 캐시. 안드로이드 앱(WebView, ShiftBridge 있음) 안에서는 앱이 파일을 직접 주므로 쓰지 않는다.

@@ -9,7 +9,7 @@ const $ = (s) => document.querySelector(s)
 const SUPABASE_MODULE = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm'
 const CODE_RE = /^[A-HJ-NP-Z2-9]{6}$/
 
-const st = { client: null, user: null, schedule: null, role: null, synced: null, applying: false, timer: null, loading: null, widgetTemplate: null }
+const st = { client: null, user: null, schedule: null, role: null, synced: null, applying: false, timer: null, loading: null, widgetTemplate: null, live: null, liveId: null, pushing: false }
 
 if (app) init()
 
@@ -45,7 +45,10 @@ async function init() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') refresh()
   })
-  setInterval(refresh, 5 * 60 * 1000)
+  // 실시간 알림이 끊겼을 때를 위해 화면이 켜져 있으면 1분마다도 확인한다
+  setInterval(() => {
+    if (document.visibilityState === 'visible') refresh()
+  }, 60 * 1000)
 }
 
 async function onSession(session) {
@@ -56,6 +59,7 @@ async function onSession(session) {
   }
   st.user = user
   if (!user) {
+    unsubscribeLive()
     st.schedule = null
     st.role = null
     st.synced = null
@@ -70,6 +74,38 @@ async function onSession(session) {
 
 function refresh() {
   if (st.user && st.client) load()
+}
+
+// ---- 실시간 반영 ----
+// 근무표(schedules) 줄이 바뀌면(바꾼 근무가 생기거나 지워지면 트리거가 updated_at을 올림) 다시 불러온다.
+// 주인이 이 기기에서 고치는 중(올리기 전·올리는 중)에는 기다린다.
+function subscribeLive(id) {
+  if (!st.client || typeof st.client.channel !== 'function' || st.liveId === id) return
+  unsubscribeLive()
+  try {
+    let t = null
+    st.live = st.client
+      .channel('schedule-' + id)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'schedules', filter: `id=eq.${id}` }, () => {
+        clearTimeout(t)
+        t = setTimeout(() => {
+          if (st.role === 'owner' && (st.timer || st.pushing)) return
+          refresh()
+        }, 300)
+      })
+      .subscribe()
+    st.liveId = id
+  } catch (e) {
+    console.warn('[교대온] 실시간 연결 실패, 1분마다 확인으로 대신함', e)
+  }
+}
+
+function unsubscribeLive() {
+  if (st.live && st.client && typeof st.client.removeChannel === 'function') {
+    try { st.client.removeChannel(st.live) } catch (e) {}
+  }
+  st.live = null
+  st.liveId = null
 }
 
 // 서버에서 근무표를 고른다: 초대 코드로 참여한 근무표가 있으면 그것(읽기 전용), 없으면 내 근무표(없으면 지금 기기 데이터로 만든다)
@@ -92,6 +128,7 @@ function load() {
     }
     if (!sched && st.user.is_anonymous) {
       // 코드로 들어온 사람인데 참여한 근무표가 없으면(나갔거나 근무표가 지워짐) 기기 근무표를 그대로 둔다
+      unsubscribeLive()
       st.schedule = null
       st.role = null
       setReadOnly(false)
@@ -124,6 +161,7 @@ function load() {
     st.schedule = sched
     st.role = role
     apply(sched, ov.data)
+    subscribeLive(sched.id)
     renderAccount()
     renderFamily()
     sendToWidget()
@@ -157,7 +195,11 @@ function setReadOnly(on) {
 function schedulePush() {
   if (st.applying || !st.schedule || st.role !== 'owner') return
   clearTimeout(st.timer)
-  st.timer = setTimeout(push, 400)
+  st.timer = setTimeout(() => {
+    st.timer = null
+    st.pushing = true
+    push().finally(() => { st.pushing = false })
+  }, 400)
 }
 
 // 바뀐 것만 올린다
@@ -262,10 +304,15 @@ function bindUI() {
   $('#leaveBtn').onclick = async () => {
     if (!st.user || st.role !== 'viewer') return
     const { error } = await st.client.from('members').delete().eq('schedule_id', st.schedule.id).eq('user_id', st.user.id)
-    if (error) return fail(error, '나가지 못했어요')
+    if (error) return fail(error, '연결을 끊지 못했어요')
+    unsubscribeLive()
     st.schedule = null
-    await load()
-    app.toast('공유받은 근무표에서 나왔어요')
+    // 코드만으로 들어온 사람은 익명 로그인도 끝내 처음 상태로 돌아간다
+    if (st.user.is_anonymous) {
+      await st.client.auth.signOut()
+      await onSession(null)
+    } else await load()
+    app.toast('공유받은 근무표 연결을 끊었어요')
   }
   // 서버에 연결된 주인은 진짜 초대 코드를 쓴다(아니면 앱의 시연용 코드)
   const demoNew = $('#newInvite').onclick
@@ -398,10 +445,11 @@ function renderAccount() {
     return
   }
   if (st.user.is_anonymous) {
-    state.textContent = st.role === 'viewer' ? '초대 코드로 공유받은 근무표를 보는 중이에요(읽기 전용)' : '초대 코드를 공유 탭에서 넣어 주세요'
+    // 연결 끊기는 공유 탭 한 곳에만 둔다
+    state.textContent = st.role === 'viewer' ? '초대 코드로 공유받은 근무표를 보는 중이에요(읽기 전용). 연결 끊기는 공유 탭에 있어요.' : '초대 코드를 공유 탭에서 넣어 주세요'
     login.hidden = true
-    out.hidden = false
-    out.textContent = '공유받은 근무표 연결 끊기'
+    out.hidden = st.role === 'viewer'
+    out.textContent = '처음으로 돌아가기'
     return
   }
   out.textContent = '로그아웃'

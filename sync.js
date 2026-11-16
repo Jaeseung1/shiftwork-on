@@ -55,6 +55,7 @@ async function onSession(session) {
   const user = session?.user || null
   if ((user?.id || null) === (st.user?.id || null) && (st.schedule || !user)) {
     renderAccount()
+    if (!user) renderFamily()
     return
   }
   st.user = user
@@ -341,9 +342,10 @@ function bindUI() {
   // 서버에 연결된 주인은 진짜 초대 코드를 쓴다(아니면 앱의 시연용 코드)
   const demoNew = $('#newInvite').onclick
   const demoCopy = $('#copyCode').onclick
-  $('#newInvite').onclick = (e) => (isOwnerOnline() ? createInvite() : demoNew?.(e))
+  const needLogin = () => { app.toast('설정에서 로그인하면 초대 코드를 만들 수 있어요'); $('.nav button[data-screen="settings"]')?.click() }
+  $('#newInvite').onclick = (e) => (isOwnerOnline() ? createInvite() : st.client ? needLogin() : demoNew?.(e))
   $('#copyCode').onclick = async (e) => {
-    if (!isOwnerOnline()) return demoCopy?.(e)
+    if (!isOwnerOnline()) return st.client ? needLogin() : demoCopy?.(e)
     if (!st.inviteReady) await createInvite()
     if (!st.inviteReady) return
     navigator.clipboard?.writeText(app.data.invite).catch(() => {})
@@ -446,7 +448,7 @@ async function createInvite() {
   app.cache()
   st.inviteReady = true
   $('#inviteCode').textContent = data
-  $('#inviteInfo').textContent = '7일 동안 쓸 수 있는 코드예요. 받은 사람은 공유 탭에서 이 코드를 넣으면 돼요.'
+  $('#inviteInfo').textContent = '7일 동안 쓸 수 있어요. 받은 사람은 공유 탭에서 이 코드를 넣으면 돼요'
   app.toast('초대 코드를 만들었어요')
 }
 
@@ -569,11 +571,32 @@ async function renderFamily() {
   const leave = $('#leaveBtn')
   leave.hidden = st.role !== 'viewer'
   if (st.role === 'viewer') $('#viewerName').textContent = st.myName || '이름 없음'
-  if (!isOwnerOnline()) return
-  $('#inviteInfo').textContent = st.inviteReady ? $('#inviteInfo').textContent : '초대 코드 만들기를 누르면 7일 동안 쓸 수 있는 코드가 생겨요'
+  if (!isOwnerOnline()) {
+    // 서버가 있는데 로그인 전이면 시연용 코드 대신 로그인 안내
+    if (st.client && st.role !== 'viewer') $('#inviteInfo').textContent = '설정에서 로그인하면 초대 코드를 만들 수 있어요'
+    return
+  }
+  if (!st.inviteReady) {
+    // 다시 열어도 아직 쓸 수 있는 코드가 있으면 그대로 보여 준다(없으면 빈 칸과 만들기 버튼)
+    const inv = await st.client.from('invites').select('code,expires_at,created_at').eq('schedule_id', st.schedule.id)
+    const live = (inv.data || []).filter((x) => new Date(x.expires_at) > new Date()).sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)))[0]
+    if (live) {
+      const d = new Date(live.expires_at)
+      app.data.invite = live.code
+      st.inviteReady = true
+      $('#inviteCode').textContent = live.code
+      $('#inviteInfo').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일까지 쓸 수 있어요. 받은 사람은 공유 탭에서 이 코드를 넣으면 돼요`
+    } else {
+      app.data.invite = ''
+      $('#inviteCode').textContent = '아직 코드가 없어요'
+      $('#inviteInfo').textContent = '코드 만들기를 누르면 7일 동안 쓸 수 있는 코드가 생겨요'
+    }
+    app.cache()
+  }
   const { data, error } = await st.client.from('members').select('user_id,display_name,joined_at').eq('schedule_id', st.schedule.id)
   if (error || !Array.isArray(data)) return
   const list = $('#members')
+  $('#membersEmpty').hidden = data.length > 0
   list.querySelectorAll('.member-extra').forEach((e) => e.remove())
   const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch])
   data.sort((x, y) => String(x.joined_at).localeCompare(String(y.joined_at)))

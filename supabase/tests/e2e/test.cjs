@@ -20,6 +20,15 @@ async function ctx(b, bridge) {
   await p.clock.resume()
   return p
 }
+// SHOTS=<폴더>를 주면 주요 화면을 밝게·어둡게 찍어 둔다(디자인 점검용)
+async function shot(p, name) {
+  if (!process.env.SHOTS) return
+  for (const scheme of ['light', 'dark']) {
+    await p.emulateMedia({ colorScheme: scheme }); await wait(150)
+    await p.screenshot({ path: `${process.env.SHOTS}/${name}-${scheme}.png`, fullPage: true })
+  }
+  await p.emulateMedia({ colorScheme: 'light' })
+}
 const txt = (p, s) => p.evaluate((s) => document.querySelector(s)?.textContent, s)
 async function login(p, email) {
   await p.goto('http://127.0.0.1:' + (process.env.APP_PORT || 8765) + '/'); await wait(300)
@@ -49,10 +58,13 @@ async function login(p, email) {
   await A.click('.nav button[data-screen="calendar"]'); await A.click('.calday[data-date="2026-11-15"]'); await A.click('#seg button[data-v="야"]'); await A.click('#applyShift'); await wait(900)
   check('A 15일 야근 서버 저장', sql("select shift from overrides where day='2026-11-15'") === '야', sql("select day||shift from overrides"))
   // 3. 초대 코드
-  await A.click('.nav button[data-screen="family"]'); await A.click('#newInvite'); await wait(600)
+  await A.click('.nav button[data-screen="family"]'); await wait(200)
+  check('코드 없을 땐 코드 만들기 버튼만', (await txt(A, '#copyCode')) === '코드 만들기' && (await A.evaluate(() => document.querySelector('#newInvite').hidden)), await txt(A, '#copyCode'))
+  await A.click('#copyCode'); await wait(600)
   const code = await txt(A, '#inviteCode')
   check('A 초대 코드 생성', /^[A-HJ-NP-Z2-9]{6}$/.test(code) && sql(`select count(*) from invites where code='${code}'`) === '1', code)
-  await A.click('#copyCode'); await wait(300)
+  check('코드가 생기면 복사·새 코드', (await txt(A, '#copyCode')) === '복사' && !(await A.evaluate(() => document.querySelector('#newInvite').hidden)), await txt(A, '#copyCode'))
+  await shot(A, 'invite-modal')
   check('서버 모드 초대 창에 시제품 안내 없음', await A.evaluate(() => document.querySelector('#modal .demo').hidden))
   await A.click('#closeModal')
   // 3-1. 아이폰 단축어 주소
@@ -73,6 +85,8 @@ async function login(p, email) {
   await B.goto('http://127.0.0.1:' + (process.env.APP_PORT || 8765) + '/'); await wait(400)
   await B.click('.nav button[data-screen="family"]'); await B.fill('#joinCode', code.toLowerCase()); await B.click('#joinBtn'); await wait(300)
   check('이름 없이 참여하면 안내', (await txt(B, '#toast')).includes('이름'), await txt(B, '#toast'))
+  check('로그인 전엔 로그인 안내(시연 코드 아님)', (await txt(B, '#inviteInfo')).includes('로그인하면'), await txt(B, '#inviteInfo'))
+  await shot(B, 'join')
   await B.fill('#joinName', '엄마'); await B.click('#joinBtn'); await wait(1200)
   check('가족은 자기 근무표를 만들지 않음', sql("select count(*) from schedules") === '1', sql("select count(*) from schedules"))
   check('B 참여 후 홈으로', (await B.evaluate(() => document.querySelector('.screen.active').id)) === 'screen-home')
@@ -86,6 +100,9 @@ async function login(p, email) {
   await B.click('.nav button[data-screen="calendar"]')
   check('B에게 A의 15일 야근 보임', (await txt(B, '.calday[data-date="2026-11-15"] .tag')) === '야근', await txt(B, '.calday[data-date="2026-11-15"] .tag'))
   await B.click('.calday[data-date="2026-11-16"]'); await wait(200)
+  await shot(B, 'viewer-calendar')
+  await B.click('.nav button[data-screen="home"]'); await wait(150); await shot(B, 'viewer-home')
+  await B.click('.nav button[data-screen="calendar"]'); await wait(100)
   check('B 편집 칸 숨김', await B.evaluate(() => getComputedStyle(document.querySelector('#editor')).display === 'none'))
   await B.evaluate(() => document.querySelector('#applyShift').click()); await wait(200)
   check('B 저장 시도 막힘(토스트)', (await txt(B, '#toast')).includes('볼 수만'), await txt(B, '#toast'))
@@ -98,8 +115,12 @@ async function login(p, email) {
   check('안드로이드 앱 안에서는 아이폰 칸 숨김', await B.evaluate(() => document.querySelector('#iosPanel').hidden && document.querySelector('#lockPanel').hidden))
   // 5. A 가족 목록
   await A.reload(); await wait(800); await A.click('.nav button[data-screen="family"]'); await wait(400)
+  await shot(A, 'owner-family')
+  check('다시 열어도 쓸 수 있는 코드 그대로', (await txt(A, '#inviteCode')) === code && (await txt(A, '#inviteInfo')).includes('일까지'), await txt(A, '#inviteCode') + ' ' + await txt(A, '#inviteInfo'))
+  check('목록에 사람이 있으면 빈 안내 숨김', await A.evaluate(() => document.querySelector('#membersEmpty').hidden))
   check('A 목록에 B가 정한 이름', (await txt(A, '.member-extra strong')) === '엄마', await txt(A, '.member-extra'))
   await B.click('.nav button[data-screen="family"]')
+  await shot(B, 'viewer-family')
   check('B 공유 탭에 내 이름', (await txt(B, '#viewerName')) === '엄마', await txt(B, '#viewerName'))
   await B.click('#viewerRename'); await B.fill('#renameInput', '어머니'); await B.click('#renameSave'); await wait(500)
   check('B 이름 바꾸기 서버 저장', sql("select display_name from members") === '어머니', sql("select display_name from members"))
@@ -136,6 +157,10 @@ async function login(p, email) {
   // 근무표 주인 + 갤럭시 앱(브리지): 알람 설정
   const O = await ctx(b, true)
   await O.goto('http://127.0.0.1:' + (process.env.LOCAL_PORT || 8766) + '/'); await wait(300)
+  await O.click('.nav button[data-screen="settings"]')
+  await shot(O, 'settings-owner-app')
+  await O.click('.nav button[data-screen="home"]'); await wait(150); await shot(O, 'home')
+  await O.click('.nav button[data-screen="calendar"]'); await O.click('.calday[data-date="2026-11-16"]'); await wait(150); await shot(O, 'calendar')
   await O.click('.nav button[data-screen="settings"]')
   check('주인은 알람 설정이 보임', await O.evaluate(() => !document.querySelector('#alarmPanel').hidden && getComputedStyle(document.querySelector('#alarmPanel')).display !== 'none'))
   check('처음엔 알람 없음', (await txt(O, '#alarmNext')) === '켜 둔 알람이 없어요', await txt(O, '#alarmNext'))

@@ -41,6 +41,12 @@ public final class ShiftBridge {
         AlarmScheduler.reschedule(ctx); // 근무가 바뀌면 알람도 다시 맞춘다
     }
 
+    /** 이 앱의 versionCode(1.5~). 화면이 새 버전 알림을 띄울지 정할 때 쓴다(1.4 이하는 화면이 기능으로 짐작) */
+    @JavascriptInterface
+    public int appVersion() {
+        return BuildConfig.VERSION_CODE;
+    }
+
     @JavascriptInterface
     public void setRemote(String json) {
         Store.saveRemote(ctx, json);

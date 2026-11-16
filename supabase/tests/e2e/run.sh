@@ -6,9 +6,11 @@ work="$(mktemp -d)"; trap 'kill $(jobs -p) 2>/dev/null || true; rm -rf "$work"' 
 mkdir -p "$work/app" "$work/local"
 cp "$repo/index.html" "$repo/sync.js" "$here/fake-supabase.js" "$work/app/"
 mkdir -p "$work/app/ios" && cp "$repo/ios/widget.js" "$work/app/ios/"
-echo "window.SHIFTWORK_CONFIG = { supabaseUrl: 'http://fake.local', supabaseAnonKey: 'anon', supabaseModule: '/fake-supabase.js' }" > "$work/app/config.js"
+echo "window.SHIFTWORK_CONFIG = { supabaseUrl: 'http://fake.local', supabaseAnonKey: 'anon', supabaseModule: '/fake-supabase.js', updateBase: '/dl/' }" > "$work/app/config.js"
 cp "$repo/index.html" "$repo/sync.js" "$work/local/"
-echo "window.SHIFTWORK_CONFIG = { supabaseUrl: '', supabaseAnonKey: '' }" > "$work/local/config.js"
+echo "window.SHIFTWORK_CONFIG = { supabaseUrl: '', supabaseAnonKey: '', updateBase: '/dl/' }" > "$work/local/config.js"
+# 새 버전 알림 시험용 받는 곳(1.5가 나왔다고 가정)
+for d in app local; do mkdir -p "$work/$d/dl"; echo '{"versionCode":15,"versionName":"1.5","url":"/dl/app-1.5.apk","notes":"시험용 새 버전"}' > "$work/$d/dl/version.json"; done
 psql -q -U postgres -d postgres -c "drop database if exists e2e" -c "create database e2e"
 psql -q -U postgres -d e2e -v ON_ERROR_STOP=1 -f "$repo/supabase/tests/stub_supabase.sql" $(for f in "$repo"/supabase/migrations/*.sql; do printf -- "-f %s " "$f"; done)
 node "$here/server.mjs" "$work/app" "${APP_PORT:-8765}" "$PGHOST" "${PGPORT:-5432}" e2e > "$work/app.log" 2>&1 &

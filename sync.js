@@ -8,6 +8,9 @@ const app = window.shiftApp
 const $ = (s) => document.querySelector(s)
 const SUPABASE_MODULE = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm'
 const CODE_RE = /^[A-HJ-NP-Z2-9]{6}$/
+// 갤럭시 앱 새 버전 알림(checkUpdate). init()보다 위에 둔다(아래에 두면 초기화 전에 읽혀 오류)
+const UPDATE_BASE = cfg.updateBase || 'https://jaeseung1.github.io/shiftwork-on/downloads/'
+const UPDATE_LATER = 'shiftwork-update-later'
 
 const st = { client: null, user: null, schedule: null, role: null, synced: null, applying: false, timer: null, loading: null, widgetTemplate: null, live: null, liveId: null, pushing: false }
 
@@ -283,6 +286,7 @@ function bindUI() {
     app.toast('로그아웃했어요')
   }
   initAlarm()
+  checkUpdate()
   // <web-only> 아이폰 전용(갤럭시 앱 빌드에서는 빠진다: android/app/build.gradle copyWebAssets)
   $('#iosCopy').onclick = copyShortcut
   $('#lockCopy').onclick = copyWidget
@@ -401,6 +405,39 @@ function initAlarm() {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') renderAlarm() })
   initAlarmSound(b)
   renderAlarm()
+}
+
+// ---- 갤럭시 앱 새 버전 알림 ----
+// 앱(ShiftBridge)이 있을 때만, 받는 곳의 version.json이 지금 앱보다 새로우면 홈 위에 한 줄을 띄운다.
+// '받기'는 브라우저로 받는 페이지를 연다. 앱이 직접 받거나 설치하지 않는다(설치 권한 없음).
+function appVersionCode(b) {
+  if (typeof b.appVersion === 'function') return Number(b.appVersion()) || 0
+  if (typeof b.alarmOptions === 'function') return 14 // 1.4: 알람 소리
+  if (typeof b.setAlarms === 'function') return 11 // 1.1~1.3: 근무 알람
+  return 10
+}
+async function checkUpdate() {
+  const b = window.ShiftBridge
+  const bar = $('#updateBar')
+  if (!b || !bar || typeof b.setSchedule !== 'function') return
+  let j
+  try {
+    const r = await fetch(`${UPDATE_BASE}version.json?t=${Math.floor(Date.now() / 36e5)}`, { cache: 'no-store' })
+    j = await r.json()
+  } catch (e) { return }
+  if (!(Number(j.versionCode) > appVersionCode(b))) return
+  try {
+    const later = JSON.parse(localStorage.getItem(UPDATE_LATER) || 'null')
+    if (later && later.v === j.versionCode && Date.now() - later.at < 3 * 864e5) return // '나중에'를 누르면 3일 동안 숨김
+  } catch (e) {}
+  $('#updateTitle').textContent = `새 버전 ${j.versionName}`
+  $('#updateNotes').textContent = j.notes || ''
+  $('#updateGet').href = UPDATE_BASE
+  $('#updateLater').onclick = () => {
+    bar.hidden = true
+    try { localStorage.setItem(UPDATE_LATER, JSON.stringify({ v: j.versionCode, at: Date.now() })) } catch (e) {}
+  }
+  bar.hidden = false
 }
 
 // 알람 소리(갤럭시 앱 1.4~): 알람음·내 음악 파일, 진동, 점점 크게, 끄면 열 앱. 1.3 이하 앱에는 이 칸이 안 보인다.
@@ -634,7 +671,7 @@ async function renderFamily() {
     const d = m.joined_at ? new Date(m.joined_at) : null
     const row = document.createElement('div')
     row.className = 'member member-extra'
-    row.innerHTML = `<div class="avatar">${esc([...name][0])}</div><div class="member-main"><strong>${esc(name)}</strong><span>${d ? `${d.getMonth() + 1}/${d.getDate()} 참여 · ` : ''}볼 수만 있어요</span></div><button class="text-btn kick" type="button">내보내기</button>`
+    row.innerHTML = `<div class="avatar">${esc([...name][0])}</div><div class="member-main"><strong>${esc(name)}</strong><span>${d ? `${d.getMonth() + 1}월 ${d.getDate()}일부터 보는 중` : '보는 중'}</span></div><button class="text-btn kick" type="button">내보내기</button>`
     row.querySelector('.kick').onclick = async () => {
       if (!confirm(`${name}님이 더는 내 근무표를 못 보게 할까요?`)) return
       const r = await st.client.from('members').delete().eq('schedule_id', st.schedule.id).eq('user_id', m.user_id)

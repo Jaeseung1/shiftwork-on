@@ -67,6 +67,11 @@ cd android
 - 1.3(2026-11-16): 위젯·알람 화면 색을 앱 2.0 파스텔에 맞춤(values/colors.xml, values-night/colors.xml). 알람 화면 "5분 뒤" 버튼은 연회색(흰 바탕에 묻히지 않게).
 - 새 APK 올리는 순서: versionCode 올리기 → 새 키로 assembleRelease → `downloads/app-<버전>.apk`(예전 것 지우기) → `downloads/version.json` → main.
 
+## 새 버전 알림 (2026-11-16, 사용자 요청으로 다시 넣음)
+- 화면(sync.js `checkUpdate`)이 갤럭시 앱 안에서만 `downloads/version.json`을 읽어, 지금 앱보다 새 버전이면 홈 위에 "새 버전 1.x [받기] [×]" 한 줄을 띄운다. 받기는 브라우저로 받는 페이지를 연다. 앱은 받거나 설치하지 않는다(설치 권한 없음). ×를 누르면 그 버전은 3일 동안 숨김.
+- 지금 앱 버전은 `ShiftBridge.appVersion()`(1.5~)으로, 그 전 앱은 기능으로 짐작한다(alarmOptions 있으면 14, setAlarms 있으면 11, 아니면 10).
+- 화면 쪽 기능이라 APK에는 없다(1.4 APK 그대로). 다시 Play 프로텍트 경고가 뜨면 sync.js의 `checkUpdate()` 호출만 빼면 모든 앱에서 바로 사라진다.
+
 ## 새 버전 배포 (0.7부터, 앱 안 업데이트 기능 없음)
 - 0.4에 넣은 "앱 안 새 버전 알림" 뒤로 Play 프로텍트가 계속 "잠재적으로 유해한 앱"으로 막았다(0.4·0.5·0.6, 새 키·새 앱 ID에서도). 0.5·0.6은 자바 코드만 뺐고 화면(sync.js)에 확인 기능이 남아 있었다. 0.7에서 업데이트 기능을 화면까지 모두 지우고, 아이폰 전용 코드(단축어 주소·잠금 화면 위젯 코드 만들기)도 갤럭시 앱에는 넣지 않는다(`copyWebAssets`가 `// <web-only>` 블록과 `data-web-only` 줄을 뺌). 구글이 기준을 공개하지 않아 원인은 짐작이다.
 - 새 버전은 받는 곳 페이지 `https://jaeseung1.github.io/shiftwork-on/downloads/`에서 직접 받는다. 올리는 순서: versionCode 올리기 → 새 키로 assembleRelease → `downloads/app-<버전>.apk`(예전 것 지우기) → `downloads/version.json` 고치기 → main에 올리기.

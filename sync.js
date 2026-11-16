@@ -10,7 +10,6 @@ const SUPABASE_MODULE = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.11
 const CODE_RE = /^[A-HJ-NP-Z2-9]{6}$/
 // 갤럭시 앱 새 버전 알림(checkUpdate). init()보다 위에 둔다(아래에 두면 초기화 전에 읽혀 오류)
 const UPDATE_BASE = cfg.updateBase || 'https://jaeseung1.github.io/shiftwork-on/downloads/'
-const UPDATE_LATER = 'shiftwork-update-later'
 
 const st = { client: null, user: null, schedule: null, role: null, synced: null, applying: false, timer: null, loading: null, widgetTemplate: null, live: null, liveId: null, pushing: false }
 
@@ -408,7 +407,7 @@ function initAlarm() {
 }
 
 // ---- 갤럭시 앱 새 버전 알림 ----
-// 앱(ShiftBridge)이 있을 때만, 받는 곳의 version.json이 지금 앱보다 새로우면 홈 위에 한 줄을 띄운다.
+// 앱(ShiftBridge)이 있을 때만 설정에 '앱 버전' 칸을 보이고, 받는 곳의 version.json이 지금 앱보다 새로우면 알린다.
 // '받기'는 브라우저로 받는 페이지를 연다. 앱이 직접 받거나 설치하지 않는다(설치 권한 없음).
 function appVersionCode(b) {
   if (typeof b.appVersion === 'function') return Number(b.appVersion()) || 0
@@ -421,37 +420,29 @@ function versionName(code) {
 }
 async function checkUpdate() {
   const b = window.ShiftBridge
-  const bar = $('#updateBar')
-  if (!b || !bar || typeof b.setSchedule !== 'function') return
+  const panel = $('#appPanel')
+  if (!b || !panel || typeof b.setSchedule !== 'function') return
   const cur = appVersionCode(b)
-  // 설정 > 앱 버전: 앱 안에서는 늘 보인다(새 버전이 없으면 '최신 버전이에요')
-  $('#appPanel').hidden = false
+  // 설정 > 앱 버전: 앱 안에서는 늘 보이고, 받는 곳 버튼도 늘 있다(확인이 안 돼도 직접 받을 수 있게)
+  panel.hidden = false
   $('#appVer').textContent = versionName(cur)
+  $('#appGet').href = UPDATE_BASE
   let j
   try {
     const r = await fetch(`${UPDATE_BASE}version.json?t=${Math.floor(Date.now() / 6e4)}`, { cache: 'no-store' })
     j = await r.json()
   } catch (e) {
-    $('#appUpd').textContent = '새 버전을 확인하지 못했어요(인터넷 확인)'
+    $('#appUpd').textContent = '새 버전을 확인하지 못했어요'
     return
   }
   const newer = Number(j.versionCode) > cur
   $('#appUpd').textContent = newer ? `${j.versionName} 버전이 나왔어요` : '최신 버전이에요'
-  $('#appGet').hidden = !newer
-  $('#appGet').href = UPDATE_BASE
-  if (!newer) return
-  try {
-    const later = JSON.parse(localStorage.getItem(UPDATE_LATER) || 'null')
-    if (later && later.v === j.versionCode && Date.now() - later.at < 3 * 864e5) return // 홈 알림 줄은 '나중에'를 누르면 3일 동안 숨김
-  } catch (e) {}
-  $('#updateTitle').textContent = `새 버전 ${j.versionName}`
-  $('#updateNotes').textContent = j.notes || ''
-  $('#updateGet').href = UPDATE_BASE
-  $('#updateLater').onclick = () => {
-    bar.hidden = true
-    try { localStorage.setItem(UPDATE_LATER, JSON.stringify({ v: j.versionCode, at: Date.now() })) } catch (e) {}
-  }
-  bar.hidden = false
+  $('#appNotes').textContent = newer ? j.notes || '' : ''
+  $('#appGet').textContent = newer ? '받기' : '받는 곳'
+  $('#appGet').classList.toggle('quiet', !newer)
+  // 새 버전이 있으면 설정 맨 위로 올리고, 아래 탭 '설정'에 점을 찍는다(홈에는 띄우지 않음)
+  panel.toggleAttribute('data-new', newer)
+  $('.nav button[data-screen="settings"]')?.toggleAttribute('data-dot', newer)
 }
 
 // 알람 소리(갤럭시 앱 1.4~): 알람음·내 음악 파일, 진동, 점점 크게, 끄면 열 앱. 1.3 이하 앱에는 이 칸이 안 보인다.

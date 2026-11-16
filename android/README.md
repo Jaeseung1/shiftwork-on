@@ -61,6 +61,7 @@ cd android
 - 앱이 화면 파일(index.html, sync.js 등)을 열 때마다 `https://jaeseung1.github.io/shiftwork-on/`(main 브랜치)의 최신 파일을 먼저 받아 쓰고, 인터넷이 안 되면 앱에 든 파일을 쓴다(`MainActivity.fromWeb`, 시험 `RemoteUrlTest`). 주소(appassets)가 그대로라 로그인·근무표가 유지된다.
 - 그래서 **main에 올리는 화면 변경은 1~2분 뒤 모든 갤럭시 앱에 바로 반영된다.** 올리기 전에 시험을 꼭 돌린다.
 - 위젯 모양, 자바 코드 같은 앱 자체 변경만 새 APK가 필요하다. 앱이 APK를 받거나 설치하지는 않는다(다른 앱 설치 권한은 삼성 보안 기능이 피싱으로 볼 수 있어 넣지 않음).
+- 1.3(2026-11-16): 위젯·알람 화면 색을 앱 2.0 파스텔에 맞춤(values/colors.xml, values-night/colors.xml). 알람 화면 "5분 뒤" 버튼은 연회색(흰 바탕에 묻히지 않게).
 - 새 APK 올리는 순서: versionCode 올리기 → 새 키로 assembleRelease → `downloads/app-<버전>.apk`(예전 것 지우기) → `downloads/version.json` → main.
 
 ## 새 버전 배포 (0.7부터, 앱 안 업데이트 기능 없음)

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 어둡게: 근무 글자·아이콘은 파스텔, 칸 바탕은 파스텔을 어두운 바탕에 24% 섞은 색(앱 2.0과 같은 계열) -->
 <resources>
     <color name="page">#0F1115</color>
-    <color name="w_bg">#1A1D24</color>
-    <color name="w_inset">#232730</color>
+    <color name="w_bg">#1B1E24</color>
+    <color name="w_inset">#262A31</color>
     <color name="w_ink">#F2F4F6</color>
-    <color name="w_body">#B0B8C1</color>
-    <color name="w_sub">#8B95A1</color>
-    <!-- 근무 색(앱 index.html v0.4와 같음): s_ 글자·아이콘, t_ 연한 바탕 -->
-    <color name="s_day">#F0B04A</color>
-    <color name="s_night">#B7A5ED</color>
-    <color name="s_dawn">#8FC0EA</color>
-    <color name="s_off">#5FD3A8</color>
-    <color name="t_day">#3A3221</color>
-    <color name="t_night">#322F40</color>
-    <color name="t_dawn">#263241</color>
-    <color name="t_off">#1F3A33</color>
+    <color name="w_body">#C3C9D1</color>
+    <color name="w_sub">#8B929C</color>
+    <color name="s_day">#F2CD92</color>
+    <color name="s_night">#BDB6F2</color>
+    <color name="s_dawn">#A9D6EF</color>
+    <color name="s_off">#B2E6C7</color>
+    <color name="t_day">#4F483E</color>
+    <color name="t_night">#424255</color>
+    <color name="t_dawn">#3D4A55</color>
+    <color name="t_off">#3F4E4B</color>
 </resources>

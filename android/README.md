@@ -50,6 +50,13 @@ cd android
 - 못 한 것: 실기기·에뮬레이터(이 컨테이너는 가상화 KVM이 없음). 삼성 런처의 실제 칸 크기와 글꼴(One UI)은 다를 수 있다.
 - debug APK는 개발용 서명이다. 오래 쓰려면 release 서명 키를 만들어 `assembleRelease`로 빌드한다(키를 잃어버리면 업데이트 설치가 안 된다).
 
+## 근무 알람 (1.1부터)
+- 설정 탭 "근무 알람"(근무표 주인에게만, 갤럭시 앱 안에서만 보임)에서 근무 종류(일·야·조·휴)마다 시각(한국 시간)과 켜기를 정한다(`sync.js` initAlarm → `ShiftBridge.setAlarms`).
+- `core/AlarmPlanner`가 근무표(바꾼 근무 포함)에서 다음 알람 하나를 찾고, `alarm/AlarmScheduler`가 `AlarmManager.setAlarmClock`으로 예약한다(USE_EXACT_ALARM, 없으면 setAndAllowWhileIdle로 늦게라도).
+- 울릴 때 `alarm/AlarmRinger`가 알람 용도(USAGE_ALARM, 폰의 알람 소리 크기) 채널로 끌 때까지 되풀이하는(FLAG_INSISTENT) 알림을 띄우고, 잠금 화면이면 `AlarmActivity`(끄기·5분 뒤)를 띄운다. 10분 뒤 저절로 멈춘다.
+- 근무표가 바뀔 때(setSchedule, RefreshWorker), 울린 뒤, 폰을 켠 뒤·시간 바뀐 뒤(`BootReceiver`) 다시 예약한다. 공유받은 근무표면(`setAlarmOwner(false)`) 알람을 끈다.
+- 시험: `AlarmPlannerTest`, `AlarmSchedulerTest`(Robolectric), e2e(주인만 보임·설정 전달).
+
 ## 화면 자동 업데이트 (1.0부터)
 - 앱이 화면 파일(index.html, sync.js 등)을 열 때마다 `https://jaeseung1.github.io/shiftwork-on/`(main 브랜치)의 최신 파일을 먼저 받아 쓰고, 인터넷이 안 되면 앱에 든 파일을 쓴다(`MainActivity.fromWeb`, 시험 `RemoteUrlTest`). 주소(appassets)가 그대로라 로그인·근무표가 유지된다.
 - 그래서 **main에 올리는 화면 변경은 1~2분 뒤 모든 갤럭시 앱에 바로 반영된다.** 올리기 전에 시험을 꼭 돌린다.

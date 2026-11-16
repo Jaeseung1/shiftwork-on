@@ -52,6 +52,7 @@ public final class RefreshWorker extends Worker {
             }
         }
         WidgetUpdater.updateAll(c);
+        app.shiftwork.on.alarm.AlarmScheduler.reschedule(c); // 서버에서 바뀐 근무도 알람에 반영
         return Result.success();
     }
 

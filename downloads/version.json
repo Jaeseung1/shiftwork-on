@@ -1,6 +1,6 @@
 {
-  "versionCode": 10,
-  "versionName": "1.0",
-  "url": "https://jaeseung1.github.io/shiftwork-on/downloads/app-1.0.apk",
-  "notes": "앱 화면이 저절로 최신으로 바뀌어요(위젯 모양 같은 앱 자체 변경만 새 파일). 화면 밝기 설정, 공유받은 근무표 실시간 반영."
+  "versionCode": 11,
+  "versionName": "1.1",
+  "url": "https://jaeseung1.github.io/shiftwork-on/downloads/app-1.1.apk",
+  "notes": "근무 알람: 근무 종류마다 시각을 정하면 근무표에 맞춰 알람이 울려요(근무표 주인만)."
 }

@@ -280,6 +280,7 @@ function bindUI() {
     await onSession(null)
     app.toast('로그아웃했어요')
   }
+  initAlarm()
   // <web-only> 아이폰 전용(갤럭시 앱 빌드에서는 빠진다: android/app/build.gradle copyWebAssets)
   $('#iosCopy').onclick = copyShortcut
   $('#lockCopy').onclick = copyWidget
@@ -327,6 +328,75 @@ function bindUI() {
     $('#modal .demo').hidden = true // "시제품이라 동작하지 않아요" 안내는 서버 없는 모드에서만
     $('#modal').classList.add('open')
   }
+}
+
+// ---- 근무 알람(갤럭시 앱 1.1~) ----
+// 근무 종류마다 시각과 켜기. 근무표 주인(공유받은 근무표가 아닌 사람)에게만 보이고, 앱(ShiftBridge)이 실제로 예약·울린다.
+const ALARM_TIMES = 'shiftwork-alarm-times'
+function alarmBridge() {
+  const b = window.ShiftBridge
+  return b && typeof b.setAlarms === 'function' ? b : null
+}
+
+function initAlarm() {
+  const b = alarmBridge()
+  if (!b) return
+  let saved = {}
+  try { saved = JSON.parse(b.alarmRules() || '{}') } catch (e) {}
+  let times = {}
+  try { times = JSON.parse(localStorage.getItem(ALARM_TIMES) || '{}') } catch (e) {}
+  document.querySelectorAll('#alarmPanel .alarm-time').forEach((t) => {
+    const s = t.dataset.s
+    if (saved[s]) t.value = saved[s]
+    else if (times[s]) t.value = times[s]
+  })
+  document.querySelectorAll('#alarmPanel input[type=checkbox]').forEach((c) => { c.checked = !!saved[c.dataset.s] })
+  const save = () => {
+    const rules = {}
+    const all = {}
+    document.querySelectorAll('#alarmPanel .alarm-time').forEach((t) => {
+      all[t.dataset.s] = t.value
+      const on = document.querySelector(`#alarmPanel input[type=checkbox][data-s="${t.dataset.s}"]`).checked
+      t.disabled = !on
+      if (on && t.value) rules[t.dataset.s] = t.value
+    })
+    try { localStorage.setItem(ALARM_TIMES, JSON.stringify(all)) } catch (e) {}
+    b.setAlarms(JSON.stringify(rules))
+    renderAlarm()
+  }
+  document.querySelectorAll('#alarmPanel input').forEach((i) => i.addEventListener('change', save))
+  document.querySelectorAll('#alarmPanel .alarm-time').forEach((t) => {
+    t.disabled = !document.querySelector(`#alarmPanel input[type=checkbox][data-s="${t.dataset.s}"]`).checked
+  })
+  $('#alarmTest').onclick = () => {
+    const on = document.querySelector('#alarmPanel input[type=checkbox]:checked')
+    b.testAlarm(on ? on.dataset.s : '일')
+    app.toast('5초 뒤에 울려요. 화면을 꺼 두고 확인해 보세요')
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') renderAlarm() })
+  renderAlarm()
+}
+
+function renderAlarm() {
+  const b = alarmBridge()
+  const panel = $('#alarmPanel')
+  if (!b || !panel) return
+  panel.hidden = !!app.readOnly
+  if (app.readOnly) return
+  let st2 = {}
+  try { st2 = JSON.parse(b.alarmStatus() || '{}') } catch (e) {}
+  $('#alarmNext').textContent = st2.next ? `다음 알람 · ${st2.next}` : '켜 둔 알람이 없어요'
+  const warn = $('#alarmWarn')
+  const fix = $('#alarmFix')
+  if (st2.notify === false) {
+    warn.hidden = false
+    $('#alarmWarnText').textContent = '알림이 꺼져 있어 알람이 울리지 않아요'
+    fix.onclick = () => b.openAlarmSettings('notify')
+  } else if (st2.exact === false) {
+    warn.hidden = false
+    $('#alarmWarnText').textContent = '정확한 알람이 꺼져 있어 몇 분 늦게 울릴 수 있어요'
+    fix.onclick = () => b.openAlarmSettings('exact')
+  } else warn.hidden = true
 }
 
 function isOwnerOnline() {
@@ -484,6 +554,9 @@ function sendToWidget() {
   try {
     const overrides = Object.entries(app.data.overrides || {}).map(([day, shift]) => ({ day, shift }))
     bridge.setSchedule(JSON.stringify({ anchor_date: app.data.anchor, anchor_shift: app.data.anchorShift, overrides }))
+    // 공유받은 근무표면 알람을 울리지 않는다(앱 1.1~)
+    if (typeof bridge.setAlarmOwner === 'function') bridge.setAlarmOwner(!app.readOnly)
+    renderAlarm()
     if (st.schedule && cfg.supabaseUrl && cfg.supabaseAnonKey) {
       bridge.setRemote(JSON.stringify({ url: cfg.supabaseUrl, anonKey: cfg.supabaseAnonKey, token: st.schedule.widget_token }))
     } else {

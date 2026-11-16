@@ -52,6 +52,60 @@ public final class AlarmStore {
         return p(c).getBoolean("owner", false);
     }
 
+    // ---- 울리는 방식(1.4~): 소리, 진동, 점점 크게, 끄면 열 앱 ----
+    /** 소리: ""=폰의 기본 알람음, "none"=소리 없음, 그 밖에는 고른 알람음·음악 파일 주소 */
+    public static void setSound(Context c, String uri, String name) {
+        p(c).edit().putString("sound", uri == null ? "" : uri).putString("soundName", name == null ? "" : name).apply();
+    }
+
+    public static String sound(Context c) {
+        return p(c).getString("sound", "");
+    }
+
+    public static String soundName(Context c) {
+        return p(c).getString("soundName", "");
+    }
+
+    public static boolean vibrate(Context c) {
+        return p(c).getBoolean("vibrate", true);
+    }
+
+    public static boolean ramp(Context c) {
+        return p(c).getBoolean("ramp", false);
+    }
+
+    /** 알람을 끄면 열 앱(패키지 이름, 없으면 "") */
+    public static String app(Context c) {
+        return p(c).getString("app", "");
+    }
+
+    public static void setOption(Context c, String key, String value) {
+        SharedPreferences.Editor e = p(c).edit();
+        switch (key) {
+            case "vibrate": case "ramp": e.putBoolean(key, "true".equals(value)); break;
+            case "app": e.putString("app", value == null ? "" : value); break;
+            case "sound": // 웹에서는 기본·없음만 고른다(나머지는 앱의 고르기 화면)
+                if ("".equals(value) || "none".equals(value)) e.putString("sound", value).putString("soundName", "");
+                break;
+            default: return;
+        }
+        e.apply();
+    }
+
+    public static String optionsJson(Context c) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("sound", sound(c));
+            o.put("soundName", soundName(c));
+            o.put("vibrate", vibrate(c));
+            o.put("ramp", ramp(c));
+            o.put("app", app(c));
+            return o.toString();
+        } catch (Exception e) {
+            return "{}";
+        }
+    }
+
     static void saveNext(Context c, long at, String shift) {
         p(c).edit().putLong("nextAt", at).putString("nextShift", shift).apply();
     }

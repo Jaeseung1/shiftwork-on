@@ -55,7 +55,10 @@ cd android
 - `core/AlarmPlanner`가 근무표(바꾼 근무 포함)에서 다음 알람 하나를 찾고, `alarm/AlarmScheduler`가 `AlarmManager.setAlarmClock`으로 예약한다(USE_EXACT_ALARM, 없으면 setAndAllowWhileIdle로 늦게라도).
 - 울릴 때 `alarm/AlarmRinger`가 알람 용도(USAGE_ALARM, 폰의 알람 소리 크기) 채널로 끌 때까지 되풀이하는(FLAG_INSISTENT) 알림을 띄우고, 잠금 화면이면 `AlarmActivity`(끄기·5분 뒤)를 띄운다. 10분 뒤 저절로 멈춘다.
 - 근무표가 바뀔 때(setSchedule, RefreshWorker), 울린 뒤, 폰을 켠 뒤·시간 바뀐 뒤(`BootReceiver`) 다시 예약한다. 공유받은 근무표면(`setAlarmOwner(false)`) 알람을 끈다.
-- 시험: `AlarmPlannerTest`, `AlarmSchedulerTest`(Robolectric), e2e(주인만 보임·설정 전달).
+- 시험: `AlarmPlannerTest`, `AlarmSchedulerTest`, `AlarmServiceTest`(Robolectric), e2e(주인만 보임·설정 전달).
+- **1.4부터 울리는 방식**: 알림 소리(1.1~1.3, 기기에 따라 한 번만 울리거나 소리를 못 고름) 대신 `alarm/AlarmService`(전경 서비스, mediaPlayback)가 `MediaPlayer`(USAGE_ALARM, 되풀이)로 직접 울리고 진동(되풀이)도 낸다. 다른 앱 음악은 오디오 포커스로 잠시 멈춘다. 알림 채널 `shift_alarm_v2`는 소리 없이 알람 화면과 끄기·5분 뒤만 맡는다(v1 채널은 지운다).
+- 설정 탭 "알람 소리"(1.4 앱에서만 보임): 알람음(폰 알람음 목록, 무음=진동만), 내 음악 파일(ACTION_OPEN_DOCUMENT, 읽기 권한 유지), 진동, 점점 크게(30초), 끄면 열 앱(`alarm/MusicApps`: 매니페스트 `<queries>`에 적은 음악 앱과 '음악' 종류 앱만, 모든 앱 목록 권한은 안 씀). 고른 파일을 못 읽으면 기본 알람음으로 울린다.
+- 끄면 열 앱: 알람 화면(또는 알림의 끄기)에서 끄면 잠금을 풀도록 묻고 그 앱을 연다. 음악을 자동 재생하지는 않는다(앱마다 방법이 달라 공식적으로 할 수 없음).
 
 ## 화면 자동 업데이트 (1.0부터)
 - 앱이 화면 파일(index.html, sync.js 등)을 열 때마다 `https://jaeseung1.github.io/shiftwork-on/`(main 브랜치)의 최신 파일을 먼저 받아 쓰고, 인터넷이 안 되면 앱에 든 파일을 쓴다(`MainActivity.fromWeb`, 시험 `RemoteUrlTest`). 주소(appassets)가 그대로라 로그인·근무표가 유지된다.

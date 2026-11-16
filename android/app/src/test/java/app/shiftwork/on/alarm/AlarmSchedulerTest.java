@@ -7,12 +7,8 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -74,20 +70,23 @@ public class AlarmSchedulerTest {
     }
 
     @Test
-    public void ringPostsInsistentAlarmNotificationAndDismissStops() {
+    public void ringStartsAlarmServiceAndDismissStops() {
         AlarmStore.setOwner(c, true);
         new AlarmReceiver().onReceive(c, new Intent(AlarmScheduler.ACTION_RING).putExtra(AlarmScheduler.EXTRA_SHIFT, "일"));
-        NotificationManager nm = c.getSystemService(NotificationManager.class);
-        Notification n = shadowOf(nm).getNotification(AlarmRinger.NOTIFY_ID);
-        assertNotNull(n);
-        assertEquals(Notification.CATEGORY_ALARM, n.category);
-        assertTrue("끌 때까지 소리 반복", (n.flags & Notification.FLAG_INSISTENT) != 0);
-        assertNotNull("잠금 화면 위 알람 화면", n.fullScreenIntent);
-        NotificationChannel ch = nm.getNotificationChannel(AlarmRinger.CHANNEL);
-        assertEquals("알람 소리 크기를 따름", AudioAttributes.USAGE_ALARM, ch.getAudioAttributes().getUsage());
+        Intent started = shadowOf(RuntimeEnvironment.getApplication()).getNextStartedService();
+        assertNotNull("알람 서비스가 직접 울린다", started);
+        assertEquals(AlarmService.class.getName(), started.getComponent().getClassName());
+        assertEquals("일", started.getStringExtra(AlarmScheduler.EXTRA_SHIFT));
         assertTrue("울린 뒤 다음 알람 예약", AlarmStore.nextAt(c) > System.currentTimeMillis());
         new AlarmReceiver().onReceive(c, new Intent(AlarmScheduler.ACTION_DISMISS));
-        assertNull("끄기", shadowOf(nm).getNotification(AlarmRinger.NOTIFY_ID));
+        assertNotNull("끄기는 서비스를 멈춘다", shadowOf(RuntimeEnvironment.getApplication()).getNextStoppedService());
+    }
+
+    @Test
+    public void viewerAlarmDoesNotRing() {
+        AlarmStore.setOwner(c, false);
+        new AlarmReceiver().onReceive(c, new Intent(AlarmScheduler.ACTION_RING).putExtra(AlarmScheduler.EXTRA_SHIFT, "일"));
+        assertNull(shadowOf(RuntimeEnvironment.getApplication()).getNextStartedService());
     }
 
     @Test

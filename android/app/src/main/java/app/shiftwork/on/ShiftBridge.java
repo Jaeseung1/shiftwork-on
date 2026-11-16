@@ -19,6 +19,7 @@ import java.time.ZoneId;
 
 import app.shiftwork.on.alarm.AlarmScheduler;
 import app.shiftwork.on.alarm.AlarmStore;
+import app.shiftwork.on.alarm.MusicApps;
 import app.shiftwork.on.core.ShiftCalc;
 
 import app.shiftwork.on.widget.WidgetUpdater;
@@ -106,6 +107,33 @@ public final class ShiftBridge {
             i = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, ctx.getPackageName());
         }
         ctx.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
+
+    // ---- 알람 소리(1.4~): 소리·진동·점점 크게·끄면 열 앱 ----
+
+    /** {"sound":"","soundName":"","vibrate":true,"ramp":false,"app":""} */
+    @JavascriptInterface
+    public String alarmOptions() {
+        return AlarmStore.optionsJson(ctx);
+    }
+
+    /** key: vibrate·ramp("true"/"false"), app(패키지), sound(""=기본 알람음, "none"=소리 없음) */
+    @JavascriptInterface
+    public void setAlarmOption(String key, String value) {
+        AlarmStore.setOption(ctx, key, value);
+    }
+
+    /** "ringtone": 폰의 알람음 목록, "file": 내 음악 파일. 고르면 화면의 window.shiftAlarmOptionsChanged()를 부른다 */
+    @JavascriptInterface
+    public void pickAlarmSound(String kind) {
+        Activity a = activity.get();
+        if (a instanceof MainActivity) a.runOnUiThread(() -> ((MainActivity) a).pickSound(kind));
+    }
+
+    /** 깔려 있는 음악 앱 [{"pkg":"com.iloen.melon","name":"멜론"}] */
+    @JavascriptInterface
+    public String musicApps() {
+        return MusicApps.json(ctx);
     }
 
     private void askNotificationPermission() {

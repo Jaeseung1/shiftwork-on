@@ -11,7 +11,10 @@ async function ctx(b, bridge) {
     if (!sessionStorage.getItem('init')) { localStorage.setItem('shift-on-mobile-ui-v1', JSON.stringify({ anchor: '2026-11-12', anchorShift: '일', overrides: {} })); sessionStorage.setItem('init', '1') }
     if (bridge) window.ShiftBridge = { calls: [], rules: '{}', setSchedule(j) { this.calls.push(['schedule', j]) }, setRemote(j) { this.calls.push(['remote', j]) },
       setAlarmOwner(o) { this.calls.push(['owner', o]) }, setAlarms(j) { this.rules = j; this.calls.push(['alarms', j]) }, alarmRules() { return this.rules },
-      alarmStatus() { return JSON.stringify({ next: this.rules === '{}' ? '' : '11/13(금) 15:30 야근', notify: true, exact: true }) }, testAlarm(s) { this.calls.push(['test', s]) }, openAlarmSettings() {} }
+      alarmStatus() { return JSON.stringify({ next: this.rules === '{}' ? '' : '11/13(금) 15:30 야근', notify: true, exact: true }) }, testAlarm(s) { this.calls.push(['test', s]) }, openAlarmSettings() {},
+      opts: { sound: '', soundName: '', vibrate: true, ramp: false, app: '' }, alarmOptions() { return JSON.stringify(this.opts) },
+      setAlarmOption(k, v) { this.calls.push(['opt', k, v]); this.opts[k] = k === 'app' ? v : v === 'true' }, pickAlarmSound(kind) { this.calls.push(['pick', kind]) },
+      musicApps() { return JSON.stringify([{ pkg: 'com.iloen.melon', name: '멜론' }, { pkg: 'com.spotify.music', name: 'Spotify' }]) } }
   }, bridge)
   const p = await c.newPage()
   p.errors = []
@@ -94,6 +97,7 @@ async function login(p, email) {
   await B.click('.nav button[data-screen="family"]'); await wait(200)
   check('B 공유 탭: 보는 중 안내와 연결 끊기만', await B.evaluate(() => { const v = (s) => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none' && !e.closest('[hidden]') }; return v('#viewerPanel') && v('#leaveBtn') && !v('#joinPanel') && !v('#membersPanel') && !v('#membersHead') && document.querySelector('.t-viewer').offsetParent !== null }))
   check('B(공유받은 사람)는 알람 설정이 안 보임', await B.evaluate(() => getComputedStyle(document.querySelector('#alarmPanel')).display === 'none'))
+  check('B(공유받은 사람)는 알람 소리 칸도 안 보임', await B.evaluate(() => getComputedStyle(document.querySelector('#alarmSoundPanel')).display === 'none'))
   check('B 앱에 알람 끄기 전달', await B.evaluate(() => window.ShiftBridge.calls.filter((c) => c[0] === 'owner').at(-1)?.[1] === false))
   check('B 설정: 연결 끊기 버튼은 공유 탭에만', await B.evaluate(() => document.querySelector('#acctOut').hidden))
   check('B 계정 문구(코드로 참여)', (await txt(B, '#acctState')).includes('초대 코드로 공유받은 근무표'), await txt(B, '#acctState'))
@@ -173,7 +177,21 @@ async function login(p, email) {
   await O.click('#alarmTest'); await wait(100)
   check('5초 뒤 울려 보기', await O.evaluate(() => window.ShiftBridge.calls.some((c) => c[0] === 'test' && c[1] === '야')))
   check('주인 앱에는 알람 켜기 전달', await O.evaluate(() => window.ShiftBridge.calls.filter((c) => c[0] === 'owner').at(-1)?.[1] === true))
-  check('웹 브라우저(앱 아님)에는 알람 설정 없음', await A.evaluate(() => document.querySelector('#alarmPanel').hidden))
+  // 알람 소리(1.4~)
+  check('주인 앱에 알람 소리 칸', await O.evaluate(() => !document.querySelector('#alarmSoundPanel').hidden))
+  check('기본은 기본 알람음·진동 켬', (await txt(O, '#soundName')) === '기본 알람음' && (await O.evaluate(() => document.querySelector('#optVibrate').checked)))
+  check('깔린 음악 앱 목록', (await O.evaluate(() => [...document.querySelectorAll('#optApp option')].map((o) => o.textContent).join(','))) === '열지 않음,멜론,Spotify')
+  await O.$eval('#optVibrate', (e) => e.scrollIntoView({ block: 'center' }))
+  await O.click('#optVibrate', { force: true }); await O.click('#optRamp', { force: true })
+  await O.selectOption('#optApp', 'com.iloen.melon'); await wait(100)
+  check('진동 끄기·점점 크게·끄면 멜론 전달', await O.evaluate(() => { const c = window.ShiftBridge.calls; const has = (k, v) => c.some((x) => x[0] === 'opt' && x[1] === k && x[2] === v); return has('vibrate', 'false') && has('ramp', 'true') && has('app', 'com.iloen.melon') }))
+  check('끄면 열 앱 안내', (await txt(O, '#toast')).includes('멜론 앱을 열어요'), await txt(O, '#toast'))
+  await O.click('#soundPick'); await O.click('#soundFile')
+  check('알람음·음악 파일 고르기 화면 요청', await O.evaluate(() => ['ringtone', 'file'].every((k) => window.ShiftBridge.calls.some((x) => x[0] === 'pick' && x[1] === k))))
+  await O.evaluate(() => { window.ShiftBridge.opts.sound = 'content://media/42'; window.ShiftBridge.opts.soundName = '좋아하는 노래'; window.shiftAlarmOptionsChanged() })
+  check('고른 소리 이름 표시', (await txt(O, '#soundName')) === '좋아하는 노래', await txt(O, '#soundName'))
+  await shot(O, 'settings-alarm-sound')
+  check('웹 브라우저(앱 아님)에는 알람 설정 없음', await A.evaluate(() => document.querySelector('#alarmPanel').hidden && document.querySelector('#alarmSoundPanel').hidden))
   check('페이지 오류 없음', [A, B, L, O].every((p) => !p.errors.length), [A, B, L, O].flatMap((p) => p.errors).join(' | '))
   await b.close()
   console.log(results.filter((r) => r[0] === 'PASS').length + ' / ' + results.length)

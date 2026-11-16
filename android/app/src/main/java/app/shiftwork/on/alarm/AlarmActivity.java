@@ -1,6 +1,8 @@
 package app.shiftwork.on.alarm;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -24,6 +26,8 @@ import app.shiftwork.on.core.ShiftCalc;
  * 위: 날짜와 지금 시각 / 가운데: 근무 색 아이콘 칸(앱·위젯과 같은 표시), 근무 이름, 출근 시각 / 아래: 5분 뒤 다시, 끄기.
  */
 public class AlarmActivity extends Activity {
+    /** 알림의 '끄기'에서 왔을 때: 바로 끄고, 정해 둔 앱이 있으면 연다 */
+    static final String EXTRA_DISMISS = "dismiss";
     private static final String[] WEEK = {"월", "화", "수", "목", "금", "토", "일"};
 
     @Override
@@ -40,6 +44,10 @@ public class AlarmActivity extends Activity {
         getWindow().setStatusBarColor(getColor(R.color.page));
         getWindow().setNavigationBarColor(getColor(R.color.page));
         setContentView(R.layout.activity_alarm);
+        if (getIntent().getBooleanExtra(EXTRA_DISMISS, false)) {
+            dismissAndOpen();
+            return;
+        }
 
         String shift = getIntent().getStringExtra(AlarmScheduler.EXTRA_SHIFT);
         boolean test = getIntent().getBooleanExtra(AlarmScheduler.EXTRA_TEST, false);
@@ -64,10 +72,45 @@ public class AlarmActivity extends Activity {
             sendBroadcast(new Intent(this, AlarmReceiver.class).setAction(AlarmScheduler.ACTION_SNOOZE).putExtra(AlarmScheduler.EXTRA_SHIFT, shift));
             finish();
         });
-        findViewById(R.id.alarm_off).setOnClickListener(v -> {
-            sendBroadcast(new Intent(this, AlarmReceiver.class).setAction(AlarmScheduler.ACTION_DISMISS));
+        findViewById(R.id.alarm_off).setOnClickListener(v -> dismissAndOpen());
+    }
+
+    @Override
+    protected void onNewIntent(Intent i) {
+        super.onNewIntent(i);
+        if (i.getBooleanExtra(EXTRA_DISMISS, false)) dismissAndOpen();
+    }
+
+    /** 알람을 끄고, '끄면 열 앱'이 있으면 잠금을 푼 뒤 그 앱을 연다(예: 음악 앱) */
+    private void dismissAndOpen() {
+        AlarmRinger.stop(this);
+        Intent launch = openIntent(this);
+        if (launch == null) {
             finish();
-        });
+            return;
+        }
+        KeyguardManager km = getSystemService(KeyguardManager.class);
+        if (km != null && km.isKeyguardLocked() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            km.requestDismissKeyguard(this, new KeyguardManager.KeyguardDismissCallback() {
+                @Override public void onDismissSucceeded() { open(launch); }
+                @Override public void onDismissCancelled() { finish(); }
+                @Override public void onDismissError() { finish(); }
+            });
+        } else open(launch);
+    }
+
+    private void open(Intent launch) {
+        try {
+            startActivity(launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (Exception ignored) {
+            // 앱이 지워졌으면 그냥 끈다
+        }
+        finish();
+    }
+
+    static Intent openIntent(Context c) {
+        String pkg = AlarmStore.app(c);
+        return pkg.isEmpty() ? null : c.getPackageManager().getLaunchIntentForPackage(pkg);
     }
 
     /** 오늘(한국 날짜) 그 근무의 시각: 일근·야근은 출근, 조근은 퇴근 */

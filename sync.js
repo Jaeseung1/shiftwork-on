@@ -399,7 +399,34 @@ function initAlarm() {
     app.toast('5초 뒤에 울려요. 화면을 꺼 두고 확인해 보세요')
   }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') renderAlarm() })
+  initAlarmSound(b)
   renderAlarm()
+}
+
+// 알람 소리(갤럭시 앱 1.4~): 알람음·내 음악 파일, 진동, 점점 크게, 끄면 열 앱. 1.3 이하 앱에는 이 칸이 안 보인다.
+function initAlarmSound(b) {
+  const panel = $('#alarmSoundPanel')
+  if (!panel || typeof b.alarmOptions !== 'function') return
+  const sel = $('#optApp')
+  try { for (const a of JSON.parse(b.musicApps() || '[]')) sel.add(new Option(a.name, a.pkg)) } catch (e) {}
+  const render = () => {
+    let o = {}
+    try { o = JSON.parse(b.alarmOptions() || '{}') } catch (e) {}
+    $('#soundName').textContent = o.sound === 'none' ? '소리 없음(진동만)' : o.soundName || '기본 알람음'
+    $('#optVibrate').checked = o.vibrate !== false
+    $('#optRamp').checked = !!o.ramp
+    sel.value = [...sel.options].some((x) => x.value === o.app) ? o.app : ''
+  }
+  window.shiftAlarmOptionsChanged = () => { render(); app.toast('알람 소리를 바꿨어요') }
+  $('#soundPick').onclick = () => b.pickAlarmSound('ringtone')
+  $('#soundFile').onclick = () => b.pickAlarmSound('file')
+  $('#optVibrate').onchange = (e) => b.setAlarmOption('vibrate', String(e.target.checked))
+  $('#optRamp').onchange = (e) => b.setAlarmOption('ramp', String(e.target.checked))
+  sel.onchange = () => {
+    b.setAlarmOption('app', sel.value)
+    app.toast(sel.value ? `알람을 끄면 ${sel.selectedOptions[0].text} 앱을 열어요` : '알람을 꺼도 다른 앱은 열지 않아요')
+  }
+  render()
 }
 
 function renderAlarm() {
@@ -407,6 +434,8 @@ function renderAlarm() {
   const panel = $('#alarmPanel')
   if (!b || !panel) return
   panel.hidden = !!app.readOnly
+  const sp = $('#alarmSoundPanel')
+  if (sp && typeof b.alarmOptions === 'function') sp.hidden = !!app.readOnly
   if (app.readOnly) return
   let st2 = {}
   try { st2 = JSON.parse(b.alarmStatus() || '{}') } catch (e) {}

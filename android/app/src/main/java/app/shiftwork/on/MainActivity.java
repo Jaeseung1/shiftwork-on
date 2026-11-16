@@ -2,13 +2,18 @@ package app.shiftwork.on;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.provider.Settings;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import androidx.webkit.WebViewAssetLoader;
 
@@ -18,6 +23,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import app.shiftwork.on.alarm.AlarmStore;
 import app.shiftwork.on.widget.WidgetUpdater;
 
 /**
@@ -114,6 +120,61 @@ public class MainActivity extends Activity {
         } finally {
             if (c != null) c.disconnect();
         }
+    }
+
+    // ---- 알람 소리 고르기(1.4~): ShiftBridge.pickAlarmSound가 부른다 ----
+    private static final int RC_RINGTONE = 21, RC_FILE = 22;
+
+    void pickSound(String kind) {
+        try {
+            if ("file".equals(kind)) {
+                Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("audio/*");
+                startActivityForResult(i, RC_FILE);
+            } else {
+                String cur = AlarmStore.sound(this);
+                Intent i = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "알람 소리")
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true)
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM));
+                if ("none".equals(cur)) i.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
+                else if (!cur.isEmpty()) i.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(cur));
+                startActivityForResult(i, RC_RINGTONE);
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "소리를 고르는 화면을 열지 못했어요", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (res != RESULT_OK || data == null) return;
+        if (req == RC_RINGTONE) {
+            Uri u = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+            if (u == null) {
+                AlarmStore.setSound(this, "none", ""); // '무음'을 고름: 진동만
+            } else if (u.equals(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)) || Settings.System.DEFAULT_ALARM_ALERT_URI.equals(u)) {
+                AlarmStore.setSound(this, "", "");
+            } else {
+                String name = "";
+                try { name = RingtoneManager.getRingtone(this, u).getTitle(this); } catch (Exception ignored) {}
+                AlarmStore.setSound(this, u.toString(), name);
+            }
+        } else if (req == RC_FILE && data.getData() != null) {
+            Uri u = data.getData();
+            try {
+                getContentResolver().takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION); // 폰을 껐다 켜도 읽을 수 있게
+            } catch (Exception ignored) {}
+            String name = "음악 파일";
+            try (Cursor c = getContentResolver().query(u, new String[] {OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+                if (c != null && c.moveToFirst()) name = c.getString(0).replaceFirst("\\.[A-Za-z0-9]{2,4}$", "");
+            } catch (Exception ignored) {}
+            AlarmStore.setSound(this, u.toString(), name);
+        } else return;
+        web.evaluateJavascript("window.shiftAlarmOptionsChanged&&window.shiftAlarmOptionsChanged()", null);
     }
 
     @Override

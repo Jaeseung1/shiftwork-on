@@ -43,6 +43,16 @@ do $$ begin insert into public.overrides (schedule_id, day, shift) select id, '2
 insert into result values ('B 바꾼 근무 추가 막힘', false, 'inserted');
 exception when others then insert into result values ('B 바꾼 근무 추가 막힘', true, sqlerrm); end $$;
 insert into result select 'B 초대 코드 안 보임', count(*) = 0, count(*)::text from public.invites;
+-- 이름: 다시 참여하며 이름 정하기, 본인 이름 고치기, 다른 칸은 못 고침
+select public.join_with_code(:'code', '  엄마  ') is not null as renamed \gset
+insert into result select 'B 참여하며 이름 정하기(앞뒤 빈칸 정리)', display_name = '엄마', coalesce(display_name, 'null') from public.members where user_id = auth.uid();
+with u as (update public.members set display_name = '어머니' where user_id = auth.uid() returning 1) insert into result select 'B 본인 이름 고치기', count(*) = 1, count(*)::text from u;
+do $$ begin update public.members set joined_at = now() - interval '1 day' where user_id = auth.uid();
+insert into result values ('B 이름 말고 다른 칸 못 고침', false, 'updated');
+exception when others then insert into result values ('B 이름 말고 다른 칸 못 고침', true, sqlerrm); end $$;
+do $$ begin update public.members set display_name = repeat('가', 21) where user_id = auth.uid();
+insert into result values ('B 이름 20자 넘으면 거절', false, 'updated');
+exception when others then insert into result values ('B 이름 20자 넘으면 거절', true, sqlerrm); end $$;
 do $$ begin perform public.create_invite(); insert into result values ('B 초대 코드 못 만듦', false, 'created');
 exception when others then insert into result values ('B 초대 코드 못 만듦', true, sqlerrm); end $$;
 reset role;
@@ -50,6 +60,8 @@ reset role;
 -- A: 가족 목록에 B가 보임, 바꾼 근무 삭제하면 updated_at 갱신(삭제 트리거)
 set role authenticated; set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
 insert into result select 'A 가족 목록에 B', count(*) = 1, count(*)::text from public.members;
+insert into result select 'A 주인은 B의 이름을 봄', display_name = '어머니', coalesce(display_name, 'null') from public.members;
+with u as (update public.members set display_name = '남' returning 1) insert into result select 'A 주인도 B 이름은 못 고침', count(*) = 0, count(*)::text from u;
 select updated_at as before_ts from public.schedules \gset
 select pg_sleep(0.01);
 do $$ begin delete from public.overrides where day = '2026-11-15';

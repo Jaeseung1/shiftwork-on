@@ -278,6 +278,12 @@ html[data-readonly] #alarmPanel{display:none}
 .alarm-row:has(input[type=checkbox]:not(:checked)) .alarm-time{display:none}
 .alarm-row:has(input[type=checkbox]:not(:checked)) .alarm-off{display:inline}
 .alarm-warn{margin:12px 0 0}
+/* 공유받는 사람 이름 */
+.viewer-name{display:flex;align-items:center;gap:8px;padding:12px 0;margin-bottom:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.viewer-name span{font-size:14px;color:var(--muted)}
+.viewer-name b{margin-left:auto;font-size:15px}
+.rename-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin:-4px 0 12px}
+.member .kick{margin-left:auto;font-size:13px;color:var(--muted);font-weight:600}
 /* 공유받은 사람(읽기 전용) 화면 */
 .t-viewer,#viewerPanel{display:none}
 html[data-readonly] .t-owner{display:none}html[data-readonly] .t-viewer{display:inline}
@@ -336,9 +342,9 @@ html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readon
 </section>
 <section class="screen" id="screen-family">
 <div class="page-head"><div class="page-title"><span class="t-owner">근무표 공유</span><span class="t-viewer">공유받은 근무표</span></div><p class="page-sub">초대 코드를 보내면 받은 사람이 내 근무표를 볼 수 있어요</p></div>
-<div class="panel" id="viewerPanel"><div class="viewer-top"><span class="viewer-ico" aria-hidden="true"><svg class="ico"><use href="#i-users"/></svg></span><div class="viewer-text"><b>다른 사람의 근무표를 보고 있어요</b><small>주인이 근무를 바꾸면 바로 반영돼요. 볼 수만 있어요.</small></div></div><button class="secondary full" id="leaveBtn" hidden>연결 끊기</button><p class="notice">다른 근무표를 보려면 연결을 끊고 새 초대 코드를 넣어 주세요.</p></div>
+<div class="panel" id="viewerPanel"><div class="viewer-top"><span class="viewer-ico" aria-hidden="true"><svg class="ico"><use href="#i-users"/></svg></span><div class="viewer-text"><b>다른 사람의 근무표를 보고 있어요</b><small>주인이 근무를 바꾸면 바로 반영돼요. 볼 수만 있어요.</small></div></div><div class="viewer-name"><span>주인에게 보이는 이름</span><b id="viewerName">이름 없음</b><button class="text-btn" id="viewerRename">바꾸기</button></div><div class="rename-row" id="renameRow" hidden><input class="date-input" id="renameInput" maxlength="20" aria-label="새 이름"><button class="primary" id="renameSave">저장</button></div><button class="secondary full" id="leaveBtn" hidden>연결 끊기</button><p class="notice">다른 근무표를 보려면 연결을 끊고 새 초대 코드를 넣어 주세요.</p></div>
 <div class="invite"><h2>내 근무표 공유하기</h2><p>초대 코드를 받은 사람은 내 근무표를 볼 수만 있어요.</p><div class="invite-code"><strong id="inviteCode">— — — — — —</strong><button id="copyCode">복사</button></div><div class="invite-note" id="inviteInfo">코드는 화면 시연용입니다. 실제 앱에서는 안전한 초대 코드로 연결돼요.</div></div>
-<div class="panel" id="joinPanel"><h3>초대 코드 입력</h3><p class="page-sub" style="margin:-6px 0 14px">받은 코드를 넣으면 그 사람의 근무표를 볼 수 있어요.</p><div class="join-row"><input class="date-input" id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC234" aria-label="초대 코드"><button class="primary" id="joinBtn">참여</button></div></div>
+<div class="panel" id="joinPanel"><h3>초대 코드로 보기</h3><p class="page-sub" style="margin:-4px 0 16px">받은 코드와, 근무표 주인에게 보일 내 이름을 넣어 주세요</p><input class="date-input full" id="joinName" maxlength="20" autocomplete="nickname" placeholder="내 이름 (예: 엄마, 김교대)" aria-label="주인에게 보일 내 이름" style="margin-bottom:8px"><div class="join-row"><input class="date-input" id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC234" aria-label="초대 코드"><button class="primary" id="joinBtn">참여</button></div></div>
 <div class="section-head" id="membersHead"><h2>공유받는 사람</h2><button class="text-btn" id="newInvite">초대 코드 만들기</button></div>
 <div class="panel" id="membersPanel"><div class="members" id="members"><div class="member"><div class="avatar">나</div><div class="member-main"><strong>나 (근무표 관리자)</strong><span>이 기기에서 스케줄 관리</span></div><span class="role">관리자</span></div></div><p class="notice">초대 코드를 입력한 사람이 여기에 표시돼요.</p></div>
 <div class="privacy"><b>공유 범위</b><br>공유받는 사람은 근무 종류와 월간 근무표만 볼 수 있어요. 근무표 수정과 초대 관리는 나만 할 수 있어요.</div>

@@ -116,7 +116,7 @@ function load() {
     const uid = st.user.id
     let sched = null
     let role = 'owner'
-    const mem = await c.from('members').select('schedule_id').eq('user_id', uid)
+    const mem = await c.from('members').select('schedule_id,display_name').eq('user_id', uid)
     if (mem.error) return fail(mem.error, '근무표를 불러오지 못했어요')
     if (mem.data.length) {
       const r = await c.from('schedules').select('*').eq('id', mem.data[0].schedule_id).maybeSingle()
@@ -124,6 +124,7 @@ function load() {
       if (r.data) {
         sched = r.data
         role = 'viewer'
+        st.myName = mem.data[0].display_name || ''
       }
     }
     if (!sched && st.user.is_anonymous) {
@@ -287,7 +288,11 @@ function bindUI() {
   // </web-only>
   $('#joinBtn').onclick = async () => {
     const code = $('#joinCode').value.trim().toUpperCase()
+    const name = $('#joinName').value.trim()
+    if (!st.client) return app.toast('서버가 아직 설정되지 않았어요')
+    if (!name) return app.toast('근무표 주인에게 보일 이름을 넣어 주세요')
     if (!CODE_RE.test(code)) return app.toast('코드 6자리를 확인해 주세요')
+    try { localStorage.setItem('shiftwork-join-name', name) } catch (e) {}
     if (!st.client) return app.toast('서버가 아직 설정되지 않았어요')
     if (!st.user) {
       // 공유받는 사람은 메일 없이 익명으로 들어온다
@@ -295,12 +300,30 @@ function bindUI() {
       if (error) return fail(error, /anonymous/i.test(error.message || '') ? '공유 참여 기능이 서버에서 아직 꺼져 있어요(Supabase 익명 로그인)' : '참여하지 못했어요. 잠시 뒤 다시 해 주세요')
       st.user = data.user
     }
-    const { error } = await st.client.rpc('join_with_code', { p_code: code })
+    const { error } = await st.client.rpc('join_with_code', { p_code: code, p_name: name })
     if (error) return fail(error, '코드가 맞지 않거나 기간이 지났어요')
     $('#joinCode').value = ''
     await load()
     app.toast('공유받은 근무표를 불러왔어요')
     app.setScreen('home')
+  }
+  try { $('#joinName').value = localStorage.getItem('shiftwork-join-name') || '' } catch (e) {}
+  $('#viewerRename').onclick = () => {
+    const row = $('#renameRow')
+    row.hidden = !row.hidden
+    if (!row.hidden) { $('#renameInput').value = st.myName || ''; $('#renameInput').focus() }
+  }
+  $('#renameSave').onclick = async () => {
+    const name = $('#renameInput').value.trim()
+    if (!name) return app.toast('이름을 넣어 주세요')
+    if (!st.user || st.role !== 'viewer') return
+    const r = await st.client.from('members').update({ display_name: name }).eq('schedule_id', st.schedule.id).eq('user_id', st.user.id)
+    if (r.error) return fail(r.error, '이름을 바꾸지 못했어요')
+    st.myName = name
+    try { localStorage.setItem('shiftwork-join-name', name) } catch (e) {}
+    $('#renameRow').hidden = true
+    renderFamily()
+    app.toast('주인에게 보이는 이름을 바꿨어요')
   }
   $('#leaveBtn').onclick = async () => {
     if (!st.user || st.role !== 'viewer') return
@@ -545,16 +568,28 @@ function renderAccount() {
 async function renderFamily() {
   const leave = $('#leaveBtn')
   leave.hidden = st.role !== 'viewer'
+  if (st.role === 'viewer') $('#viewerName').textContent = st.myName || '이름 없음'
   if (!isOwnerOnline()) return
-  $('#inviteInfo').textContent = st.inviteReady ? $('#inviteInfo').textContent : '초대 코드 만들기를 누르면 7일 동안 쓸 수 있는 코드가 생겨요.'
-  const { count, error } = await st.client.from('members').select('user_id', { count: 'exact', head: true }).eq('schedule_id', st.schedule.id)
-  if (error) return
+  $('#inviteInfo').textContent = st.inviteReady ? $('#inviteInfo').textContent : '초대 코드 만들기를 누르면 7일 동안 쓸 수 있는 코드가 생겨요'
+  const { data, error } = await st.client.from('members').select('user_id,display_name,joined_at').eq('schedule_id', st.schedule.id)
+  if (error || !Array.isArray(data)) return
   const list = $('#members')
-  list.querySelector('.member-extra')?.remove()
-  if (count) {
+  list.querySelectorAll('.member-extra').forEach((e) => e.remove())
+  const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch])
+  data.sort((x, y) => String(x.joined_at).localeCompare(String(y.joined_at)))
+  for (const m of data) {
+    const name = m.display_name || '이름 없음'
+    const d = m.joined_at ? new Date(m.joined_at) : null
     const row = document.createElement('div')
     row.className = 'member member-extra'
-    row.innerHTML = `<div class="avatar">공</div><div class="member-main"><strong>공유받는 사람 ${count}명</strong><span>근무표를 보고 있어요</span></div><span class="role">보기</span>`
+    row.innerHTML = `<div class="avatar">${esc([...name][0])}</div><div class="member-main"><strong>${esc(name)}</strong><span>${d ? `${d.getMonth() + 1}/${d.getDate()} 참여 · ` : ''}볼 수만 있어요</span></div><button class="text-btn kick" type="button">내보내기</button>`
+    row.querySelector('.kick').onclick = async () => {
+      if (!confirm(`${name}님이 더는 내 근무표를 못 보게 할까요?`)) return
+      const r = await st.client.from('members').delete().eq('schedule_id', st.schedule.id).eq('user_id', m.user_id)
+      if (r.error) return fail(r.error, '내보내지 못했어요')
+      app.toast(`${name}님을 내보냈어요`)
+      renderFamily()
+    }
     list.append(row)
   }
 }

@@ -385,7 +385,20 @@ function renderAlarm() {
   if (app.readOnly) return
   let st2 = {}
   try { st2 = JSON.parse(b.alarmStatus() || '{}') } catch (e) {}
-  $('#alarmNext').textContent = st2.next ? `다음 알람 · ${st2.next}` : '켜 둔 알람이 없어요'
+  // "11/17(화) 15:30 야근" → 큰 글자는 날짜·시각, 아래는 근무, 카드 색·아이콘은 그 근무
+  const m = (st2.next || '').match(/^(\S+) (\d{1,2}:\d{2}) ?(\S*)$/)
+  const CODE = { 일근: '일', 야근: '야', 조근: '조', 휴무: '휴' }
+  const card = $('#alarmNextCard')
+  if (m) {
+    $('#alarmNext').textContent = `${m[1]} ${m[2]}`
+    $('#alarmNextSub').textContent = m[3] ? `${m[3]} 알람` : ''
+    if (CODE[m[3]]) card.dataset.shift = CODE[m[3]]
+    else delete card.dataset.shift
+  } else {
+    $('#alarmNext').textContent = '켜 둔 알람이 없어요'
+    $('#alarmNextSub').textContent = '아래에서 근무마다 켜 주세요'
+    delete card.dataset.shift
+  }
   const warn = $('#alarmWarn')
   const fix = $('#alarmFix')
   if (st2.notify === false) {

@@ -2,26 +2,30 @@ package app.shiftwork.on.alarm;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import app.shiftwork.on.R;
 import app.shiftwork.on.core.ShiftCalc;
 
-/** 잠금 화면 위에 뜨는 알람 화면: 시각, 근무 이름, [5분 뒤] [끄기]. 소리는 알람 알림이 낸다. */
+/**
+ * 잠금 화면 위에 뜨는 알람 화면(소리는 알람 알림이 낸다).
+ * 위: 날짜와 지금 시각 / 가운데: 근무 색 아이콘 칸(앱·위젯과 같은 표시), 근무 이름, 출근 시각 / 아래: 5분 뒤 다시, 끄기.
+ */
 public class AlarmActivity extends Activity {
+    private static final String[] WEEK = {"월", "화", "수", "목", "금", "토", "일"};
+
     @Override
     @SuppressWarnings("deprecation")
     protected void onCreate(Bundle b) {
@@ -33,80 +37,72 @@ public class AlarmActivity extends Activity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setStatusBarColor(getColor(R.color.page));
+        getWindow().setNavigationBarColor(getColor(R.color.page));
+        setContentView(R.layout.activity_alarm);
+
         String shift = getIntent().getStringExtra(AlarmScheduler.EXTRA_SHIFT);
         boolean test = getIntent().getBooleanExtra(AlarmScheduler.EXTRA_TEST, false);
-        int tone = getColor(tone(shift));
+        String s = shift == null || shift.isEmpty() ? "일" : shift;
+        ZonedDateTime now = ZonedDateTime.now();
 
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setGravity(Gravity.CENTER);
-        root.setBackgroundColor(getColor(R.color.page));
-        int pad = dp(28);
-        root.setPadding(pad, pad, pad, pad);
+        ((TextView) findViewById(R.id.alarm_date)).setText(now.getMonthValue() + "월 " + now.getDayOfMonth() + "일 " + WEEK[now.getDayOfWeek().getValue() - 1] + "요일");
+        ((TextView) findViewById(R.id.alarm_clock)).setText(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
 
-        TextView clock = text(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")), 64, getColor(R.color.w_ink), true);
-        TextView name = text((test ? "시험 · " : "") + (shift == null || shift.isEmpty() ? "근무" : ShiftCalc.name(shift)), 34, tone, true);
-        TextView sub = text("근무 알람이에요", 16, getColor(R.color.w_body), false);
-        root.addView(clock);
-        root.addView(name);
-        root.addView(sub);
+        GradientDrawable tile = new GradientDrawable();
+        tile.setColor(getColor(tint(s)));
+        tile.setCornerRadius(32 * getResources().getDisplayMetrics().density);
+        findViewById(R.id.alarm_tile).setBackground(tile);
+        ((ImageView) findViewById(R.id.alarm_icon)).setImageResource(icon(s));
 
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        rowLp.topMargin = dp(48);
-        Button later = button("5분 뒤", getColor(R.color.w_bg), getColor(R.color.w_ink));
-        Button off = button("끄기", tone, Color.WHITE);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(60), 1f);
-        lp.setMarginEnd(dp(10));
-        row.addView(later, lp);
-        row.addView(off, new LinearLayout.LayoutParams(0, dp(60), 1f));
-        root.addView(row, rowLp);
-        setContentView(root);
+        TextView name = findViewById(R.id.alarm_name);
+        name.setText(ShiftCalc.name(s));
+        name.setTextColor(getColor(tone(s)));
+        ((TextView) findViewById(R.id.alarm_sub)).setText((test ? "시험 알람 · " : "") + sub(s));
 
-        later.setOnClickListener(v -> {
+        findViewById(R.id.alarm_snooze).setOnClickListener(v -> {
             sendBroadcast(new Intent(this, AlarmReceiver.class).setAction(AlarmScheduler.ACTION_SNOOZE).putExtra(AlarmScheduler.EXTRA_SHIFT, shift));
             finish();
         });
-        off.setOnClickListener(v -> {
+        findViewById(R.id.alarm_off).setOnClickListener(v -> {
             sendBroadcast(new Intent(this, AlarmReceiver.class).setAction(AlarmScheduler.ACTION_DISMISS));
             finish();
         });
     }
 
+    /** 오늘(한국 날짜) 그 근무의 시각: 일근·야근은 출근, 조근은 퇴근 */
+    private static String sub(String s) {
+        LocalDate today = ShiftCalc.kstDate(Instant.now());
+        Instant[] p = ShiftCalc.instants(today, s);
+        if (p == null) return "쉬는 날";
+        ZoneId z = ZoneId.systemDefault();
+        return s.equals("조") ? ShiftCalc.time(p[1], z) + " 퇴근" : ShiftCalc.time(p[0], z) + " 출근";
+    }
+
     private static int tone(String s) {
-        if ("일".equals(s)) return R.color.s_day;
-        if ("야".equals(s)) return R.color.s_night;
-        if ("조".equals(s)) return R.color.s_dawn;
-        return R.color.s_off;
+        switch (s) {
+            case "일": return R.color.s_day;
+            case "야": return R.color.s_night;
+            case "조": return R.color.s_dawn;
+            default: return R.color.s_off;
+        }
     }
 
-    private TextView text(String t, int sp, int color, boolean bold) {
-        TextView v = new TextView(this);
-        v.setText(t);
-        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
-        v.setTextColor(color);
-        v.setGravity(Gravity.CENTER);
-        if (bold) v.setTypeface(Typeface.DEFAULT_BOLD);
-        return v;
+    private static int tint(String s) {
+        switch (s) {
+            case "일": return R.color.t_day;
+            case "야": return R.color.t_night;
+            case "조": return R.color.t_dawn;
+            default: return R.color.t_off;
+        }
     }
 
-    private Button button(String t, int bg, int fg) {
-        Button b = new Button(this);
-        b.setText(t);
-        b.setAllCaps(false);
-        b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        b.setTextColor(fg);
-        b.setTypeface(Typeface.DEFAULT_BOLD);
-        GradientDrawable d = new GradientDrawable();
-        d.setColor(bg);
-        d.setCornerRadius(dp(16));
-        b.setBackground(d);
-        b.setStateListAnimator(null);
-        return b;
-    }
-
-    private int dp(int v) {
-        return Math.round(v * getResources().getDisplayMetrics().density);
+    private static int icon(String s) {
+        switch (s) {
+            case "일": return R.drawable.ic_shift_day;
+            case "야": return R.drawable.ic_shift_night;
+            case "조": return R.drawable.ic_shift_dawn;
+            default: return R.drawable.ic_shift_off;
+        }
     }
 }

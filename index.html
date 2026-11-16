@@ -1,299 +1,239 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f2f4f6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)"><title>교대온 · 근무표</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="교대온"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)"><title>교대온 · 근무표</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="교대온"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>try{var t=localStorage.getItem("shiftwork-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
-/* 교대온 v2 디자인: 토스 스타일. 위젯(design/pages/widget.html)·제어 센터·Stageshow 데모와 같은 값.
-   토스 값은 제3자 정리 페이지(oppadu) 기준이며 공식 토큰이 아님. 아이콘은 lucide(ISC). */
-:root{--page:#f2f4f6;--card:#fff;--inset:#f2f4f6;--thumb:#fff;--ink:#191f28;--body:#4e5968;--muted:#6b7684;--sub:#8b95a1;--line:#e5e8eb;--blue:#3182f6;--blue-soft:color-mix(in srgb,#3182f6 10%,#fff);--s1:#d9820b;--s2:#7866c2;--s3:#3d84c4;--s4:#05a672;--shadow:0 8px 24px rgba(0,23,51,.08);--nav:rgba(255,255,255,.94);--font:'Toss Product Sans',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Noto Sans CJK KR',sans-serif;color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0f1115;--card:#1a1d24;--inset:#232730;--thumb:#2c303a;--ink:#f2f4f6;--body:#b0b8c1;--muted:#8b95a1;--sub:#8b95a1;--line:#262a32;--blue:#4795ff;--blue-soft:color-mix(in srgb,#4795ff 18%,#1a1d24);--s1:#f0b04a;--s2:#b7a5ed;--s3:#8fc0ea;--s4:#5fd3a8;--shadow:none;--nav:rgba(22,25,31,.94);color-scheme:dark}}
+/* 교대온 2.0 디자인: 벽에 붙여 색을 칠한 근무표(채도를 낮춘 차분한 색).
+   - 근무가 보이는 곳(홈의 오늘·일주일, 근무표 달력)만 근무 색으로 칸을 칠한다. 칸마다 바탕/글자 짝은 대비 4.5 이상.
+   - 공유·설정은 아이폰 설정처럼 회색 바탕에 흰 목록. 색은 쓰지 않는다.
+   - 주 버튼은 잉크색(어둡게 모드는 흰색). 파란색은 글자 버튼(링크)에만. 아이콘은 lucide(ISC). */
+:root{--page:#fff;--group:#f2f3f5;--card:#fff;--inset:#f2f3f5;--ink:#15171a;--body:#3d434c;--muted:#636a75;--line:#e6e8eb;--link:#2563eb;--on:#34c759;--danger:#d92d20;--nav:rgba(255,255,255,.94);
+  --b1:#e6bf86;--f1:#352200;--b2:#5d5aa3;--f2:#fff;--b3:#477893;--f3:#fff;--b4:#e2ece5;--f4:#2c5b42;
+  --s1:#8a5a14;--s2:#55529a;--s3:#3f6f8a;--s4:#3b6e52;
+  --font:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Noto Sans CJK KR',sans-serif;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0f1115;--group:#0f1115;--card:#1b1e24;--inset:#262a31;--ink:#f2f4f6;--body:#c3c9d1;--muted:#8b929c;--line:#2a2e36;--link:#6ea2ff;--on:#30d158;--danger:#ff6b6b;--nav:rgba(18,20,25,.94);--b1:#c9a46a;--f1:#1f1400;--b2:#5d5aa3;--f2:#fff;--b3:#477893;--f3:#fff;--b4:#26332c;--f4:#9fd3b5;--s1:#d9b77f;--s2:#a7a4dc;--s3:#8ab4cc;--s4:#8fc4a6;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#0f1115;--group:#0f1115;--card:#1b1e24;--inset:#262a31;--ink:#f2f4f6;--body:#c3c9d1;--muted:#8b929c;--line:#2a2e36;--link:#6ea2ff;--on:#30d158;--danger:#ff6b6b;--nav:rgba(18,20,25,.94);--b1:#c9a46a;--f1:#1f1400;--b2:#5d5aa3;--f2:#fff;--b3:#477893;--f3:#fff;--b4:#26332c;--f4:#9fd3b5;--s1:#d9b77f;--s2:#a7a4dc;--s3:#8ab4cc;--s4:#8fc4a6;color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);letter-spacing:-.01em;word-break:keep-all;-webkit-font-smoothing:antialiased}
-button,input,select{font:inherit;color:inherit}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);letter-spacing:-.01em;word-break:keep-all;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+body:has(#screen-family.active),body:has(#screen-settings.active){background:var(--group)}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
-:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 50%,transparent);outline-offset:2px}
-::selection{background:color-mix(in srgb,var(--blue) 22%,transparent)}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--link) 55%,transparent);outline-offset:2px}
+::selection{background:color-mix(in srgb,var(--link) 22%,transparent)}
 [hidden]{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .ico.s{width:20px;height:20px}
-.app{max-width:480px;min-height:100vh;margin:0 auto;position:relative;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
-.topbar{position:sticky;top:0;z-index:5;height:56px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:color-mix(in srgb,var(--page) 92%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.logo{font-size:21px;font-weight:800;letter-spacing:-.04em;color:var(--ink)}
-.top-actions{display:none}
-.screen{display:none;padding:4px 16px 24px}
-.screen.active{display:grid;gap:12px;animation:fade .2s ease}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.screen.active{animation:none}.progress i{transition:none}}
-.card,.panel,.invite{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:20px}
-.greeting{padding:8px 4px 0}
-.date-pill{font-size:14px;font-weight:600;color:var(--muted)}
-.page-head{padding:8px 4px 0}
-.page-title{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.3}
-.page-sub{margin:4px 0 0;font-size:14px;color:var(--muted);line-height:1.5}
-/* 홈: 오늘(위젯 4x1과 같은 순서: 오늘 크게 → 내일 → 앞으로 5일) */
-.hero{display:grid;padding:20px 20px 22px}
-.hero-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.hero-label{font-size:14px;font-weight:600;color:var(--muted)}
-.status-badge{font-size:13px;font-weight:700;padding:6px 10px;border-radius:999px;background:var(--inset);color:var(--body);white-space:nowrap}
-.hero[data-working] .status-badge{background:var(--blue-soft);color:var(--blue)}
-.today-name{font-size:40px;font-weight:700;letter-spacing:-.04em;line-height:1.2;color:var(--blue);margin-top:10px}
-.today-hour{font-size:16px;color:var(--body);font-variant-numeric:tabular-nums;margin-top:2px}
-.today-hour:empty{display:none}
-.hero-sub{font-size:15px;color:var(--ink);font-weight:600;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);line-height:1.45}
-.hero[data-working] .hero-sub{display:none}
-.hero-progress{display:none;gap:8px;margin-top:18px}
-.hero[data-working] .hero-progress{display:grid}
-.progress{height:8px;border-radius:99px;background:var(--inset);overflow:hidden}
-.progress i{display:block;height:100%;width:0;background:var(--blue);border-radius:inherit;transition:width .4s ease}
-.progress-label{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--body);font-variant-numeric:tabular-nums}
-.progress-label span:first-child{color:var(--blue);font-weight:700}
-/* 홈: 내일 */
-.next-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
-.shift-head{font-size:13px;font-weight:600;color:var(--sub)}
-.next-name{font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1.25;margin-top:4px}
-.next-hour{font-size:14px;color:var(--body);line-height:1.45;text-align:right;font-variant-numeric:tabular-nums;padding-bottom:2px}
-/* 홈: 앞으로 5일 */
-.card-head{display:flex;justify-content:space-between;align-items:center;margin:-4px 0 12px}
-.card-head span{font-size:15px;font-weight:700}
-.days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.day{border:0;background:var(--inset);border-radius:16px;padding:10px 0 9px;display:grid;justify-items:center;gap:3px}
-.day .w{font-size:12px;color:var(--sub)}
-.day .s{font-size:19px;font-weight:700;line-height:1.25}
-.day .n{font-size:12px;font-weight:600;color:var(--body);font-variant-numeric:tabular-nums}
-.row-link{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border:0;text-align:left;color:var(--ink)}
-.row-link b{display:block;font-size:15px}
-.row-link small{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.4}
-.row-link .ico{color:var(--sub)}
 .quick-hidden{display:none}
-/* 근무 색: 글자색만 */
-.tag-일{color:var(--s1)}.tag-야{color:var(--s2)}.tag-조{color:var(--s3)}.tag-휴{color:var(--s4)}
-/* 근무표 */
-.month-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.month-nav strong{font-size:19px;font-weight:700;letter-spacing:-.02em}
-.month-buttons{display:flex;gap:8px}
-.month-buttons button{width:36px;height:36px;border:0;border-radius:12px;background:var(--inset);display:grid;place-items:center;color:var(--body)}
+.app{max-width:480px;min-height:100vh;margin:0 auto;position:relative;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+/* 근무 색: 칸 바탕(--bg)과 그 위 글자(--fg), 흰 바탕 위 글자(--tx) */
+.tag-일,[data-shift="일"]{--bg:var(--b1);--fg:var(--f1);--tx:var(--s1)}
+.tag-야,[data-shift="야"]{--bg:var(--b2);--fg:var(--f2);--tx:var(--s2)}
+.tag-조,[data-shift="조"]{--bg:var(--b3);--fg:var(--f3);--tx:var(--s3)}
+.tag-휴,[data-shift="휴"]{--bg:var(--b4);--fg:var(--f4);--tx:var(--s4)}
+.shift-ico{display:grid;place-items:center;flex:none}
+.shift-ico .ico{display:none}
+[data-shift="일"] .g-일,[data-shift="야"] .g-야,[data-shift="조"] .g-조,[data-shift="휴"] .g-휴{display:block}
+/* 위: 홈에서만 앱 이름과 날짜 */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(16px + env(safe-area-inset-top)) 20px 12px}
+.logo{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.home-date{font-size:16px;color:var(--muted)}
+.top-actions{display:none}
+body:not(:has(#screen-home.active)) .topbar{display:none}
+.screen{display:none;padding:0 16px 24px}
+.screen.active{display:grid;gap:12px;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.screen.active{animation:none}.progress i{transition:none}}
+.page-head{padding:calc(20px + env(safe-area-inset-top)) 4px 4px}
+.page-title{margin:0;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.25}
+.page-sub{margin:0;font-size:15px;color:var(--body);line-height:1.5}
+/* 홈: 오늘(근무 색으로 칠한 큰 칸) */
+.hero{background:var(--bg,var(--inset));color:var(--fg,var(--ink));border-radius:20px;padding:20px 22px 22px;display:grid}
+.hero-top{display:flex;align-items:center;gap:8px}
+.hero-top .shift-ico .ico{width:22px;height:22px}
+.hero-label{font-size:17px;font-weight:700}
+.status-badge{margin-left:auto;font-size:14px;font-weight:700;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,currentColor 16%,transparent);white-space:nowrap}
+.today-name{font-size:56px;font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-top:10px}
+.today-hour{font-size:21px;font-weight:700;margin-top:4px}
+.today-hour:empty{display:none}
+.hero-sub{font-size:17px;font-weight:600;margin-top:16px;padding-top:14px;border-top:1px solid color-mix(in srgb,currentColor 28%,transparent);line-height:1.4}
+.hero-sub:empty,.hero[data-working] .hero-sub,.hero[data-state="퇴근 후"] .hero-sub{display:none}
+.hero-progress{display:none;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid color-mix(in srgb,currentColor 28%,transparent)}
+.hero[data-working] .hero-progress{display:grid}
+.progress{height:8px;border-radius:99px;background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit;transition:width .4s ease-out}
+.progress-label{display:flex;justify-content:space-between;gap:12px;font-size:16px;font-weight:700}
+/* 홈: 내일 한 줄 */
+.next-row{display:flex;align-items:center;gap:14px;padding:6px 4px}
+.next-row .shift-ico{width:48px;height:48px;border-radius:12px;background:var(--bg,var(--inset));color:var(--fg,var(--muted))}
+.next-main{flex:1;min-width:0;display:grid;gap:2px}
+.next-name{font-size:20px;font-weight:800;letter-spacing:-.02em;order:-1}
+.shift-head{font-size:15px;color:var(--muted)}
+.next-hour{font-size:16px;font-weight:600;color:var(--body);text-align:right;line-height:1.4;max-width:52%}
+.shift-head{white-space:nowrap}
+/* 홈: 이후 일주일(근무 색 칸 7개) */
+.week-card{display:grid;gap:10px;margin-top:4px}
+.card-head{margin:0;font-size:18px;font-weight:800;padding:0 4px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{border:0;border-radius:12px;background:var(--bg,var(--inset));color:var(--fg,var(--ink));display:grid;justify-items:center;padding:8px 0 10px;gap:1px;min-height:84px}
+.day .w{font-size:13px;font-weight:600;opacity:.9}
+.day .n{font-size:22px;font-weight:800;line-height:1.2}
+.day .s{font-size:13px;font-weight:700}
+@media(hover:hover){.day:hover{filter:brightness(.96)}}
+.day:active{transform:scale(.97)}
+/* 근무표 달력: 날짜 아래 근무 색 칸 */
+.month-card{display:grid}
+.month-nav{display:flex;justify-content:space-between;align-items:center;padding:4px 4px 8px}
+.month-nav strong{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.month-buttons{display:flex;gap:4px}
+.month-buttons button{width:44px;height:44px;border:0;border-radius:12px;background:var(--inset);display:grid;place-items:center;color:var(--ink)}
 .week{display:grid;grid-template-columns:repeat(7,1fr)}
-.week div{text-align:center;font-size:12px;color:var(--sub);padding:6px 0}
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.calday{border:0;background:transparent;height:58px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:8px 0 0;color:var(--body)}
-@media(hover:hover){.calday:hover{background:var(--inset)}}
-.calnum{font-size:15px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}
-.calday.today .calnum{color:var(--blue);font-weight:700}
-.calday.sel,.calday.sel:hover{background:var(--blue-soft)}
-.calday.dim{opacity:.32}
-.tag{font-size:12px;font-weight:700;line-height:1.2;letter-spacing:-.02em}
-.editor{display:none}
+.week div{text-align:center;font-size:13px;font-weight:600;color:var(--muted);padding:4px 0 6px}
+.week div:first-child{color:var(--danger)}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px 3px}
+.calday{border:0;background:transparent;height:66px;border-radius:10px;display:grid;grid-template-rows:30px 1fr;justify-items:center;align-items:center;padding:2px 2px 4px;color:var(--ink)}
+.calnum{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;font-size:16px;font-weight:700}
+.calday.sun .calnum{color:var(--danger)}
+.calday.today .calnum{background:var(--ink);color:var(--page)}
+.calday .tag{width:100%;height:28px;border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--bg);color:var(--fg)}
+.calday.sel{box-shadow:inset 0 0 0 2.5px var(--ink)}
+.calday.dim{opacity:.3}
+.calday.dim .tag{visibility:hidden}
+@media(hover:hover){.calday:not(.sel):hover{background:var(--inset)}}
+.cal-hint{font-size:14px;color:var(--muted);text-align:center;margin:4px 0 0}
+html[data-readonly] .cal-hint{display:none}
+.editor{display:none;background:var(--inset);border-radius:16px;padding:18px 16px 16px}
 .editor.open{display:grid;gap:12px}
-.editor-title{font-size:19px;font-weight:700;letter-spacing:-.02em}
-.timezone-summary{font-size:13px;color:var(--muted);line-height:1.5;margin-top:-8px}
-.seg{display:grid;grid-template-columns:repeat(4,1fr);padding:4px;background:var(--inset);border-radius:14px}
-.seg button{border:0;background:transparent;height:40px;border-radius:10px;font-size:15px;font-weight:600;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--thumb);color:var(--ink);box-shadow:0 1px 4px rgba(0,23,51,.1)}
+.editor-title{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.timezone-summary{font-size:15px;color:var(--body);line-height:1.5;margin-top:-8px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg button{border:0;height:48px;border-radius:10px;background:var(--card);font-size:16px;font-weight:700;color:var(--body);box-shadow:inset 0 0 0 1px var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--page);box-shadow:none}
+#seg button[aria-pressed="true"][data-v="일"]{background:var(--b1);color:var(--f1)}#seg button[aria-pressed="true"][data-v="야"]{background:var(--b2);color:var(--f2)}#seg button[aria-pressed="true"][data-v="조"]{background:var(--b3);color:var(--f3)}#seg button[aria-pressed="true"][data-v="휴"]{background:var(--b4);color:var(--f4)}
 .editor-actions{display:grid;grid-template-columns:2fr 1fr;gap:8px}
-.cycle-view{display:flex;align-items:center;gap:8px}
-.cycle-chip{width:40px;height:40px;border-radius:12px;background:var(--inset);display:grid;place-items:center;font-size:16px;font-weight:700}
-.arrow{color:var(--sub);font-size:14px}
-/* 공통 부품 */
-.panel h3{margin:0 0 14px;font-size:17px;font-weight:700;letter-spacing:-.02em}
-.notice{font-size:12px;color:var(--sub);margin:12px 0 0;line-height:1.5}
+/* 버튼·입력 */
+button:disabled{opacity:.45;cursor:default}
+.primary,.secondary,.soft{height:52px;border:0;border-radius:12px;padding:0 18px;font-size:17px;font-weight:700}
+.primary{background:var(--ink);color:var(--page)}
+.secondary,.soft{background:var(--inset);color:var(--ink)}
+.editor .soft{background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}
+@media(hover:hover){.primary:hover{opacity:.88}}
+.primary:active,.secondary:active,.soft:active{transform:scale(.98)}
+.full{width:100%}
+.text-btn{background:none;border:0;padding:8px 0;min-height:36px;color:var(--link);font-size:15px;font-weight:600}
+.date-input,.select{width:100%;height:50px;border:0;border-radius:10px;background:var(--inset);padding:0 14px;font-size:16px;color:var(--ink);-webkit-appearance:none;appearance:none}
+.date-input::placeholder{color:var(--muted)}
+.date-input:disabled{color:var(--body);opacity:1}
+.select{padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23636a75' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+/* 공유·설정: 흰 목록 묶음 */
+.card,.panel,.invite{background:var(--card);border-radius:14px;padding:18px 16px}
+.panel h3,.invite h2{margin:0 0 12px;font-size:18px;font-weight:800;letter-spacing:-.02em}
+.h-sub{font-size:14px;font-weight:500;color:var(--muted);margin-left:4px}
+.notice{font-size:14px;color:var(--muted);margin:12px 0 0;line-height:1.5}
 .row{display:flex;gap:8px}
 .form-item{display:grid;gap:6px;flex:1;margin-bottom:12px;min-width:0}
-.setting-label{font-size:13px;font-weight:600;color:var(--muted)}
-.date-input,.select{width:100%;height:48px;border:0;border-radius:14px;background:var(--inset);padding:0 14px;font-size:15px;color:var(--ink);-webkit-appearance:none;appearance:none}
-.date-input:disabled{color:var(--body);opacity:1}
-.select{padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238b95a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
-button:disabled{opacity:.5;cursor:default}
-.primary,.secondary,.soft{height:52px;border:0;border-radius:14px;padding:0 18px;font-size:16px;font-weight:600}
-.primary{background:var(--blue);color:#fff}
-.secondary,.soft{background:var(--inset);color:var(--ink)}
-.full{width:100%}
-.invite h2{margin:0;font-size:20px;letter-spacing:-.02em}
-.invite p{margin:6px 0 0;font-size:14px;color:var(--muted);line-height:1.5}
-.invite-code{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--inset);border-radius:16px;padding:12px 12px 12px 18px;margin:16px 0 10px}
-.invite-code strong{font-size:22px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
-.invite-code button{border:0;height:40px;padding:0 16px;border-radius:12px;background:var(--blue);color:#fff;font-weight:600;font-size:14px}
-.invite-note{font-size:12px;color:var(--sub);line-height:1.5}
-.invite-code button{white-space:nowrap}.invite-code.empty strong{font-size:16px;letter-spacing:0;font-weight:500;color:var(--sub)}
-.invite-foot{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.invite-foot .text-btn{flex:none;padding:0;font-size:13px}
-.section-head{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 0}
-.section-head h2{margin:0;font-size:17px}
-.text-btn{background:none;border:0;padding:6px 0;color:var(--blue);font-size:14px;font-weight:600}
-.members{display:grid;gap:8px}
-.member{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--inset)}
-.avatar{width:40px;height:40px;border-radius:50%;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-weight:700;flex:none}
-.member-main{flex:1;display:grid;gap:2px;min-width:0}
-.member-main strong{font-size:15px}
-.member-main span{font-size:13px;color:var(--muted)}
-.role{font-size:12px;font-weight:600;color:var(--body);background:var(--card);padding:5px 9px;border-radius:999px}
-.bottom-spacer{height:4px}
-.steps{margin:14px 0 0;padding-left:20px;font-size:14px;color:var(--muted);line-height:1.6}.steps li+li{margin-top:4px}.steps code{font-size:13px;background:var(--inset);border-radius:6px;padding:1px 5px;color:var(--ink)}.acct-state{margin:-6px 0 14px;font-size:14px;color:var(--muted);line-height:1.5}
-.acct-login{display:grid;gap:8px}
-.join-row{display:grid;grid-template-columns:1fr auto;gap:8px}
-.join-row .date-input{letter-spacing:.12em;text-transform:uppercase;font-weight:700}
-#leaveBtn{margin-top:8px}
-#acctSignup{justify-self:center}
-html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly] .invite,html[data-readonly] #newInvite{display:none}
-/* 아래 탭 */
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);z-index:10;display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:var(--nav);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line)}
-.nav button{border:0;background:none;display:grid;justify-items:center;gap:3px;padding:6px 0;color:var(--sub);font-size:11px;font-weight:600}
-.nav button.active{color:var(--ink)}
-.toast{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,8px);opacity:0;transition:.2s;background:var(--ink);color:var(--card);padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;z-index:20;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30;display:none;align-items:flex-end;justify-content:center}
-.modal-back.open{display:flex}
-.sheet{width:min(480px,100%);background:var(--card);border-radius:28px 28px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))}
-.sheet h3{margin:0 0 6px;font-size:20px;letter-spacing:-.02em}
-.sheet p{margin:0;font-size:15px;color:var(--muted);line-height:1.5}
-.sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
-.demo{font-size:12px;color:var(--sub);margin-top:12px;text-align:center}
-
-/* ── v3 (2026-11-13): 토스 + 아이폰. 근무마다 색(칩·아이콘), 오늘은 파란 원, 설정은 아이폰식 목록, 긴 설명은 접기 ── */
-:root{--t1:color-mix(in srgb,var(--s1) 14%,var(--card));--t2:color-mix(in srgb,var(--s2) 14%,var(--card));--t3:color-mix(in srgb,var(--s3) 14%,var(--card));--t4:color-mix(in srgb,var(--s4) 14%,var(--card));--red:#f04452;--sat:#3182f6}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--t1:color-mix(in srgb,var(--s1) 20%,var(--card));--t2:color-mix(in srgb,var(--s2) 20%,var(--card));--t3:color-mix(in srgb,var(--s3) 20%,var(--card));--t4:color-mix(in srgb,var(--s4) 20%,var(--card));--red:#ff6b76;--sat:#6ea8ff}}
-.card,.panel,.invite{border-radius:22px}
-.screen{padding:4px 16px 28px}
-.topbar{height:52px}
-.logo{font-size:20px}
-.page-title{font-size:30px;font-weight:800;letter-spacing:-.035em}
-.panel h3{font-size:17px}
-.h-sub{font-size:13px;font-weight:500;color:var(--sub);margin-left:4px}
-/* 근무 아이콘 원 */
-.shift-ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;background:var(--inset);color:var(--sub)}
-.shift-ico.sm{width:40px;height:40px;border-radius:12px}
-.shift-ico .ico{width:22px;height:22px;display:none}
-[data-shift="일"] .shift-ico{background:var(--t1);color:var(--s1)}[data-shift="일"] .g-일{display:block}
-[data-shift="야"] .shift-ico{background:var(--t2);color:var(--s2)}[data-shift="야"] .g-야{display:block}
-[data-shift="조"] .shift-ico{background:var(--t3);color:var(--s3)}[data-shift="조"] .g-조{display:block}
-[data-shift="휴"] .shift-ico{background:var(--t4);color:var(--s4)}[data-shift="휴"] .g-휴{display:block}
-/* 홈: 오늘 */
-.hero{padding:20px 20px 22px}
-.hero-top{justify-content:flex-start}
-.hero-top .status-badge{margin-left:auto}
-.hero-label{font-size:15px;color:var(--body)}
-.today-name{font-size:44px;font-weight:800;margin-top:14px;color:var(--ink)}
-.hero[data-shift="일"] .today-name{color:var(--s1)}.hero[data-shift="야"] .today-name{color:var(--s2)}.hero[data-shift="조"] .today-name{color:var(--s3)}.hero[data-shift="휴"] .today-name{color:var(--s4)}
-.today-hour{font-size:17px;font-weight:500}
-.progress{height:10px}
-/* 홈: 내일 */
-.next-row{align-items:center;gap:14px;justify-content:flex-start}
-.next-main{flex:1;min-width:0}
-.next-name{font-size:20px;margin-top:2px}
-.next-hour{font-size:14px}
-/* 홈: 앞으로 5일 */
-.days{gap:8px}
-.day{border-radius:16px;padding:10px 0 10px;gap:4px;background:var(--inset)}
-.day:has(.tag-일){background:var(--t1)}.day:has(.tag-야){background:var(--t2)}.day:has(.tag-조){background:var(--t3)}.day:has(.tag-휴){background:var(--t4)}
-.day .s{font-size:20px}
-/* 근무표 달력: 근무는 색 칩, 오늘은 파란 원, 주말 색 */
-.calendar{gap:2px 4px}
-.calday{height:64px;gap:5px;padding-top:6px}
-.calnum{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;font-size:15px}
-.calday.sun .calnum{color:var(--red)}.calday.sat .calnum{color:var(--sat)}
-.calday.today .calnum{background:var(--blue);color:#fff}
-.calday.sel,.calday.sel:hover{background:transparent;box-shadow:inset 0 0 0 2px var(--blue)}
-.calday .tag{font-size:11px;padding:3px 0;width:min(40px,92%);text-align:center;border-radius:7px;background:var(--inset)}
-.calday .tag-일{background:var(--t1)}.calday .tag-야{background:var(--t2)}.calday .tag-조{background:var(--t3)}.calday .tag-휴{background:var(--t4)}
-.calday.dim{opacity:.35}
-.cycle-chip.tag-일{background:var(--t1)}.cycle-chip.tag-야{background:var(--t2)}.cycle-chip.tag-조{background:var(--t3)}.cycle-chip.tag-휴{background:var(--t4)}
-.seg button[aria-pressed="true"][data-v="일"]{color:var(--s1)}.seg button[aria-pressed="true"][data-v="야"]{color:var(--s2)}.seg button[aria-pressed="true"][data-v="조"]{color:var(--s3)}.seg button[aria-pressed="true"][data-v="휴"]{color:var(--s4)}
-/* 아이폰식 목록 */
-.list{display:grid;margin:-4px 0 -6px}
-.li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
-.li:first-child{border-top:0;padding-top:4px}
-.li-tag{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:14px;font-weight:700;flex:none}
-.li-tag.tag-일{background:var(--t1)}.li-tag.tag-야{background:var(--t2)}.li-tag.tag-조{background:var(--t3)}.li-tag.tag-휴{background:var(--t4)}
-.li-main{font-size:15px;font-weight:600}
-.li-val{margin-left:auto;font-size:14px;color:var(--body);text-align:right;font-variant-numeric:tabular-nums}
-/* 접는 설명 */
-.how{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
-.how summary{list-style:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--blue);display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.setting-label{font-size:14px;font-weight:600;color:var(--muted)}
+.list{display:grid}
+.li{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 0;border-top:1px solid var(--line)}
+.li:first-child{border-top:0}
+.li-tag,.cycle-chip{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:15px;font-weight:800;flex:none;background:var(--bg,var(--inset));color:var(--fg,var(--ink))}
+.li-main{font-size:17px;font-weight:600}
+.li-val{margin-left:auto;font-size:15px;color:var(--body);text-align:right}
+.cycle-view{display:flex;align-items:center;gap:8px}
+.cycle-chip{width:40px;height:40px;border-radius:10px;font-size:17px}
+.arrow{color:var(--muted);font-size:15px}
+.how{margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+.how summary{list-style:none;cursor:pointer;font-size:15px;font-weight:600;color:var(--link);display:flex;align-items:center;justify-content:space-between;min-height:40px}
 .how summary::-webkit-details-marker{display:none}
 .how summary::after{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin:0 4px 4px 0;transition:transform .2s}
 .how[open] summary::after{transform:rotate(-135deg);margin-bottom:-2px}
-.how .steps{margin-top:8px}
-/* 아래 탭: 아이폰처럼 고른 탭은 파랑 */
-.nav button.active{color:var(--blue)}
-.nav button.active .ico{stroke-width:2.4}
-.invite-code strong{font-size:24px}
-.shift-head{white-space:nowrap}
-.next-hour{max-width:52%;text-align:right}
-.calday.dim .tag{visibility:hidden}
-.calday.dim{opacity:.3}
-/* v0.8: 중복 정리 — 큰 제목이 있는 화면에서는 위 "교대온" 글자를 숨긴다(홈에서만 앱 이름) */
-body:not(:has(#screen-home.active)) .topbar{height:12px;overflow:hidden}
-body:not(:has(#screen-home.active)) .logo{visibility:hidden}
-/* 홈 오늘 카드도 위젯처럼 색 하나: 상태 배지·진행 막대·남은 시간을 오늘 근무 색으로 */
-.hero[data-shift="일"]{--tone:var(--s1);--tint:var(--t1)}.hero[data-shift="야"]{--tone:var(--s2);--tint:var(--t2)}.hero[data-shift="조"]{--tone:var(--s3);--tint:var(--t3)}.hero[data-shift="휴"]{--tone:var(--s4);--tint:var(--t4)}
-.hero[data-working] .status-badge{background:var(--tint,var(--blue-soft));color:var(--tone,var(--blue))}
-.hero .progress i{background:var(--tone,var(--blue))}
-.progress-label span:first-child{color:var(--tone,var(--blue))}
-/* 퇴근 후에는 '내일 ○○ 출근' 줄을 빼고 바로 아래 내일 카드로 보여 준다(같은 말 두 번 X) */
-.hero[data-state="퇴근 후"] .hero-sub{display:none}
-.member{border-radius:16px}
-
-/* 설정 > 화면에서 고른 밝기(자동이면 위 미디어 쿼리) */
-:root[data-theme="dark"]{--page:#0f1115;--card:#1a1d24;--inset:#232730;--thumb:#2c303a;--ink:#f2f4f6;--body:#b0b8c1;--muted:#8b95a1;--sub:#8b95a1;--line:#262a32;--blue:#4795ff;--blue-soft:color-mix(in srgb,#4795ff 18%,#1a1d24);--s1:#f0b04a;--s2:#b7a5ed;--s3:#8fc0ea;--s4:#5fd3a8;--shadow:none;--nav:rgba(22,25,31,.94);color-scheme:dark}
-:root[data-theme="dark"]{--t1:color-mix(in srgb,var(--s1) 20%,var(--card));--t2:color-mix(in srgb,var(--s2) 20%,var(--card));--t3:color-mix(in srgb,var(--s3) 20%,var(--card));--t4:color-mix(in srgb,var(--s4) 20%,var(--card));--red:#ff6b76;--sat:#6ea8ff}
-:root[data-theme="dark"]{color-scheme:dark}:root[data-theme="light"]{color-scheme:light}
-/* 근무 알람 */
-.alarm-time{margin-left:auto;height:36px;border:0;border-radius:10px;background:var(--inset);padding:0 10px;font-size:15px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
-.alarm-time:disabled{opacity:.45}
-.switch{position:relative;width:51px;height:31px;flex:none;margin-left:10px}
-.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
-.switch i{position:absolute;inset:0;border-radius:999px;background:color-mix(in srgb,var(--sub) 35%,var(--card));transition:background .2s;pointer-events:none}
-.switch i::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s}
-.switch input:checked+i{background:var(--blue)}
-.switch input:checked+i::after{transform:translateX(20px)}
-.switch input:focus-visible+i{outline:3px solid color-mix(in srgb,var(--blue) 50%,transparent);outline-offset:2px}
-.alarm-next{margin:14px 0 0;font-size:14px;font-weight:600;color:var(--ink)}
-.alarm-warn{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#f04452 12%,var(--card));color:#d22030;font-size:13px;line-height:1.45}
-html[data-readonly] #alarmPanel{display:none}
-
-/* ── v1.2 다듬기(unslop): 한 화면에 눈에 띄는 곳은 하나, 나머지는 조용히 ── */
-.page-title{font-weight:700}
-.today-name{font-weight:700}
-.hero{padding:20px 20px 24px}
-/* 앞으로 5일: 칸은 조용히, 근무 글자만 근무 색(오늘 카드가 주인공) */
-.day,.day:has(.tag-일),.day:has(.tag-야),.day:has(.tag-조),.day:has(.tag-휴){background:var(--inset)}
-.day .s{font-size:20px;font-weight:700}
-/* 근무 알람 */
-.alarm-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
-.alarm-head h3{margin:0}
-.alarm-next{display:flex;align-items:center;gap:12px;padding:16px;border-radius:16px;background:var(--inset)}
-.alarm-next .shift-ico{width:48px;height:48px;border-radius:14px;background:var(--card)}
-.alarm-next[data-shift="일"]{background:var(--t1)}.alarm-next[data-shift="야"]{background:var(--t2)}.alarm-next[data-shift="조"]{background:var(--t3)}.alarm-next[data-shift="휴"]{background:var(--t4)}
-.alarm-next[data-shift] .shift-ico{background:var(--card)}
-.alarm-next .shift-ico .g-none{display:none}.alarm-next:not([data-shift]) .shift-ico .g-none{display:block;color:var(--sub)}
-.alarm-next-text{display:grid;gap:2px;min-width:0}
-.alarm-next-cap{font-size:13px;color:var(--muted)}
-.alarm-next b{font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.alarm-next:not([data-shift]) b{font-size:15px;font-weight:600;color:var(--body)}
-.alarm-next-sub{font-size:13px;color:var(--body)}
-.alarm-next-sub:empty{display:none}
-.alarm-list{margin:12px 0 -4px}
-.alarm-row .li-main{flex:1}
-.alarm-time{margin-left:0;height:32px;padding:0 12px;border-radius:999px;font-size:15px;font-weight:600}
-.alarm-time::-webkit-calendar-picker-indicator{display:none}
-.alarm-off{font-size:14px;color:var(--sub);display:none}
-.alarm-row:has(input[type=checkbox]:not(:checked)) .alarm-time{display:none}
-.alarm-row:has(input[type=checkbox]:not(:checked)) .alarm-off{display:inline}
-.alarm-warn{margin:12px 0 0}
-/* 공유받는 사람 이름 */
-.viewer-name{display:flex;align-items:center;gap:8px;padding:12px 0;margin-bottom:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.viewer-name span{font-size:14px;color:var(--muted)}
-.viewer-name b{margin-left:auto;font-size:15px}
-.rename-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin:-4px 0 12px}
-.member .kick{margin-left:auto;font-size:13px;color:var(--muted);font-weight:600}
-/* 공유받은 사람(읽기 전용) 화면 */
+.steps{margin:8px 0 0;padding-left:20px;font-size:15px;color:var(--body);line-height:1.6}.steps li+li{margin-top:4px}.steps code{font-size:14px;background:var(--inset);border-radius:6px;padding:1px 5px;color:var(--ink)}
+.acct-state{margin:-4px 0 14px;font-size:15px;color:var(--body);line-height:1.5}
+.acct-login{display:grid;gap:8px}
+#acctSignup{justify-self:center}
+/* 공유 */
+.invite p{margin:-6px 0 0;font-size:15px;color:var(--body);line-height:1.5}
+.invite-code{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--inset);border-radius:12px;padding:10px 10px 10px 18px;margin:14px 0 10px}
+.invite-code strong{font-size:28px;font-weight:800;letter-spacing:.1em}
+.invite-code.empty strong{font-size:17px;letter-spacing:0;font-weight:600;color:var(--muted)}
+.invite-code button{border:0;height:44px;padding:0 16px;border-radius:10px;background:var(--ink);color:var(--page);font-weight:700;font-size:16px;white-space:nowrap}
+.invite-foot{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.invite-note{font-size:14px;color:var(--muted);line-height:1.5}
+.invite-foot .text-btn{flex:none;padding:0;min-height:0}
+.join-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+.join-row .date-input{letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.join-row .primary{height:50px;min-width:76px}
+.section-head{padding:12px 4px 0}
+.section-head h2{margin:0;font-size:15px;font-weight:600;color:var(--muted)}
+.members{display:grid}
+.member{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 0;border-top:1px solid var(--line)}
+.member:first-child{border-top:0;padding-top:0}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--inset);color:var(--ink);display:grid;place-items:center;font-weight:800;font-size:16px;flex:none}
+.member-main{flex:1;display:grid;gap:2px;min-width:0}
+.member-main strong{font-size:17px;font-weight:700}
+.member-main span{font-size:14px;color:var(--muted)}
+.role{font-size:14px;color:var(--muted)}
+.member .kick{margin-left:auto;font-size:15px;color:var(--danger);font-weight:600}
+.bottom-spacer{height:4px}
+#leaveBtn{margin-top:4px;color:var(--danger)}
+html[data-readonly] #editor,html[data-readonly] #patternPanel,html[data-readonly] .invite,html[data-readonly] #newInvite{display:none}
 .t-viewer,#viewerPanel{display:none}
 html[data-readonly] .t-owner{display:none}html[data-readonly] .t-viewer{display:inline}
 html[data-readonly] #viewerPanel{display:block}
-html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readonly] #membersPanel,html[data-readonly] #screen-family .page-sub{display:none}
-.viewer-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.viewer-ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;background:var(--blue-soft);color:var(--blue)}
-.viewer-text b{display:block;font-size:16px;letter-spacing:-.02em}
-.viewer-text small{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
+html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readonly] #membersPanel{display:none}
+.viewer-top{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.viewer-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--inset);color:var(--ink)}
+.viewer-text b{display:block;font-size:17px;font-weight:700}
+.viewer-text small{display:block;font-size:14px;color:var(--muted);margin-top:3px;line-height:1.45}
+.viewer-name{display:flex;align-items:center;gap:8px;min-height:52px;margin-bottom:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.viewer-name span{font-size:15px;color:var(--muted)}
+.viewer-name b{margin-left:auto;font-size:17px}
+.rename-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin:-4px 0 12px}
+/* 근무 알람 */
+.alarm-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.alarm-head h3{margin:0}
+.alarm-next{display:flex;align-items:center;gap:14px;padding:16px;border-radius:12px;background:var(--bg,var(--inset));color:var(--fg,var(--ink))}
+.alarm-next .shift-ico{width:44px;height:44px;border-radius:10px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.alarm-next .shift-ico .g-none{display:none}.alarm-next:not([data-shift]) .shift-ico .g-none{display:block;color:var(--muted)}
+.alarm-next-text{display:grid;gap:2px;min-width:0}
+.alarm-next-cap{font-size:14px;font-weight:600;opacity:.85}
+.alarm-next b{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.alarm-next:not([data-shift]) b{font-size:17px;font-weight:700}
+.alarm-next-sub{font-size:15px;font-weight:600}
+.alarm-next-sub:empty{display:none}
+.alarm-warn{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--danger) 12%,var(--card));color:var(--danger);font-size:14px;line-height:1.45}
+.alarm-list{margin:8px 0 -4px}
+.alarm-row .li-main{flex:1}
+.alarm-time{height:36px;border:0;border-radius:8px;background:var(--inset);padding:0 10px;font-size:17px;font-weight:600;color:var(--ink)}
+.alarm-time::-webkit-calendar-picker-indicator{display:none}
+.alarm-off{font-size:15px;color:var(--muted);display:none}
+.alarm-row:has(input[type=checkbox]:not(:checked)) .alarm-time{display:none}
+.alarm-row:has(input[type=checkbox]:not(:checked)) .alarm-off{display:inline}
+.switch{position:relative;width:51px;height:31px;flex:none;margin-left:6px}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.switch i{position:absolute;inset:0;border-radius:999px;background:color-mix(in srgb,var(--muted) 35%,var(--card));transition:background .2s;pointer-events:none}
+.switch i::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s}
+.switch input:checked+i{background:var(--on)}
+.switch input:checked+i::after{transform:translateX(20px)}
+.switch input:focus-visible+i{outline:3px solid color-mix(in srgb,var(--link) 55%,transparent);outline-offset:2px}
+html[data-readonly] #alarmPanel{display:none}
+#themeSeg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+.version{font-size:14px;color:var(--muted);text-align:center;margin:8px 0 0}
+/* 아래 탭 */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);z-index:10;display:grid;grid-template-columns:repeat(4,1fr);padding:4px 8px calc(4px + env(safe-area-inset-bottom));background:var(--nav);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+.nav button{border:0;background:none;display:grid;justify-items:center;gap:2px;min-height:56px;align-content:center;color:var(--muted);font-size:12px;font-weight:600}
+.nav button.active{color:var(--ink)}
+.nav button.active .ico{stroke-width:2.5}
+/* 알림·창 */
+.toast{position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,8px);opacity:0;transition:opacity .2s,transform .2s;background:var(--ink);color:var(--page);padding:12px 18px;border-radius:12px;font-size:15px;font-weight:600;z-index:20;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:none;align-items:flex-end;justify-content:center}
+.modal-back.open{display:flex}
+.sheet{width:min(480px,100%);background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 6px;font-size:21px;font-weight:800;letter-spacing:-.02em}
+.sheet p{margin:0;font-size:16px;color:var(--body);line-height:1.5}
+.sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.demo{font-size:14px;color:var(--muted);margin-top:12px;text-align:center}
 </style></head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -310,11 +250,11 @@ html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readon
 <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
 </defs></svg>
 <div class="app">
-<header class="topbar"><div class="logo">교대온</div><div class="top-actions"><button class="round" id="topShare" aria-label="근무표 공유" hidden></button><button class="round" id="topSettings" aria-label="설정" hidden></button></div></header>
+<header class="topbar"><div class="logo">교대온</div><span class="home-date" id="homeDate"></span><div class="top-actions"><button class="round" id="topShare" aria-label="근무표 공유" hidden></button><button class="round" id="topSettings" aria-label="설정" hidden></button></div></header>
 <main>
 <section class="screen active" id="screen-home">
-<h1 class="sr">오늘·내일 근무</h1>
-<div class="card hero" id="hero">
+<h1 class="sr">오늘 근무</h1>
+<div class="hero" id="hero">
 <div class="hero-top"><span class="shift-ico" aria-hidden="true"><svg class="ico g-일"><use href="#i-sun"/></svg><svg class="ico g-야"><use href="#i-moon"/></svg><svg class="ico g-조"><use href="#i-sunrise"/></svg><svg class="ico g-휴"><use href="#i-coffee"/></svg></span><span class="hero-label" id="todayHead">오늘</span><span class="status-badge" id="heroTitle">근무 상태</span></div>
 <div class="today-name" id="todayShiftName">—</div>
 <div class="today-hour" id="todayShiftHour">—</div>
@@ -322,18 +262,19 @@ html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readon
 <div class="hero-progress"><div class="progress"><i id="progressFill"></i></div><div class="progress-label"><span id="progressFrom"></span><span id="progressTo"></span></div></div>
 <span hidden><span id="datePill"></span><span id="heroLabel"></span><span id="heroBadge"></span><span id="nextLabel"></span><span id="nextTime"></span></span>
 </div>
-<div class="card next-row" id="nextCard"><span class="shift-ico sm" aria-hidden="true"><svg class="ico g-일"><use href="#i-sun"/></svg><svg class="ico g-야"><use href="#i-moon"/></svg><svg class="ico g-조"><use href="#i-sunrise"/></svg><svg class="ico g-휴"><use href="#i-coffee"/></svg></span><div class="next-main"><div class="shift-head" id="tomorrowHead">내일</div><div class="next-name" id="tomorrowShiftName">—</div></div><div class="next-hour" id="tomorrowShiftHour">—</div></div>
-<div class="card"><div class="card-head"><span>앞으로 5일</span></div><div class="days" id="week5"></div></div>
+<div class="next-row" id="nextCard"><span class="shift-ico sm" aria-hidden="true"><svg class="ico g-일"><use href="#i-sun"/></svg><svg class="ico g-야"><use href="#i-moon"/></svg><svg class="ico g-조"><use href="#i-sunrise"/></svg><svg class="ico g-휴"><use href="#i-coffee"/></svg></span><div class="next-main"><div class="shift-head" id="tomorrowHead">내일</div><div class="next-name" id="tomorrowShiftName">—</div></div><div class="next-hour" id="tomorrowShiftHour">—</div></div>
+<div class="week-card"><h2 class="card-head">이후 일주일</h2><div class="days" id="week5"></div></div>
 <div class="quick-hidden"><span id="iosStatus">—</span><span id="iosToday">—</span><span id="iosTomorrow">—</span><span id="androidStatus">—</span><span id="androidToday">—</span><span id="androidTomorrow">—</span></div>
 </section>
 <section class="screen" id="screen-calendar">
-<div class="page-head"><div class="page-title">근무표</div><p class="page-sub">날짜를 누르면 그날 근무를 바꿀 수 있어요</p></div>
-<div class="card month-card">
+<div class="page-head"><h1 class="page-title">근무표</h1></div>
+<div class="month-card">
 <div class="month-nav"><strong id="monthTitle">—</strong><div class="month-buttons"><button id="prevMonth" aria-label="이전 달"><svg class="ico s" aria-hidden="true"><use href="#i-left"/></svg></button><button id="nextMonth" aria-label="다음 달"><svg class="ico s" aria-hidden="true"><use href="#i-right"/></svg></button></div></div>
 <div class="week" id="week"></div>
 <div class="calendar" id="calendar"></div>
 </div>
-<div class="card editor" id="editor">
+<p class="cal-hint">날짜를 누르면 그날 근무를 바꿀 수 있어요</p>
+<div class="editor" id="editor">
 <div class="editor-title" id="editorTitle">날짜 근무 수정</div>
 <div class="timezone-summary" id="timezoneSummary"></div>
 <div class="seg" id="seg" role="group" aria-label="근무 선택"><button type="button" data-v="일">일근</button><button type="button" data-v="야">야근</button><button type="button" data-v="조">조근</button><button type="button" data-v="휴">휴무</button></div>
@@ -342,16 +283,16 @@ html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readon
 </div>
 </section>
 <section class="screen" id="screen-family">
-<div class="page-head"><div class="page-title"><span class="t-owner">근무표 공유</span><span class="t-viewer">공유받은 근무표</span></div><p class="page-sub">초대 코드를 보내면 받은 사람이 내 근무표를 볼 수 있어요</p></div>
+<div class="page-head"><h1 class="page-title"><span class="t-owner">공유</span><span class="t-viewer">공유받은 근무표</span></h1></div>
 <div class="panel" id="viewerPanel"><div class="viewer-top"><span class="viewer-ico" aria-hidden="true"><svg class="ico"><use href="#i-users"/></svg></span><div class="viewer-text"><b>다른 사람의 근무표를 보고 있어요</b><small>주인이 근무를 바꾸면 바로 반영돼요. 볼 수만 있어요.</small></div></div><div class="viewer-name"><span>주인에게 보이는 이름</span><b id="viewerName">이름 없음</b><button class="text-btn" id="viewerRename">바꾸기</button></div><div class="rename-row" id="renameRow" hidden><input class="date-input" id="renameInput" maxlength="20" aria-label="새 이름"><button class="primary" id="renameSave">저장</button></div><button class="secondary full" id="leaveBtn" hidden>연결 끊기</button><p class="notice">다른 근무표를 보려면 연결을 끊고 새 초대 코드를 넣어 주세요.</p></div>
 <div class="invite"><h2>내 근무표 공유하기</h2><p>받은 사람은 볼 수만 있고, 수정과 초대 관리는 나만 할 수 있어요</p><div class="invite-code"><strong id="inviteCode">아직 코드가 없어요</strong><button id="copyCode">코드 만들기</button></div><div class="invite-foot"><span class="invite-note" id="inviteInfo">코드는 화면 시연용이에요. 실제 앱에서는 안전한 초대 코드로 연결돼요</span><button class="text-btn" id="newInvite" hidden>새 코드</button></div></div>
-<div class="panel" id="joinPanel"><h3>다른 사람 근무표 보기</h3><p class="page-sub" style="margin:-4px 0 16px">받은 초대 코드와, 주인에게 보일 내 이름을 넣어 주세요</p><input class="date-input full" id="joinName" maxlength="20" autocomplete="nickname" placeholder="내 이름 (예: 엄마, 김교대)" aria-label="주인에게 보일 내 이름" style="margin-bottom:8px"><div class="join-row"><input class="date-input" id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC234" aria-label="초대 코드"><button class="primary" id="joinBtn">보기</button></div></div>
+<div class="panel" id="joinPanel"><h3>다른 사람 근무표 보기</h3><p class="page-sub" style="margin:-6px 0 14px">받은 초대 코드와, 주인에게 보일 내 이름을 넣어 주세요</p><input class="date-input full" id="joinName" maxlength="20" autocomplete="nickname" placeholder="내 이름 (예: 엄마, 김교대)" aria-label="주인에게 보일 내 이름" style="margin-bottom:8px"><div class="join-row"><input class="date-input" id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC234" aria-label="초대 코드"><button class="primary" id="joinBtn">보기</button></div></div>
 <div class="section-head" id="membersHead"><h2>공유받는 사람</h2></div>
 <div class="panel" id="membersPanel"><div class="members" id="members"><div class="member"><div class="avatar">나</div><div class="member-main"><strong>나</strong><span>근무표 수정과 초대를 관리해요</span></div><span class="role">관리자</span></div></div><p class="notice" id="membersEmpty">초대 코드를 넣은 사람이 여기에 보여요</p></div>
 <div class="bottom-spacer"></div>
 </section>
 <section class="screen" id="screen-settings">
-<div class="page-head"><div class="page-title">설정</div><p class="page-sub">계정, 반복 주기, 알람을 정해요</p></div>
+<div class="page-head"><h1 class="page-title">설정</h1></div>
 <div class="panel" id="acctPanel"><h3>계정</h3><p class="acct-state" id="acctState">로그인하면 근무표가 저장되고 다른 사람과 공유할 수 있어요.</p><div class="acct-login" id="acctLogin"><input class="date-input full" id="acctEmail" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소" aria-label="이메일 주소"><input class="date-input full" id="acctPass" type="password" autocomplete="current-password" minlength="6" placeholder="비밀번호(6자 이상)" aria-label="비밀번호"><button class="primary full" id="acctSend">로그인</button><button class="text-btn" id="acctSignup">처음이면 가입하기</button></div><button class="secondary full" id="acctOut" hidden>로그아웃</button></div>
 <div class="panel" id="patternPanel"><h3>반복 주기 기준</h3><div class="row"><div class="form-item"><label class="setting-label" for="anchorDate">기준 날짜</label><input class="date-input full" id="anchorDate" type="date"></div><div class="form-item"><label class="setting-label" for="anchorShift">그날 근무</label><select class="select full" id="anchorShift"><option value="일">일근</option><option value="야">야근</option><option value="조">조근</option><option value="휴">휴무</option></select></div></div><button class="primary full" id="savePattern">패턴 저장</button><div class="cycle-view" style="margin-top:14px"><span class="cycle-chip tag-일">일</span><span class="arrow">›</span><span class="cycle-chip tag-야">야</span><span class="arrow">›</span><span class="cycle-chip tag-조">조</span><span class="arrow">›</span><span class="cycle-chip tag-휴">휴</span><span class="arrow" aria-label="반복">↻</span></div><p class="notice">기준 날짜의 근무를 고르면 이 순서로 반복돼요. 날짜는 한국 기준, 시간은 이 기기 시간대로 보여 줘요.</p></div>
 <div class="panel" id="alarmPanel" hidden><div class="alarm-head"><h3>근무 알람</h3><button class="text-btn" id="alarmTest">5초 뒤 울려 보기</button></div><div class="alarm-next" id="alarmNextCard"><span class="shift-ico" aria-hidden="true"><svg class="ico g-일"><use href="#i-sun"/></svg><svg class="ico g-야"><use href="#i-moon"/></svg><svg class="ico g-조"><use href="#i-sunrise"/></svg><svg class="ico g-휴"><use href="#i-coffee"/></svg><svg class="ico g-none"><use href="#i-bell"/></svg></span><div class="alarm-next-text"><span class="alarm-next-cap">다음 알람</span><b id="alarmNext">켜 둔 알람이 없어요</b><span class="alarm-next-sub" id="alarmNextSub"></span></div></div><div class="alarm-warn" id="alarmWarn" hidden><span id="alarmWarnText"></span><button class="text-btn" id="alarmFix">켜기</button></div><div class="list alarm-list"><div class="li alarm-row" data-s="일"><span class="li-tag tag-일">일</span><span class="li-main">일근</span><input class="alarm-time" type="time" data-s="일" value="06:30" aria-label="일근 알람 시각"><span class="alarm-off">꺼짐</span><label class="switch"><input type="checkbox" data-s="일" aria-label="일근 알람 켜기"><i></i></label></div><div class="li alarm-row" data-s="야"><span class="li-tag tag-야">야</span><span class="li-main">야근</span><input class="alarm-time" type="time" data-s="야" value="15:30" aria-label="야근 알람 시각"><span class="alarm-off">꺼짐</span><label class="switch"><input type="checkbox" data-s="야" aria-label="야근 알람 켜기"><i></i></label></div><div class="li alarm-row" data-s="조"><span class="li-tag tag-조">조</span><span class="li-main">조근</span><input class="alarm-time" type="time" data-s="조" value="05:30" aria-label="조근 알람 시각"><span class="alarm-off">꺼짐</span><label class="switch"><input type="checkbox" data-s="조" aria-label="조근 알람 켜기"><i></i></label></div><div class="li alarm-row" data-s="휴"><span class="li-tag tag-휴">휴</span><span class="li-main">휴무</span><input class="alarm-time" type="time" data-s="휴" value="09:00" aria-label="휴무 알람 시각"><span class="alarm-off">꺼짐</span><label class="switch"><input type="checkbox" data-s="휴" aria-label="휴무 알람 켜기"><i></i></label></div></div><p class="notice">한국 시간 기준이에요. 알람 소리 크기를 따르고, 무음·진동 모드에서도 울려요</p></div>
@@ -359,7 +300,7 @@ html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readon
 <div class="panel"><h3>근무 시간 <span class="h-sub">한국 시간</span></h3><div class="list"><div class="li"><span class="li-tag tag-일">일</span><span class="li-main">일근</span><span class="li-val">08:30 – 17:30</span></div><div class="li"><span class="li-tag tag-야">야</span><span class="li-main">야근</span><span class="li-val">17:30 – 다음 날 08:30</span></div><div class="li"><span class="li-tag tag-조">조</span><span class="li-main">조근</span><span class="li-val">야근이 이어져 08:30 퇴근</span></div><div class="li"><span class="li-tag tag-휴">휴</span><span class="li-main">휴무</span><span class="li-val">쉬는 날</span></div></div></div>
 <div class="panel" id="lockPanel" data-web-only><h3>아이폰 잠금 화면 위젯</h3><p class="page-sub" style="margin:0 0 14px" id="lockState">잠금 화면에 오늘 근무가 늘 보여요. 무료 앱 Scriptable을 써요.</p><button class="primary full" id="lockCopy">위젯 코드 복사</button><textarea class="date-input full" id="lockCode" readonly hidden aria-label="위젯 코드" style="margin-top:10px;height:120px;font-size:12px;padding:10px"></textarea><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>App Store에서 무료 앱 <b>Scriptable</b>을 받아요.</li><li>위 버튼으로 위젯 코드를 복사해요.</li><li>Scriptable에서 <b>+</b>를 누르고 붙여 넣은 뒤, 위쪽 제목을 <b>교대온</b>으로 바꿔요.</li><li>잠금 화면을 길게 누르고 <b>사용자화</b> → 잠금 화면 → 시계 아래 위젯 칸 → <b>Scriptable</b>에서 직사각형을 넣어요.</li><li>넣은 위젯을 누르고 <b>Script</b>에서 <b>교대온</b>을 골라요.</li></ol></details><p class="notice">홈 화면에도 같은 방법으로 Scriptable 위젯(작은·중간)을 놓을 수 있어요. 아이폰이 새로 그리는 때를 정하므로 몇 분 늦게 바뀔 수 있어요. 코드에는 내 근무표를 읽는 열쇠가 들어 있어요.</p></div>
 <div class="panel" id="iosPanel" data-web-only><h3>아이폰 제어 센터 버튼</h3><p class="page-sub" style="margin:0 0 14px" id="iosState">단축어를 만들면 제어 센터 버튼을 눌러 오늘·내일 근무를 알림으로 볼 수 있어요.</p><button class="secondary full" id="iosCopy">단축어 주소 복사</button><input class="date-input full" id="iosUrl" readonly hidden aria-label="단축어 주소" style="margin-top:10px"><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>위 버튼으로 주소를 복사해요.</li><li>단축어 앱에서 <b>+</b>를 누르고 <b>URL 콘텐츠 가져오기</b>를 넣은 뒤 주소를 붙여 넣어요.</li><li><b>사전 값 가져오기</b>를 넣고 키에 <code>today</code>(오늘), <code>tomorrow</code>(내일), <code>text</code>(둘 다) 중 하나를 적어요.</li><li><b>알림 보기</b>를 넣고 단축어 이름을 “오늘 근무”처럼 정해요.</li><li>제어 센터를 열고 왼쪽 위 <b>+</b> → <b>제어 항목 추가</b> → <b>단축어</b>에서 방금 만든 단축어를 골라요.</li></ol></details><p class="notice">주소에는 내 근무표를 읽는 열쇠가 들어 있어요. 믿는 사람에게만 알려 주세요. 오늘·내일을 따로 두려면 단축어를 두 개 만들면 돼요.</p></div>
-<p class="notice" style="text-align:center">교대온 v1.2</p>
+<p class="version">교대온 2.0</p>
 </section>
 </main>
 <nav class="nav" aria-label="주요 메뉴">
@@ -373,8 +314,8 @@ html[data-readonly] #joinPanel,html[data-readonly] #membersHead,html[data-readon
 </div>
 <script src="config.js"></script>
 <script>
-(()=>{const cycle=['일','야','조','휴'],names={일:'일근',야:'야근',조:'조근',휴:'휴무'},key='shift-on-mobile-ui-v1';const KST='Asia/Seoul';let now=new Date();const deviceTimeZone=Intl.DateTimeFormat().resolvedOptions().timeZone||KST;function zonedParts(d,tz){const out={};for(const p of new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d))if(p.type!=='literal')out[p.type]=p.value;return out}function kstDate(d){const p=zonedParts(d,KST);return `${p.year}-${p.month}-${p.day}`}function dateKeyUTC(d){return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`}function addDays(key,n){const [y,m,d]=key.split('-').map(Number),x=new Date(Date.UTC(y,m-1,d+n));return dateKeyUTC(x)}function monthStart(key){const [y,m]=key.split('-').map(Number);return new Date(Date.UTC(y,m-1,1))}const fmt=dateKeyUTC;let data={anchor:kstDate(now),anchorShift:'일',overrides:{},invite:'',month:monthStart(kstDate(now)),selected:null};try{Object.assign(data,JSON.parse(localStorage.getItem(key)||'{}'))}catch{};data.month=monthStart(kstDate(now));let toastTimer;const $=s=>document.querySelector(s);function diffDays(a,b){const [ay,am,ad]=a.split('-').map(Number),[by,bm,bd]=b.split('-').map(Number);return (Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000}function mod(n,m){return((n%m)+m)%m}function shiftOn(date){if(data.overrides?.[date])return data.overrides[date];return cycle[mod(cycle.indexOf(data.anchorShift)+diffDays(date,data.anchor),4)]}function dateShift(d){return names[shiftOn(d)]}function tomorrowIso(d=new Date()){return addDays(kstDate(d),1)}function kstInstant(date,time){const [y,m,day]=date.split('-').map(Number),[h,min]=time.split(':').map(Number);return new Date(Date.UTC(y,m-1,day,h-9,min))}function shiftInstants(date,shift){if(shift==='일')return[kstInstant(date,'08:30'),kstInstant(date,'17:30')];if(shift==='야')return[kstInstant(date,'17:30'),kstInstant(addDays(date,1),'08:30')];if(shift==='조')return[kstInstant(addDays(date,-1),'17:30'),kstInstant(date,'08:30')];return null}function dateTimeInZone(d,tz){const p=zonedParts(d,tz);return `${Number(p.month)}/${Number(p.day)} ${p.hour}:${p.minute}`}function timeInZone(d,tz){const p=zonedParts(d,tz);return `${p.hour}:${p.minute}`}function rangeInZone(date,shift,tz){const pair=shiftInstants(date,shift);if(!pair)return '휴무';const [a,b]=pair,pa=zonedParts(a,tz),pb=zonedParts(b,tz),cross=pa.year!==pb.year||pa.month!==pb.month||pa.day!==pb.day;return cross||tz!==KST?`${dateTimeInZone(a,tz)}–${dateTimeInZone(b,tz)}`:`${timeInZone(a,tz)}–${timeInZone(b,tz)}`}function localShiftRange(date,shift){if(deviceTimeZone===KST&&(shift==='야'||shift==='조')){const[x,y]=shiftInstants(date,shift);return shift==='야'?`${timeInZone(x,KST)} – 다음 날 ${timeInZone(y,KST)}`:`전날 ${timeInZone(x,KST)} – ${timeInZone(y,KST)}`}return rangeInZone(date,shift,deviceTimeZone)}function timezoneSummary(date,shift){if(shift==='휴')return '한국 기준 휴무';const kr=rangeInZone(date,shift,KST);return deviceTimeZone===KST?`한국 시간 ${kr}`:`한국 ${kr} · 휴대폰 현지 ${localShiftRange(date,shift)}`}function showToast(text){const el=$('#toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1800)}function afterWork(tom){const ts=shiftOn(tom);if(ts==='휴')return{title:'퇴근 후',sub:'내일은 휴무',working:false,next:'휴무'};const start=timeInZone(shiftInstants(tom,ts)[0],deviceTimeZone);return{title:'퇴근 후',sub:`내일 ${names[ts]} · ${start} 출근`,working:false,next:start}}function workState(d){const date=kstDate(d),p=zonedParts(d,KST),mins=Number(p.hour)*60+Number(p.minute),s=shiftOn(date),tom=addDays(date,1),clock=(day,time)=>timeInZone(kstInstant(day,time),deviceTimeZone);if(s==='일'&&mins>=510&&mins<1050)return{title:'일근 중',sub:`오늘 ${clock(date,'17:30')} 퇴근`,working:true,next:clock(date,'17:30')};if(s==='야'&&mins>=1050)return{title:'야근 중',sub:`내일 ${clock(tom,'08:30')} 퇴근`,working:true,next:clock(tom,'08:30')};if(s==='조'&&mins<510)return{title:'야근 중',sub:`오늘 ${clock(date,'08:30')} 퇴근`,working:true,next:clock(date,'08:30')};if(s==='일'&&mins<510)return{title:'근무 전',sub:`오늘 ${clock(date,'08:30')} 출근`,working:false,next:clock(date,'08:30')};if(s==='야'&&mins<1050)return{title:'근무 전',sub:`오늘 ${clock(date,'17:30')} 야근 시작`,working:false,next:clock(date,'17:30')};if(s==='일'||s==='조')return afterWork(tom);return{title:'휴무',sub:'오늘은 쉬는 날',working:false,next:'다음 근무 확인'}}const WD=['일','월','화','수','목','금','토'];function wd(k){return WD[new Date(k+'T00:00:00Z').getUTCDay()]}function openDate(k){data.month=monthStart(k);setScreen('calendar');renderCalendar();document.querySelector(`.calday[data-date="${k}"]`)?.click()}function syncSeg(){const v=$('#editShift').value;document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)))}function renderHome(){const date=kstDate(now),tom=tomorrowIso(now),state=workState(now),today=shiftOn(date),next=shiftOn(tom);const dp=zonedParts(now,KST);$('#datePill').textContent=`한국 ${Number(dp.month)}월 ${Number(dp.day)}일 ${['일','월','화','수','목','금','토'][new Date(Date.UTC(Number(dp.year),Number(dp.month)-1,Number(dp.day))).getUTCDay()]}`;$('#heroTitle').textContent=state.working?'근무 중':state.title;$('#heroSub').textContent=state.sub;$('#heroBadge').textContent=state.working?'근무 중':'근무 아님';$('#hero').toggleAttribute('data-working',state.working);$('#hero').dataset.state=state.title;$('#hero').dataset.shift=today;$('#nextCard').dataset.shift=next;$('#heroTitle').hidden=today==='휴';$('#nextLabel').textContent=state.working?'다음 퇴근':'다음 출근';$('#nextTime').textContent=state.next;const pair=state.working?shiftInstants(date,today):null;if(pair){const[a,b]=pair,pct=Math.max(0,Math.min(100,(now-a)/(b-a)*100));$('#progressFill').style.width=pct.toFixed(1)+'%';const left=Math.max(0,Math.round((b-now)/60000)),lh=Math.floor(left/60),lm=left%60;$('#progressFrom').textContent=(lh?`${lh}시간 `:'')+(lm||!lh?`${lm}분 `:'')+'남음';$('#progressTo').textContent=`${timeInZone(b,deviceTimeZone)} 퇴근`}$('#todayHead').textContent=`오늘 · ${Number(date.slice(-2))}일 ${wd(date)}`;$('#tomorrowHead').textContent=`내일 · ${Number(tom.slice(-2))}일 ${wd(tom)}`;let w5='';for(let i=2;i<=6;i++){const k=addDays(date,i),x=shiftOn(k);w5+=`<button type="button" class="day" data-date="${k}" aria-label="${Number(k.slice(5,7))}월 ${Number(k.slice(-2))}일 ${names[x]}"><span class="w">${wd(k)}</span><span class="s tag-${x}">${names[x][0]}</span><span class="n">${Number(k.slice(-2))}</span></button>`}$('#week5').innerHTML=w5;document.querySelectorAll('#week5 .day').forEach(b=>b.onclick=()=>openDate(b.dataset.date));$('#todayShiftName').textContent=names[today];$('#todayShiftHour').textContent=today==='휴'?'':localShiftRange(date,today).replace(/ /g,'\u00a0').replace('–','–\u200b');$('#tomorrowShiftName').textContent=names[next];$('#tomorrowShiftHour').textContent=next==='휴'?'':localShiftRange(tom,next).replace(/ /g,'\u00a0').replace('–','–\u200b');const mini=state.working?'근무 중':state.title==='휴무'?'휴무':'근무 아님';$('#iosStatus').textContent=mini;$('#androidStatus').textContent=mini;$('#iosToday').textContent=names[today];$('#androidToday').textContent=names[today];$('#iosTomorrow').textContent=names[next];$('#androidTomorrow').textContent=names[next]}
-function renderCalendar(){const m=data.month,y=m.getUTCFullYear(),mo=m.getUTCMonth();$('#monthTitle').textContent=`${y}년 ${mo+1}월`;$('#week').innerHTML=['일','월','화','수','목','금','토'].map(x=>`<div>${x}</div>`).join('');const first=new Date(Date.UTC(y,mo,1)),start=new Date(Date.UTC(y,mo,1-first.getUTCDay())),today=kstDate(now);let html='';for(let i=0;i<42;i++){const d=new Date(start);d.setUTCDate(start.getUTCDate()+i);const id=fmt(d),s=shiftOn(id),cl=['calday',d.getUTCMonth()!==mo?'dim':'',d.getUTCDay()===0?'sun':d.getUTCDay()===6?'sat':'',id===today?'today':'',id===data.selected?'sel':''].filter(Boolean).join(' ');html+=`<button type="button" class="${cl}" data-date="${id}" aria-label="${d.getUTCMonth()+1}월 ${d.getUTCDate()}일 ${names[s]}"><span class="calnum">${d.getUTCDate()}</span><span class="tag tag-${s}">${names[s]}</span></button>`}$('#calendar').innerHTML=html;document.querySelectorAll('.calday').forEach(e=>e.onclick=()=>{data.selected=e.dataset.date;$('#editor').classList.add('open');$('#editorTitle').textContent=`${Number(data.selected.slice(-2))}일 근무`;$('#editShift').value=shiftOn(data.selected);syncSeg();$('#timezoneSummary').textContent=timezoneSummary(data.selected,shiftOn(data.selected));renderCalendar()})}
+(()=>{const cycle=['일','야','조','휴'],names={일:'일근',야:'야근',조:'조근',휴:'휴무'},key='shift-on-mobile-ui-v1';const KST='Asia/Seoul';let now=new Date();const deviceTimeZone=Intl.DateTimeFormat().resolvedOptions().timeZone||KST;function zonedParts(d,tz){const out={};for(const p of new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d))if(p.type!=='literal')out[p.type]=p.value;return out}function kstDate(d){const p=zonedParts(d,KST);return `${p.year}-${p.month}-${p.day}`}function dateKeyUTC(d){return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`}function addDays(key,n){const [y,m,d]=key.split('-').map(Number),x=new Date(Date.UTC(y,m-1,d+n));return dateKeyUTC(x)}function monthStart(key){const [y,m]=key.split('-').map(Number);return new Date(Date.UTC(y,m-1,1))}const fmt=dateKeyUTC;let data={anchor:kstDate(now),anchorShift:'일',overrides:{},invite:'',month:monthStart(kstDate(now)),selected:null};try{Object.assign(data,JSON.parse(localStorage.getItem(key)||'{}'))}catch{};data.month=monthStart(kstDate(now));let toastTimer;const $=s=>document.querySelector(s);function diffDays(a,b){const [ay,am,ad]=a.split('-').map(Number),[by,bm,bd]=b.split('-').map(Number);return (Date.UTC(ay,am-1,ad)-Date.UTC(by,bm-1,bd))/86400000}function mod(n,m){return((n%m)+m)%m}function shiftOn(date){if(data.overrides?.[date])return data.overrides[date];return cycle[mod(cycle.indexOf(data.anchorShift)+diffDays(date,data.anchor),4)]}function dateShift(d){return names[shiftOn(d)]}function tomorrowIso(d=new Date()){return addDays(kstDate(d),1)}function kstInstant(date,time){const [y,m,day]=date.split('-').map(Number),[h,min]=time.split(':').map(Number);return new Date(Date.UTC(y,m-1,day,h-9,min))}function shiftInstants(date,shift){if(shift==='일')return[kstInstant(date,'08:30'),kstInstant(date,'17:30')];if(shift==='야')return[kstInstant(date,'17:30'),kstInstant(addDays(date,1),'08:30')];if(shift==='조')return[kstInstant(addDays(date,-1),'17:30'),kstInstant(date,'08:30')];return null}function dateTimeInZone(d,tz){const p=zonedParts(d,tz);return `${Number(p.month)}/${Number(p.day)} ${p.hour}:${p.minute}`}function timeInZone(d,tz){const p=zonedParts(d,tz);return `${p.hour}:${p.minute}`}function rangeInZone(date,shift,tz){const pair=shiftInstants(date,shift);if(!pair)return '휴무';const [a,b]=pair,pa=zonedParts(a,tz),pb=zonedParts(b,tz),cross=pa.year!==pb.year||pa.month!==pb.month||pa.day!==pb.day;return cross||tz!==KST?`${dateTimeInZone(a,tz)}–${dateTimeInZone(b,tz)}`:`${timeInZone(a,tz)}–${timeInZone(b,tz)}`}function localShiftRange(date,shift){if(deviceTimeZone===KST&&(shift==='야'||shift==='조')){const[x,y]=shiftInstants(date,shift);return shift==='야'?`${timeInZone(x,KST)} – 다음 날 ${timeInZone(y,KST)}`:`전날 ${timeInZone(x,KST)} – ${timeInZone(y,KST)}`}return rangeInZone(date,shift,deviceTimeZone)}function timezoneSummary(date,shift){if(shift==='휴')return '한국 기준 휴무';const kr=rangeInZone(date,shift,KST);return deviceTimeZone===KST?`한국 시간 ${kr}`:`한국 ${kr} · 휴대폰 현지 ${localShiftRange(date,shift)}`}function showToast(text){const el=$('#toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1800)}function afterWork(tom){const ts=shiftOn(tom);if(ts==='휴')return{title:'퇴근 후',sub:'내일은 휴무',working:false,next:'휴무'};const start=timeInZone(shiftInstants(tom,ts)[0],deviceTimeZone);return{title:'퇴근 후',sub:`내일 ${names[ts]} · ${start} 출근`,working:false,next:start}}function workState(d){const date=kstDate(d),p=zonedParts(d,KST),mins=Number(p.hour)*60+Number(p.minute),s=shiftOn(date),tom=addDays(date,1),clock=(day,time)=>timeInZone(kstInstant(day,time),deviceTimeZone);if(s==='일'&&mins>=510&&mins<1050)return{title:'일근 중',sub:`오늘 ${clock(date,'17:30')} 퇴근`,working:true,next:clock(date,'17:30')};if(s==='야'&&mins>=1050)return{title:'야근 중',sub:`내일 ${clock(tom,'08:30')} 퇴근`,working:true,next:clock(tom,'08:30')};if(s==='조'&&mins<510)return{title:'야근 중',sub:`오늘 ${clock(date,'08:30')} 퇴근`,working:true,next:clock(date,'08:30')};if(s==='일'&&mins<510)return{title:'근무 전',sub:`오늘 ${clock(date,'08:30')} 출근`,working:false,next:clock(date,'08:30')};if(s==='야'&&mins<1050)return{title:'근무 전',sub:`오늘 ${clock(date,'17:30')} 야근 시작`,working:false,next:clock(date,'17:30')};if(s==='일'||s==='조')return afterWork(tom);return{title:'휴무',sub:'오늘은 쉬는 날',working:false,next:'다음 근무 확인'}}const WD=['일','월','화','수','목','금','토'];function wd(k){return WD[new Date(k+'T00:00:00Z').getUTCDay()]}function openDate(k){data.month=monthStart(k);setScreen('calendar');renderCalendar();document.querySelector(`.calday[data-date="${k}"]`)?.click()}function syncSeg(){const v=$('#editShift').value;document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)))}function renderHome(){const date=kstDate(now),tom=tomorrowIso(now),state=workState(now),today=shiftOn(date),next=shiftOn(tom);const dp=zonedParts(now,KST);$('#datePill').textContent=`한국 ${Number(dp.month)}월 ${Number(dp.day)}일 ${['일','월','화','수','목','금','토'][new Date(Date.UTC(Number(dp.year),Number(dp.month)-1,Number(dp.day))).getUTCDay()]}`;$('#heroTitle').textContent=state.working?'근무 중':state.title;$('#heroSub').textContent=state.sub;$('#heroBadge').textContent=state.working?'근무 중':'근무 아님';$('#hero').toggleAttribute('data-working',state.working);$('#hero').dataset.state=state.title;$('#hero').dataset.shift=today;$('#nextCard').dataset.shift=next;$('#heroTitle').hidden=today==='휴';$('#nextLabel').textContent=state.working?'다음 퇴근':'다음 출근';$('#nextTime').textContent=state.next;const pair=state.working?shiftInstants(date,today):null;if(pair){const[a,b]=pair,pct=Math.max(0,Math.min(100,(now-a)/(b-a)*100));$('#progressFill').style.width=pct.toFixed(1)+'%';const left=Math.max(0,Math.round((b-now)/60000)),lh=Math.floor(left/60),lm=left%60;$('#progressFrom').textContent=(lh?`${lh}시간 `:'')+(lm||!lh?`${lm}분 `:'')+'남음';$('#progressTo').textContent=`${timeInZone(b,deviceTimeZone)} 퇴근`}$('#homeDate').textContent=`${Number(date.slice(5,7))}월 ${Number(date.slice(-2))}일 ${wd(date)}요일`;$('#todayHead').textContent='오늘';$('#tomorrowHead').textContent=`내일 · ${Number(tom.slice(-2))}일 (${wd(tom)})`;let w5='';for(let i=2;i<=8;i++){const k=addDays(date,i),x=shiftOn(k);w5+=`<button type="button" class="day tag-${x}" data-date="${k}" aria-label="${Number(k.slice(5,7))}월 ${Number(k.slice(-2))}일 ${names[x]}"><span class="w">${wd(k)}</span><span class="n">${Number(k.slice(-2))}</span><span class="s">${names[x]}</span></button>`}$('#week5').innerHTML=w5;document.querySelectorAll('#week5 .day').forEach(b=>b.onclick=()=>openDate(b.dataset.date));$('#todayShiftName').textContent=names[today];$('#todayShiftHour').textContent=today==='휴'?'':localShiftRange(date,today).replace(/ /g,'\u00a0').replace('–','–\u200b');$('#tomorrowShiftName').textContent=names[next];$('#tomorrowShiftHour').textContent=next==='휴'?'':localShiftRange(tom,next).replace(/ /g,'\u00a0').replace('–','–\u200b');const mini=state.working?'근무 중':state.title==='휴무'?'휴무':'근무 아님';$('#iosStatus').textContent=mini;$('#androidStatus').textContent=mini;$('#iosToday').textContent=names[today];$('#androidToday').textContent=names[today];$('#iosTomorrow').textContent=names[next];$('#androidTomorrow').textContent=names[next]}
+function renderCalendar(){const m=data.month,y=m.getUTCFullYear(),mo=m.getUTCMonth();$('#monthTitle').textContent=`${y}년 ${mo+1}월`;$('#week').innerHTML=['일','월','화','수','목','금','토'].map(x=>`<div>${x}</div>`).join('');const first=new Date(Date.UTC(y,mo,1)),start=new Date(Date.UTC(y,mo,1-first.getUTCDay())),today=kstDate(now),cells=Math.ceil((first.getUTCDay()+new Date(Date.UTC(y,mo+1,0)).getUTCDate())/7)*7;let html='';for(let i=0;i<cells;i++){const d=new Date(start);d.setUTCDate(start.getUTCDate()+i);const id=fmt(d),s=shiftOn(id),cl=['calday',d.getUTCMonth()!==mo?'dim':'',d.getUTCDay()===0?'sun':d.getUTCDay()===6?'sat':'',id===today?'today':'',id===data.selected?'sel':''].filter(Boolean).join(' ');html+=`<button type="button" class="${cl}" data-date="${id}" aria-label="${d.getUTCMonth()+1}월 ${d.getUTCDate()}일 ${names[s]}"><span class="calnum">${d.getUTCDate()}</span><span class="tag tag-${s}">${names[s]}</span></button>`}$('#calendar').innerHTML=html;document.querySelectorAll('.calday').forEach(e=>e.onclick=()=>{data.selected=e.dataset.date;$('#editor').classList.add('open');$('#editorTitle').textContent=`${Number(data.selected.slice(-2))}일 근무`;$('#editShift').value=shiftOn(data.selected);syncSeg();$('#timezoneSummary').textContent=timezoneSummary(data.selected,shiftOn(data.selected));renderCalendar()})}
 function persist(){localStorage.setItem(key,JSON.stringify({anchor:data.anchor,anchorShift:data.anchorShift,overrides:data.overrides,invite:data.invite}));renderHome();renderCalendar();window.shiftApp?.onChange?.()}
 // 코드가 있으면 '복사'와 '새 코드', 없으면 '코드 만들기'만
 function inviteUi(){const has=/^[A-Z0-9]{6}$/.test($('#inviteCode').textContent.trim());$('#copyCode').textContent=has?'복사':'코드 만들기';$('#inviteCode').parentNode.classList.toggle('empty',!has);$('#newInvite').hidden=!has}

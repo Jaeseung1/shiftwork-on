@@ -345,14 +345,14 @@ function bindUI() {
   // 서버에 연결된 주인은 진짜 초대 코드를 쓴다(아니면 앱의 시연용 코드)
   const demoNew = $('#newInvite').onclick
   const demoCopy = $('#copyCode').onclick
-  const needLogin = () => { app.toast('설정에서 로그인하면 초대 코드를 만들 수 있어요'); $('.nav button[data-screen="settings"]')?.click() }
+  const needLogin = () => { app.toast('계정에서 로그인하면 초대 코드를 만들 수 있어요'); app.openSub ? app.openSub('account') : app.setScreen('settings') }
   $('#newInvite').onclick = (e) => (isOwnerOnline() ? createInvite() : st.client ? needLogin() : demoNew?.(e))
   $('#copyCode').onclick = async (e) => {
     if (!isOwnerOnline()) return st.client ? needLogin() : demoCopy?.(e)
     if (!st.inviteReady) await createInvite()
     if (!st.inviteReady) return
     navigator.clipboard?.writeText(app.data.invite).catch(() => {})
-    $('#modalText').textContent = `초대 코드 ${app.data.invite}를 보내고, 받은 사람은 앱의 공유 탭에서 코드를 입력하면 돼요.`
+    $('#modalText').textContent = `초대 코드 ${app.data.invite}를 보내고, 받은 사람은 앱의 설정 > 초대 코드로 보기에서 넣으면 돼요.`
     $('#modal .demo').hidden = true // "시제품이라 동작하지 않아요" 안내는 서버 없는 모드에서만
     $('#modal').classList.add('open')
   }
@@ -423,8 +423,6 @@ async function checkUpdate() {
   const panel = $('#appPanel')
   if (!b || !panel || typeof b.setSchedule !== 'function') return
   const cur = appVersionCode(b)
-  // 설정 > 앱 버전: 앱 안에서는 늘 보이고, 받는 곳 버튼도 늘 있다(확인이 안 돼도 직접 받을 수 있게)
-  panel.hidden = false
   $('#appVer').textContent = versionName(cur)
   $('#appGet').href = UPDATE_BASE
   let j
@@ -432,14 +430,14 @@ async function checkUpdate() {
     const r = await fetch(`${UPDATE_BASE}version.json?t=${Math.floor(Date.now() / 6e4)}`, { cache: 'no-store' })
     j = await r.json()
   } catch (e) {
-    $('#appUpd').textContent = '새 버전을 확인하지 못했어요'
-    return
+    return // 확인이 안 되면 아무것도 띄우지 않는다
   }
+  // 새 버전이 있을 때만 설정 맨 위에 한 줄을 띄우고 아래 탭 '설정'에 점을 찍는다(홈에는 띄우지 않음)
   const newer = Number(j.versionCode) > cur
-  $('#appUpd').textContent = newer ? `${j.versionName} 업데이트` : '최신 버전이에요'
-  $('#appGet').textContent = newer ? '받기' : '받는 곳'
-  // 새 버전이 있으면 설정 맨 위로 올리고, 아래 탭 '설정'에 점을 찍는다(홈에는 띄우지 않음)
+  $('#appUpd').textContent = `${j.versionName} 업데이트`
+  $('#appGet').textContent = '받기'
   panel.toggleAttribute('data-new', newer)
+  panel.hidden = !newer
   $('.nav button[data-screen="settings"]')?.toggleAttribute('data-dot', newer)
 }
 
@@ -453,6 +451,7 @@ function initAlarmSound(b) {
     let o = {}
     try { o = JSON.parse(b.alarmOptions() || '{}') } catch (e) {}
     $('#soundName').textContent = o.sound === 'none' ? '소리 없음(진동만)' : o.soundName || '기본 알람음'
+    app.menu?.('sound', o.sound === 'none' ? '진동만' : o.soundName || '기본 알람음')
     $('#optVibrate').checked = o.vibrate !== false
     $('#optRamp').checked = !!o.ramp
     sel.value = [...sel.options].some((x) => x.value === o.app) ? o.app : ''
@@ -475,8 +474,17 @@ function renderAlarm() {
   if (!b || !panel) return
   panel.hidden = !!app.readOnly
   const sp = $('#alarmSoundPanel')
-  if (sp && typeof b.alarmOptions === 'function') sp.hidden = !!app.readOnly
+  const hasSound = !!sp && typeof b.alarmOptions === 'function'
+  if (hasSound) sp.hidden = !!app.readOnly
+  // 설정 첫 화면 '알람' 묶음: 근무표 주인 + 갤럭시 앱에서만
+  $('#grpAlarm').hidden = !!app.readOnly
+  $('#rowSound').hidden = !hasSound || !!app.readOnly
   if (app.readOnly) return
+  let on = {}
+  try { on = JSON.parse(b.alarmRules() || '{}') } catch (e) {}
+  const keys = Object.keys(on)
+  const NAME = { 일: '일근', 야: '야근', 조: '조근', 휴: '휴무' }
+  app.menu?.('alarm', keys.length === 0 ? '꺼짐' : keys.length === 1 ? `${NAME[keys[0]] || keys[0]} ${on[keys[0]]}` : `${keys.length}개 켬`)
   let st2 = {}
   try { st2 = JSON.parse(b.alarmStatus() || '{}') } catch (e) {}
   // "11/17(화) 15:30 야근" → 큰 글자는 날짜·시각, 아래는 근무, 카드 색·아이콘은 그 근무
@@ -517,7 +525,7 @@ async function createInvite() {
   app.cache()
   st.inviteReady = true
   $('#inviteCode').textContent = data
-  $('#inviteInfo').textContent = '7일 동안 쓸 수 있어요. 받은 사람은 공유 탭에서 이 코드를 넣으면 돼요'
+  $('#inviteInfo').textContent = '7일 동안 쓸 수 있어요. 받은 사람은 설정 > 초대 코드로 보기에서 넣으면 돼요'
   app.toast('초대 코드를 만들었어요')
 }
 
@@ -570,6 +578,8 @@ function renderIos() {
   // 안드로이드 앱 안에서는 홈 화면 위젯이 있으니 숨긴다
   panel.hidden = !!window.ShiftBridge
   $('#lockPanel').hidden = !!window.ShiftBridge
+  const grp = $('#grpIos')
+  if (grp) grp.hidden = !!window.ShiftBridge
   prefetchWidget()
   const ready = !!shortcutUrl()
   $('#lockCopy').disabled = !ready
@@ -613,36 +623,44 @@ function renderAccount() {
     state.textContent = '서버가 아직 설정되지 않아 근무표가 이 기기에만 저장돼요.'
     login.hidden = true
     out.hidden = true
+    app.menu?.('acct', '이 기기에만')
     return
   }
   if (!st.user) {
     state.textContent = '로그인하면 근무표가 저장되고 다른 사람과 공유할 수 있어요.'
     login.hidden = false
     out.hidden = true
+    app.menu?.('acct', '로그인 안 함')
+    app.menu?.('share', '')
     return
   }
   if (st.user.is_anonymous) {
-    // 연결 끊기는 공유 탭 한 곳에만 둔다
-    state.textContent = st.role === 'viewer' ? '초대 코드로 공유받은 근무표를 보는 중이에요(읽기 전용). 연결 끊기는 공유 탭에 있어요.' : '초대 코드를 공유 탭에서 넣어 주세요'
+    // 연결 끊기는 설정 > 공유받은 근무표 한 곳에만 둔다
+    state.textContent = st.role === 'viewer' ? '초대 코드로 공유받은 근무표를 보는 중이에요(읽기 전용). 연결 끊기는 설정 > 공유받은 근무표에 있어요.' : '초대 코드는 설정 > 초대 코드로 보기에서 넣어 주세요'
     login.hidden = true
     out.hidden = st.role === 'viewer'
     out.textContent = '처음으로 돌아가기'
+    app.menu?.('acct', st.role === 'viewer' ? '초대 코드로 보는 중' : '로그인 안 함')
     return
   }
   out.textContent = '로그아웃'
   const who = st.user.email || '이 계정'
-  state.textContent = st.role === 'viewer' ? `${who} · 공유받은 근무표를 보는 중이에요(읽기 전용)` : `${who} · 내 근무표가 서버에 저장돼요`
+  state.textContent = st.role === 'viewer' ? `${who}로 공유받은 근무표를 보는 중이에요(읽기 전용)` : `${who}로 로그인했어요. 내 근무표가 서버에 저장돼요`
   login.hidden = true
   out.hidden = false
+  app.menu?.('acct', who)
 }
 
 async function renderFamily() {
   const leave = $('#leaveBtn')
   leave.hidden = st.role !== 'viewer'
-  if (st.role === 'viewer') $('#viewerName').textContent = st.myName || '이름 없음'
+  if (st.role === 'viewer') {
+    $('#viewerName').textContent = st.myName || '이름 없음'
+    app.menu?.('share', st.myName || '')
+  }
   if (!isOwnerOnline()) {
     // 서버가 있는데 로그인 전이면 시연용 코드 대신 로그인 안내
-    if (st.client && st.role !== 'viewer') $('#inviteInfo').textContent = '설정에서 로그인하면 초대 코드를 만들 수 있어요'
+    if (st.client && st.role !== 'viewer') $('#inviteInfo').textContent = '계정에서 로그인하면 초대 코드를 만들 수 있어요'
     return
   }
   if (!st.inviteReady) {
@@ -654,7 +672,7 @@ async function renderFamily() {
       app.data.invite = live.code
       st.inviteReady = true
       $('#inviteCode').textContent = live.code
-      $('#inviteInfo').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일까지 쓸 수 있어요. 받은 사람은 공유 탭에서 이 코드를 넣으면 돼요`
+      $('#inviteInfo').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일까지 쓸 수 있어요. 받은 사람은 설정 > 초대 코드로 보기에서 넣으면 돼요`
     } else {
       app.data.invite = ''
       $('#inviteCode').textContent = '아직 코드가 없어요'
@@ -666,6 +684,7 @@ async function renderFamily() {
   if (error || !Array.isArray(data)) return
   const list = $('#members')
   $('#membersEmpty').hidden = data.length > 0
+  app.menu?.('share', data.length ? `${data.length}명이 보는 중` : '아직 없음')
   list.querySelectorAll('.member-extra').forEach((e) => e.remove())
   const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch])
   data.sort((x, y) => String(x.joined_at).localeCompare(String(y.joined_at)))

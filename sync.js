@@ -424,6 +424,7 @@ async function checkUpdate() {
   if (!b || !panel || typeof b.setSchedule !== 'function') return
   const cur = appVersionCode(b)
   $('#appVer').textContent = versionName(cur)
+  $('#verLabel').textContent = `교대온 ${versionName(cur)}`
   $('#appGet').href = UPDATE_BASE
   let j
   try {

@@ -73,8 +73,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        if (savedInstanceState != null) web.restoreState(savedInstanceState);
-        else web.loadUrl(home);
+        // 1.5~: 예전 화면을 되살리지 않고 늘 새로 연다(되살리면 받아 둔 옛 화면이 보일 수 있음)
+        web.loadUrl(home);
         RefreshWorker.schedule(this);
     }
 
@@ -101,7 +101,10 @@ public class MainActivity extends Activity {
         String mime = mime(url);
         HttpURLConnection c = null;
         try {
-            c = (HttpURLConnection) new URL(url).openConnection();
+            // 1.5~: 주소 끝에 매번 다른 값을 붙여 GitHub Pages 서버 저장(최대 10분)을 건너뛰고, 기기 저장도 쓰지 않는다
+            c = (HttpURLConnection) new URL(url + "?v=" + System.currentTimeMillis()).openConnection();
+            c.setUseCaches(false);
+            c.setRequestProperty("Cache-Control", "no-cache");
             c.setConnectTimeout(2500);
             c.setReadTimeout(3000);
             c.setInstanceFollowRedirects(false);

@@ -2,16 +2,16 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)"><title>교대온 · 근무표</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="교대온"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>try{var t=localStorage.getItem("shiftwork-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
-/* 교대온 2.0 디자인: 벽에 붙여 색을 칠한 근무표(채도를 낮춘 차분한 색).
+/* 교대온 2.0 디자인: 벽에 붙여 색을 칠한 근무표(파스텔 바탕 + 같은 계열 진한 글자).
    - 근무가 보이는 곳(홈의 오늘·일주일, 근무표 달력)만 근무 색으로 칸을 칠한다. 칸마다 바탕/글자 짝은 대비 4.5 이상.
    - 공유·설정은 아이폰 설정처럼 회색 바탕에 흰 목록. 색은 쓰지 않는다.
    - 주 버튼은 잉크색(어둡게 모드는 흰색). 파란색은 글자 버튼(링크)에만. 아이콘은 lucide(ISC). */
 :root{--page:#fff;--group:#f2f3f5;--card:#fff;--inset:#f2f3f5;--ink:#15171a;--body:#3d434c;--muted:#636a75;--line:#e6e8eb;--link:#2563eb;--on:#34c759;--danger:#d92d20;--nav:rgba(255,255,255,.94);
-  --b1:#e6bf86;--f1:#352200;--b2:#5d5aa3;--f2:#fff;--b3:#477893;--f3:#fff;--b4:#e2ece5;--f4:#2c5b42;
-  --s1:#8a5a14;--s2:#55529a;--s3:#3f6f8a;--s4:#3b6e52;
+  --b1:#ffdca8;--f1:#6b3d00;--b2:#d6d1ff;--f2:#33288f;--b3:#c4e6fa;--f3:#0f4c6e;--b4:#cdf2db;--f4:#145c37;
+  --s1:#9a5a00;--s2:#4b40c0;--s3:#1a6b96;--s4:#1e7a48;
   --font:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Noto Sans CJK KR',sans-serif;color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0f1115;--group:#0f1115;--card:#1b1e24;--inset:#262a31;--ink:#f2f4f6;--body:#c3c9d1;--muted:#8b929c;--line:#2a2e36;--link:#6ea2ff;--on:#30d158;--danger:#ff6b6b;--nav:rgba(18,20,25,.94);--b1:#c9a46a;--f1:#1f1400;--b2:#5d5aa3;--f2:#fff;--b3:#477893;--f3:#fff;--b4:#26332c;--f4:#9fd3b5;--s1:#d9b77f;--s2:#a7a4dc;--s3:#8ab4cc;--s4:#8fc4a6;color-scheme:dark}}
-:root[data-theme="dark"]{--page:#0f1115;--group:#0f1115;--card:#1b1e24;--inset:#262a31;--ink:#f2f4f6;--body:#c3c9d1;--muted:#8b929c;--line:#2a2e36;--link:#6ea2ff;--on:#30d158;--danger:#ff6b6b;--nav:rgba(18,20,25,.94);--b1:#c9a46a;--f1:#1f1400;--b2:#5d5aa3;--f2:#fff;--b3:#477893;--f3:#fff;--b4:#26332c;--f4:#9fd3b5;--s1:#d9b77f;--s2:#a7a4dc;--s3:#8ab4cc;--s4:#8fc4a6;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0f1115;--group:#0f1115;--card:#1b1e24;--inset:#262a31;--ink:#f2f4f6;--body:#c3c9d1;--muted:#8b929c;--line:#2a2e36;--link:#6ea2ff;--on:#30d158;--danger:#ff6b6b;--nav:rgba(18,20,25,.94);--b1:#f2cd92;--f1:#4a2a00;--b2:#bdb6f2;--f2:#261c78;--b3:#a9d6ef;--f3:#0b3c58;--b4:#b2e6c7;--f4:#0f4a2c;--s1:#f2cd92;--s2:#bdb6f2;--s3:#a9d6ef;--s4:#b2e6c7;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#0f1115;--group:#0f1115;--card:#1b1e24;--inset:#262a31;--ink:#f2f4f6;--body:#c3c9d1;--muted:#8b929c;--line:#2a2e36;--link:#6ea2ff;--on:#30d158;--danger:#ff6b6b;--nav:rgba(18,20,25,.94);--b1:#f2cd92;--f1:#4a2a00;--b2:#bdb6f2;--f2:#261c78;--b3:#a9d6ef;--f3:#0b3c58;--b4:#b2e6c7;--f4:#0f4a2c;--s1:#f2cd92;--s2:#bdb6f2;--s3:#a9d6ef;--s4:#b2e6c7;color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);letter-spacing:-.01em;word-break:keep-all;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}

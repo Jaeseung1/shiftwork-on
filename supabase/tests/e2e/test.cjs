@@ -227,6 +227,8 @@ async function login(p, email) {
   await U.goto('http://127.0.0.1:' + (process.env.LOCAL_PORT || 8766) + '/'); await wait(500)
   await U.click('.nav button[data-screen="settings"]'); await wait(200)
   check('최신이면 업데이트 줄·설정 점 없음', await U.evaluate(() => document.querySelector('#appPanel').hidden && !document.querySelector('.nav button[data-screen="settings"]').hasAttribute('data-dot')))
+  await U.evaluate(() => { window.__before = 1 }); await U.click('#reloadBtn'); await wait(1200)
+  check('화면 새로 고치기 누르면 다시 불러옴', (await U.evaluate(() => window.__before)) === undefined && (await U.evaluate(() => !!document.querySelector('#screen-home'))))
   check('웹 브라우저에는 앱 버전 칸 없음', await L.evaluate(() => document.querySelector('#appPanel').hidden))
   check('웹 브라우저(앱 아님)에는 알람 설정 없음', await A.evaluate(() => document.querySelector('#alarmPanel').hidden && document.querySelector('#alarmSoundPanel').hidden))
   check('페이지 오류 없음', [A, B, L, O, T, U].every((p) => !p.errors.length), [A, B, L, O, T, U].flatMap((p) => p.errors).join(' | '))

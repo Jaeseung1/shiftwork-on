@@ -416,19 +416,33 @@ function appVersionCode(b) {
   if (typeof b.setAlarms === 'function') return 11 // 1.1~1.3: 근무 알람
   return 10
 }
+function versionName(code) {
+  return code === 11 ? '1.1~1.3' : `${Math.floor(code / 10)}.${code % 10}`
+}
 async function checkUpdate() {
   const b = window.ShiftBridge
   const bar = $('#updateBar')
   if (!b || !bar || typeof b.setSchedule !== 'function') return
+  const cur = appVersionCode(b)
+  // 설정 > 앱 버전: 앱 안에서는 늘 보인다(새 버전이 없으면 '최신 버전이에요')
+  $('#appPanel').hidden = false
+  $('#appVer').textContent = versionName(cur)
   let j
   try {
-    const r = await fetch(`${UPDATE_BASE}version.json?t=${Math.floor(Date.now() / 36e5)}`, { cache: 'no-store' })
+    const r = await fetch(`${UPDATE_BASE}version.json?t=${Math.floor(Date.now() / 6e4)}`, { cache: 'no-store' })
     j = await r.json()
-  } catch (e) { return }
-  if (!(Number(j.versionCode) > appVersionCode(b))) return
+  } catch (e) {
+    $('#appUpd').textContent = '새 버전을 확인하지 못했어요(인터넷 확인)'
+    return
+  }
+  const newer = Number(j.versionCode) > cur
+  $('#appUpd').textContent = newer ? `${j.versionName} 버전이 나왔어요` : '최신 버전이에요'
+  $('#appGet').hidden = !newer
+  $('#appGet').href = UPDATE_BASE
+  if (!newer) return
   try {
     const later = JSON.parse(localStorage.getItem(UPDATE_LATER) || 'null')
-    if (later && later.v === j.versionCode && Date.now() - later.at < 3 * 864e5) return // '나중에'를 누르면 3일 동안 숨김
+    if (later && later.v === j.versionCode && Date.now() - later.at < 3 * 864e5) return // 홈 알림 줄은 '나중에'를 누르면 3일 동안 숨김
   } catch (e) {}
   $('#updateTitle').textContent = `새 버전 ${j.versionName}`
   $('#updateNotes').textContent = j.notes || ''

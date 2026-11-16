@@ -218,11 +218,26 @@ html[data-readonly] #alarmPanel{display:none}
 #themeSeg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
 .version{font-size:14px;color:var(--muted);text-align:center;margin:8px 0 0}
 /* 설정 > 앱 버전(갤럭시 앱). 새 버전이 있으면 설정 맨 위로 올리고 아래 탭 '설정'에 점 */
-.app-upd{flex:1;min-width:0;display:grid;gap:2px}
-.app-notes{font-size:14px;color:var(--body);line-height:1.4}
+/* 최신이면 한 줄(아이콘 · 버전 · 작은 '받는 곳'), 새 버전이면 업데이트 카드(아이콘 · 제목 · 바뀐 점 · 큰 받기 버튼 · 설치 안내) */
+.app-card{display:grid;grid-template-columns:44px 1fr auto;column-gap:14px;align-items:center}
+.app-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--inset);color:var(--muted)}
+.app-ico .ico{width:22px;height:22px}
+.app-ico .i-dl,#appPanel[data-new] .app-ico .i-ok{display:none}
+#appPanel[data-new] .app-ico .i-dl{display:block}
+#appPanel[data-new] .app-ico{background:var(--ink);color:var(--page)}
+.app-title{display:grid;gap:2px;min-width:0}
+.app-title b{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.app-title span{font-size:14px;color:var(--muted)}
+#appPanel[data-new] .app-title b{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.app-notes,.app-hint{grid-column:1/-1;margin:0}
+.app-notes{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--inset);font-size:15px;color:var(--body);line-height:1.5}
 .app-notes:empty{display:none}
-.update-get{flex:none;height:44px;padding:0 18px;border-radius:10px;background:var(--ink);color:var(--page);font-size:16px;font-weight:700;text-decoration:none;display:grid;place-items:center}
-.update-get.quiet{background:var(--inset);color:var(--ink)}
+.app-hint{font-size:14px;color:var(--muted);line-height:1.5;margin-top:10px;text-align:center}
+.update-get{flex:none;height:40px;padding:0 14px;border-radius:10px;background:var(--inset);color:var(--ink);font-size:15px;font-weight:700;text-decoration:none;display:grid;place-items:center}
+#appPanel[data-new] .update-get{grid-column:1/-1;grid-row:3;height:52px;margin-top:14px;border-radius:12px;background:var(--ink);color:var(--page);font-size:17px}
+#appPanel:not([data-new]) .app-hint{display:none}
+@media(hover:hover){.update-get:hover{opacity:.88}}
+.update-get:active{transform:scale(.98)}
 #screen-settings .page-head{order:-2}
 #appPanel[data-new]{order:-1}
 .nav button{position:relative}
@@ -262,7 +277,7 @@ html[data-readonly] #alarmSoundPanel{display:none}
 <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
 <symbol id="i-sunrise" viewBox="0 0 24 24"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></symbol>
 <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></symbol>
-<symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol><symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol><symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
 <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
 </defs></svg>
 <div class="app">
@@ -317,7 +332,7 @@ html[data-readonly] #alarmSoundPanel{display:none}
 <div class="panel"><h3>근무 시간 <span class="h-sub">한국 시간</span></h3><div class="list"><div class="li"><span class="li-tag tag-일">일</span><span class="li-main">일근</span><span class="li-val">08:30 – 17:30</span></div><div class="li"><span class="li-tag tag-야">야</span><span class="li-main">야근</span><span class="li-val">17:30 – 다음 날 08:30</span></div><div class="li"><span class="li-tag tag-조">조</span><span class="li-main">조근</span><span class="li-val">야근이 이어져 08:30 퇴근</span></div><div class="li"><span class="li-tag tag-휴">휴</span><span class="li-main">휴무</span><span class="li-val">쉬는 날</span></div></div></div>
 <div class="panel" id="lockPanel" data-web-only><h3>아이폰 잠금 화면 위젯</h3><p class="page-sub" style="margin:0 0 14px" id="lockState">잠금 화면에 오늘 근무가 늘 보여요. 무료 앱 Scriptable을 써요.</p><button class="primary full" id="lockCopy">위젯 코드 복사</button><textarea class="date-input full" id="lockCode" readonly hidden aria-label="위젯 코드" style="margin-top:10px;height:120px;font-size:12px;padding:10px"></textarea><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>App Store에서 무료 앱 <b>Scriptable</b>을 받아요.</li><li>위 버튼으로 위젯 코드를 복사해요.</li><li>Scriptable에서 <b>+</b>를 누르고 붙여 넣은 뒤, 위쪽 제목을 <b>교대온</b>으로 바꿔요.</li><li>잠금 화면을 길게 누르고 <b>사용자화</b> → 잠금 화면 → 시계 아래 위젯 칸 → <b>Scriptable</b>에서 직사각형을 넣어요.</li><li>넣은 위젯을 누르고 <b>Script</b>에서 <b>교대온</b>을 골라요.</li></ol></details><p class="notice">홈 화면에도 같은 방법으로 Scriptable 위젯(작은·중간)을 놓을 수 있어요. 아이폰이 새로 그리는 때를 정하므로 몇 분 늦게 바뀔 수 있어요. 코드에는 내 근무표를 읽는 열쇠가 들어 있어요.</p></div>
 <div class="panel" id="iosPanel" data-web-only><h3>아이폰 제어 센터 버튼</h3><p class="page-sub" style="margin:0 0 14px" id="iosState">단축어를 만들면 제어 센터 버튼을 눌러 오늘·내일 근무를 알림으로 볼 수 있어요.</p><button class="secondary full" id="iosCopy">단축어 주소 복사</button><input class="date-input full" id="iosUrl" readonly hidden aria-label="단축어 주소" style="margin-top:10px"><details class="how"><summary>만드는 법 보기</summary><ol class="steps"><li>위 버튼으로 주소를 복사해요.</li><li>단축어 앱에서 <b>+</b>를 누르고 <b>URL 콘텐츠 가져오기</b>를 넣은 뒤 주소를 붙여 넣어요.</li><li><b>사전 값 가져오기</b>를 넣고 키에 <code>today</code>(오늘), <code>tomorrow</code>(내일), <code>text</code>(둘 다) 중 하나를 적어요.</li><li><b>알림 보기</b>를 넣고 단축어 이름을 “오늘 근무”처럼 정해요.</li><li>제어 센터를 열고 왼쪽 위 <b>+</b> → <b>제어 항목 추가</b> → <b>단축어</b>에서 방금 만든 단축어를 골라요.</li></ol></details><p class="notice">주소에는 내 근무표를 읽는 열쇠가 들어 있어요. 믿는 사람에게만 알려 주세요. 오늘·내일을 따로 두려면 단축어를 두 개 만들면 돼요.</p></div>
-<div class="panel" id="appPanel" hidden><h3>앱 버전</h3><div class="list"><div class="li"><span class="li-main">지금 버전</span><span class="li-val" id="appVer">—</span></div><div class="li"><div class="app-upd"><span class="li-main" id="appUpd">새 버전 확인 중…</span><span class="app-notes" id="appNotes"></span></div><a class="update-get quiet" id="appGet" href="https://jaeseung1.github.io/shiftwork-on/downloads/">받는 곳</a></div></div><p class="notice">화면은 앱을 열 때 저절로 새로워져요. 위젯·알람 같은 기능이 바뀌면 여기서 새 버전을 받아 그대로 설치해요(지우지 마세요)</p></div>
+<div class="panel app-card" id="appPanel" hidden><span class="app-ico" aria-hidden="true"><svg class="ico i-ok"><use href="#i-check"/></svg><svg class="ico i-dl"><use href="#i-download"/></svg></span><div class="app-title"><b id="appUpd">새 버전 확인 중</b><span>지금 버전 <span id="appVer">—</span></span></div><a class="update-get" id="appGet" href="https://jaeseung1.github.io/shiftwork-on/downloads/">받는 곳</a><p class="app-notes" id="appNotes"></p><p class="app-hint">지우지 말고 그 위에 설치하세요. 근무표와 위젯은 그대로 남아요</p></div>
 <p class="version">교대온 1.4</p>
 </section>
 </main>

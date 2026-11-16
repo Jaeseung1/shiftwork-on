@@ -436,10 +436,9 @@ async function checkUpdate() {
     return
   }
   const newer = Number(j.versionCode) > cur
-  $('#appUpd').textContent = newer ? `${j.versionName} 버전이 나왔어요` : '최신 버전이에요'
+  $('#appUpd').textContent = newer ? `${j.versionName} 업데이트가 나왔어요` : '최신 버전이에요'
   $('#appNotes').textContent = newer ? j.notes || '' : ''
-  $('#appGet').textContent = newer ? '받기' : '받는 곳'
-  $('#appGet').classList.toggle('quiet', !newer)
+  $('#appGet').textContent = newer ? `${j.versionName} 받기` : '받는 곳'
   // 새 버전이 있으면 설정 맨 위로 올리고, 아래 탭 '설정'에 점을 찍는다(홈에는 띄우지 않음)
   panel.toggleAttribute('data-new', newer)
   $('.nav button[data-screen="settings"]')?.toggleAttribute('data-dot', newer)
